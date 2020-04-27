@@ -1,0 +1,27 @@
+@media (prefers-color-scheme: dark) {
+  html {
+    background: #222;
+    color: white;
+  }
+  a {
+    color: lightblue !important;
+  }
+}
+
+#header {
+  border-bottom: 1px solid;
+}
+
+textarea {
+  font-size: 1em;
+  min-height: 1em;
+  max-height: 50vh;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 1);
+}
+
+textarea[id="title"] {
+  font-size: 2em;
+}

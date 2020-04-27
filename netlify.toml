@@ -1,0 +1,16 @@
+# sample netlify.toml
+[build]
+  functions = "functions"
+  publish = "www"
+
+# note: each of these fields are OPTIONAL
+[dev]
+  publish = "www"
+
+[[redirects]]
+  from = "/api/mercury"
+  to = "/.netlify/functions/mercury"
+  status = 200
+
+  [redirects.headers]
+     Access-Control-Allow-Origin = "*"
