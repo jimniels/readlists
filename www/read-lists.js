@@ -4,7 +4,7 @@ class ReadLists extends HTMLElement {
   constructor() {
     super();
     this.state = {
-      isLoading: true,
+      error: "",
       lists: [],
     };
   }
@@ -15,39 +15,46 @@ class ReadLists extends HTMLElement {
   }
 
   connectedCallback() {
-    getLists().then((lists) => {
-      this.setState({ isLoading: false, lists });
-    });
+    this.innerHTML = `<img src="./loading.svg" width="36" height="36" alt="Loading indicator" />`;
+    getLists()
+      .then((lists) => {
+        this.setState({
+          lists,
+        });
+      })
+      .catch((e) => {
+        this.setState({ error: e });
+      });
   }
 
   render() {
-    const { isLoading, lists } = this.state;
+    const { lists, error } = this.state;
 
-    if (isLoading) {
-      this.innerHTML = /*html*/ `<img src="./loading.svg" width="24" height="24" />`;
-      return;
+    if (error) {
+      this.innerHTML = `<div style="color: red">Something went wrong loading your readlist.</div>`;
+    } else {
+      this.innerHTML = /*html*/ `
+        <ul>
+          ${lists
+            .map(
+              (list) => /*html*/ `
+                <li>
+                  <a href="./?id=${list.id}" id="${list.id}">${
+                list.title
+              }</a> <small>${list.articles.length} reads</small>
+                  
+                  <ul>
+                    ${list.articles
+                      .map((article) => `<li>${article.title}</li>`)
+                      .join("")}
+                  </ul>
+                </li>
+              `
+            )
+            .join("")}
+        </ul>
+      `;
     }
-
-    this.innerHTML = /*html*/ `
-      <h1>Lists</h1>
-
-      <ul>
-        ${lists
-          .map(
-            (list) => /*html*/ `
-          <li>
-            <a href="./?id=${list.id}">${list.title}</a>
-            <ul>
-              ${list.articles
-                .map((article) => `<li>${article.title}</li>`)
-                .join("")}
-            </ul>
-          </li>
-        `
-          )
-          .join("")}
-      </ul>
-    `;
   }
 }
 

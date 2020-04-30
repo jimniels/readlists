@@ -8,8 +8,41 @@
   }
 }
 
+body {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+}
+
 #header {
   border-bottom: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+
+read-list {
+  display: block;
+}
+read-list[loading]:before {
+  position: absolute;
+  top: 24px;
+  left: 150px;
+  width: 32px;
+  height: 32px;
+  background: url(./loading.svg) no-repeat;
+  background-size: cover;
+  /* display: block; */
+  content: "";
+}
+read-list[loading] input,
+read-list[loading] select,
+read-list[loading] textarea,
+read-list[loading] button {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.75;
 }
 
 textarea {
@@ -24,4 +57,31 @@ textarea {
 
 textarea[id="title"] {
   font-size: 2em;
+}
+
+.error {
+  opacity: 0;
+  visibility: hidden;
+  position: fixed;
+  width: 300px;
+  background: red;
+  color: white;
+  top: 20px;
+  left: 50%;
+  margin-left: -150px;
+  text-align: center;
+  padding: 15px;
+  transition: 0.3s ease all;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.error:after {
+  content: "\00D7";
+  margin-left: 15px;
+}
+
+.error--visible {
+  opacity: 1;
+  visibility: visible;
 }

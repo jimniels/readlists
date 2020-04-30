@@ -8,9 +8,11 @@
   publish = "www"
 
 [[redirects]]
-  from = "/api/mercury"
-  to = "/.netlify/functions/mercury"
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
   status = 200
 
   [redirects.headers]
      Access-Control-Allow-Origin = "*"
+
+

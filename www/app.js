@@ -1,13 +1,20 @@
-import "./read-lists.js";
-import "./read-list.js";
 import { createList } from "./api.js";
 
+window.__DEV__ = window.location.hostname === "localhost";
+
+const $main = document.querySelector("main");
 const urlParams = new URLSearchParams(location.search);
 const id = urlParams.get("id");
 
-document.querySelector("main").innerHTML = id
-  ? `<read-list id="${id}""></read-list>`
-  : "<read-lists></read-lists>";
+if (id) {
+  import("./read-list.js").then(() => {
+    $main.innerHTML = `<read-list id="${id}""></read-list>`;
+  });
+} else {
+  import("./read-lists.js").then(() => {
+    $main.innerHTML = `<read-lists></read-lists>`;
+  });
+}
 
 document
   .querySelector("#create-readlist")
