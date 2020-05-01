@@ -1,8 +1,12 @@
 import { getLists } from "./api.js";
 
+const $app = document.querySelector("my-app");
+
 class ReadLists extends HTMLElement {
   constructor() {
     super();
+    $app.setAttribute("loading", true);
+
     this.state = {
       error: "",
       lists: [],
@@ -15,25 +19,24 @@ class ReadLists extends HTMLElement {
   }
 
   connectedCallback() {
-    this.innerHTML = `<img src="./loading.svg" width="36" height="36" alt="Loading indicator" />`;
     getLists()
       .then((lists) => {
-        this.setState({
-          lists,
-        });
+        this.state.lists = lists;
+        this.render();
       })
-      .catch((e) => {
-        this.setState({ error: e });
+      .catch((err) => {
+        console.error(err);
+        $app.setAttribute("error", "Failed to load readlists from server.");
+      })
+      .then(() => {
+        $app.removeAttribute("loading");
       });
   }
 
   render() {
-    const { lists, error } = this.state;
+    const { lists } = this.state;
 
-    if (error) {
-      this.innerHTML = `<div style="color: red">Something went wrong loading your readlist.</div>`;
-    } else {
-      this.innerHTML = /*html*/ `
+    this.innerHTML = /*html*/ `
         <ul>
           ${lists
             .map(
@@ -54,7 +57,6 @@ class ReadLists extends HTMLElement {
             .join("")}
         </ul>
       `;
-    }
   }
 }
 

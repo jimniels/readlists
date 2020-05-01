@@ -25,10 +25,11 @@ body {
 read-list {
   display: block;
 }
-read-list[loading]:before {
+
+[loading]:before {
   position: absolute;
   top: 24px;
-  left: 150px;
+  left: calc(50% - 12px);
   width: 32px;
   height: 32px;
   background: url(./loading.svg) no-repeat;
@@ -36,10 +37,10 @@ read-list[loading]:before {
   /* display: block; */
   content: "";
 }
-read-list[loading] input,
-read-list[loading] select,
-read-list[loading] textarea,
-read-list[loading] button {
+[loading] input,
+[loading] select,
+[loading] textarea,
+[loading] button {
   cursor: not-allowed;
   pointer-events: none;
   opacity: 0.75;
@@ -76,6 +77,7 @@ textarea[id="title"] {
   align-items: center;
   justify-content: space-between;
 }
+
 .error:after {
   content: "\00D7";
   margin-left: 15px;

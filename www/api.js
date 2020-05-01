@@ -4,8 +4,8 @@
 
 // import { Dropbox } from "https://unpkg.com/dropbox@4.0.30/es/index.es6.js?module";
 
-const dbx = new window.Dropbox.Dropbox({
-  accessToken: "",
+export const dbx = new window.Dropbox.Dropbox({
+  accessToken: "", // we'll set this when we auth
   fetch: window.fetch,
 });
 

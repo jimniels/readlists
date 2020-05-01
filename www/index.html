@@ -5,20 +5,15 @@
     <link rel="stylesheet" href="./index.css" />
   </head>
   <body>
-    <header id="header">
-      <h1><a href="./" id="home">Readlists</a></h1>
-      <button id="create-readlist">New Readlist</button>
-    </header>
-    <main id="main">
-      <img src="./loading.svg" width="36" height="36" />
+    <my-app loading>
       <noscript>JavaScript is required.</noscript>
-    </main>
+    </my-app>
 
     <script src="https://unpkg.com/dropbox@4.0.30/dist/Dropbox-sdk.js"></script>
     <script type="module" src="./app.js"></script>
     <script type="module">
-      import Default from "https://unpkg.com/dropbox@4.0.30/es/index.es6.js?module";
-      console.log(Default);
+      // import Default from "https://unpkg.com/dropbox@4.0.30/es/index.es6.js?module";
+      // console.log(Default);
     </script>
   </body>
 </html>

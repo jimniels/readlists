@@ -1,6 +1,8 @@
 import { getList, putList, putArticle, deleteArticle } from "./api.js";
 import { autoExpand } from "./utils.js";
 
+const $app = document.querySelector("my-app");
+
 export class ReadList extends HTMLElement {
   constructor(props) {
     super();
@@ -42,7 +44,7 @@ export class ReadList extends HTMLElement {
             })
             .catch((e) => {
               console.error(e);
-              this.renderError();
+              $app.setAttribute("error", "Failed to add a new article");
               // @TODO
               // this.renderError()
               // this.state.list = newList;
@@ -74,13 +76,11 @@ export class ReadList extends HTMLElement {
             })
             .catch((e) => {
               console.error(e);
-              this.renderError("Deleting the article failed");
+              $app.setAttribute("error", "Deleting the article failed");
             })
             .then(() => {
               this.toggleLoading();
             });
-        } else if (e.target.dataset.jsAction === "dismiss-error") {
-          this.renderError();
         }
       },
       false
@@ -141,10 +141,10 @@ export class ReadList extends HTMLElement {
    * Loading indicator to show that a network event is happening
    */
   toggleLoading() {
-    if (this.hasAttribute("loading")) {
-      this.removeAttribute("loading");
+    if ($app.hasAttribute("loading")) {
+      $app.removeAttribute("loading");
     } else {
-      this.setAttribute("loading", true);
+      $app.setAttribute("loading", true);
     }
   }
 
@@ -178,12 +178,10 @@ export class ReadList extends HTMLElement {
       <footer>
         <textarea id="new-article" placeholder="Add URL..."></textarea>
       </footer>
-      <div class="error" data-js-action="dismiss-error"></div>
     `;
     this.$title = this.querySelector("#title");
     this.$description = this.querySelector("#description");
     this.$list = this.querySelector("#list");
-    this.$error = this.querySelector(".error");
 
     Array.from(this.querySelectorAll("textarea")).forEach(($el) => {
       $el.addEventListener(
@@ -196,15 +194,6 @@ export class ReadList extends HTMLElement {
     });
 
     this.renderList();
-  }
-
-  renderError(text) {
-    if (text) {
-      this.$error.classList.add("error--visible");
-      this.$error.innerHTML = text;
-    } else {
-      this.$error.classList.remove("error--visible");
-    }
   }
 
   renderList() {
