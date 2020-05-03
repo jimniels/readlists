@@ -10,6 +10,14 @@ export const dbx = new window.Dropbox.Dropbox({
 });
 
 /**
+ * Delete a list by removing the entire folder and its contents from dropbox
+ * @param {string} listId
+ */
+export function deleteList(listId) {
+  return dbx.filesDelete({ path: `/test/${listId}` });
+}
+
+/**
  * Delete an article.
  * Must be deleted from the list itself, then the correspnoding .html file deleted
  * @param {string} articleId
@@ -185,71 +193,21 @@ export function getLists() {
   });
 }
 
-export function getListz() {
-  return new Promise((resolve, reject) => {
-    try {
-      dbx
-        .filesListFolder({ path: "" })
-        // list of files, get just the .list.json
-        .then((res) =>
-          res.entries.filter(({ path_lower }) =>
-            path_lower.endsWith(".list.json")
-          )
-        )
-        // get each .list.json file in dropbox
-        .then((dbxFiles) =>
-          Promise.all(
-            dbxFiles.map(({ path_lower }) =>
-              dbx.filesDownload({ path: path_lower })
-            )
-          )
-        )
-        // get the contents of each .list.json file in dropbox
-        .then((filesProperties) =>
-          Promise.all(filesProperties.map((file) => file.fileBlob.text()))
-        )
-        // convert file contents to JSON
-        .then((fileContents) => fileContents.map((file) => JSON.parse(file)))
-        // now you have your lists
-        .then((Lists) => {
-          resolve(Lists);
-          console.log(Lists);
-        });
-    } catch (e) {
-      console.error(e);
-      reject();
-    }
-  });
-}
-
 export function getList(id) {
   return new Promise((resolve, reject) => {
-    try {
-      dbx.filesDownload({ path: `/test/${id}/list.json` }).then((file) => {
+    dbx
+      .filesDownload({ path: `/test/${id}/list.json` })
+      .then((file) => {
         var reader = new FileReader();
         reader.onload = () => {
           resolve(JSON.parse(reader.result));
         };
         reader.onerror = () => {
-          reject();
+          // reject(); // @TODO this isn't handled
         };
         reader.readAsText(file.fileBlob);
-      });
-      // .then((fileContents) => JSON.parse(fileContents))
-      // .then((json) => {
-      //   resolve(json);
-      // });
-    } catch (e) {
-      console.error(e);
-      reject();
-    }
-    // setTimeout(() => {
-    //   fetch(`./data/${id}.list.json`)
-    //     .then((res) => res.json())
-    //     .then((json) => {
-    //       resolve(json);
-    //     });
-    // }, 2000);
+      })
+      .catch((err) => reject(err));
   });
 }
 

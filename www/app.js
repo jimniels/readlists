@@ -96,6 +96,7 @@ class MyApp extends HTMLElement {
         if (__DEV__) console.log("Authenticated", res);
         this.state.isAuthenticated = true;
         this.renderMain();
+        this.removeAttribute("error");
         // save token in local storage
       })
       .catch((err) => {
