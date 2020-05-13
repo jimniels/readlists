@@ -15,3 +15,7 @@ export function autoExpand(field) {
 
   field.style.height = height + "px";
 }
+
+export function sum(a, b) {
+  return a + b;
+}

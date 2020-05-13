@@ -1,62 +1,71 @@
-import { getLists } from "./api.js";
+import { store } from "./redux.js";
+import { store as s } from "./r.js";
 
 const $app = document.querySelector("my-app");
 
 class ReadLists extends HTMLElement {
-  constructor() {
-    super();
-    $app.setAttribute("loading", true);
-
-    this.state = {
-      error: "",
-      lists: [],
-    };
-  }
-
-  setState(newState) {
-    this.state = { ...this.state, ...newState };
-    this.render();
-  }
-
   connectedCallback() {
-    getLists()
-      .then((lists) => {
-        this.state.lists = lists;
-        this.render();
-      })
-      .catch((err) => {
-        console.error(err);
-        $app.setAttribute("error", "Failed to load readlists from server.");
-      })
-      .then(() => {
-        $app.removeAttribute("loading");
-      });
+    this.render();
+
+    // let currentState = s.getState();
+    // const handleChange = () => {
+    //   let previousState = currentState;
+    //   currentState = s.getState();
+
+    //   if (previousState.readlists != currentState.readlists) {
+    //     console.log("`readlists` changed");
+    //   }
+    // };
+    // s.subscribe(handleChange);
+
+    s.subscribe(() => {
+      const { lastActionType } = s.getState();
+      switch (lastActionType) {
+        case "SELECT_READLIST":
+        case "CREATE_READLIST":
+          this.render();
+          break;
+      }
+    });
   }
 
   render() {
-    const { lists } = this.state;
+    const { lists } = store.getState();
+    const { activeReadlistId, user } = s.getState();
 
     this.innerHTML = /*html*/ `
-        <ul>
-          ${lists
-            .map(
-              (list) => /*html*/ `
-                <li>
-                  <a href="./?id=${list.id}" id="${list.id}">${
-                list.title
-              }</a> <small>${list.articles.length} reads</small>
-                  
-                  <ul>
-                    ${list.articles
-                      .map((article) => `<li>${article.title}</li>`)
-                      .join("")}
-                  </ul>
-                </li>
-              `
-            )
-            .join("")}
-        </ul>
-      `;
+      <header class="header">
+        <h1>
+          <a href="./" id="home" data-js-action="navigate-to-home">
+            Readlists
+          </a>
+        </h1>
+        <button>+</button>
+      </header>
+      <ul>
+        ${lists
+          .map(
+            (list) => /*html*/ `
+              <li>
+                <a
+                  href="./id?${list.id}"
+                  class="${activeReadlistId == list.id ? "active" : ""}"
+                  data-action-key="select-list"
+                  data-action-value="${list.id}"
+                  data-count="${list.articles.length}">
+                  <h2>${list.title}</h2>
+                  ${list.description ? `<p>${list.description}</p>` : ""}
+                </a>
+              </li>
+            `
+          )
+          .join("")}
+      </ul>
+      <footer class="header__buttons">
+        <p>${user}</p>
+        <a href="./" data-action="log-out" class="link">Log Out</button>
+      </footer>
+    `;
   }
 }
 

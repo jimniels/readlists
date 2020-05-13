@@ -2,40 +2,81 @@
 // @TODO dropbox access token has to be entered, like a password, then stored
 //       in session storage for easy access later on
 
-// import { Dropbox } from "https://unpkg.com/dropbox@4.0.30/es/index.es6.js?module";
+// import Dropbox from "https://unpkg.com/dropbox@4.0.30/es/index.es6.js?module";
+// import * as Dropbox from "https://cdn.pika.dev/dropbox@^4.0.30";
 
-export const dbx = new window.Dropbox.Dropbox({
+import { store, selectList } from "./redux.js";
+
+export const dbx = new Dropbox.Dropbox({
   accessToken: "", // we'll set this when we auth
   fetch: window.fetch,
 });
 
-/**
- * Delete a list by removing the entire folder and its contents from dropbox
- * @param {string} listId
- */
-export function deleteList(listId) {
-  return dbx.filesDelete({ path: `/test/${listId}` });
+export function getArticleHTML({ readlistId, readlistArticleId }) {
+  return new Promise((resolve, reject) => {
+    dbx
+      .filesDownload({
+        path: `/test/${readlistId}/${readlistArticleId}.article.html`,
+      })
+      .then((file) => {
+        var reader = new FileReader();
+        reader.onload = () => {
+          resolve(reader.result);
+        };
+        reader.onerror = () => {
+          // reject(); // @TODO this isn't handled
+        };
+        reader.readAsText(file.fileBlob);
+      })
+      .catch((err) => reject(err));
+  });
 }
 
 /**
+ * Delete a readlist by removing the entire folder and its contents from dropbox
+ * (this deletes all corresponoding .article.html files as well)
+ * @param {string} readlistId
+ */
+export function deleteReadlist(readlistId) {
+  return dbx.filesDelete({ path: `/test/${readlistId}` });
+}
+
+/**
+ * CHECK
  * Delete an article.
  * Must be deleted from the list itself, then the correspnoding .html file deleted
  * @param {string} articleId
  * @param {List} list
  * @returns {List}
  */
-export function deleteArticle(articleId, list) {
-  const modifiedList = {
+export function deleteArticle(articleId, listId) {
+  const list = selectList(listId);
+
+  const newList = {
     ...list,
     articles: list.articles.filter((article) => article.id != articleId),
   };
 
   return dbx
     .filesDelete({
-      path: `/test/${list.id}/${articleId}.article.html`,
+      path: `/test/${listId}/${articleId}.article.html`,
     })
-    .then(() => putList(modifiedList))
-    .then(() => modifiedList);
+    .catch((err) => {
+      console.error(
+        `Could not delete the ${listId}-${articleId}.article.html file.`,
+        err
+      );
+    })
+    .then(() => putList(newList))
+    .then(() => updateListInStore(newList));
+}
+
+function updateListInStore(list) {
+  store.dispatch({
+    type: "UPDATE_LIST",
+    list,
+  });
+  return;
 }
 
 /**
@@ -47,9 +88,10 @@ export function deleteArticle(articleId, list) {
  * @param {List} list
  * @returns {List}
  */
-export function putArticle(url, list) {
+export function createArticle(url, readlistId) {
   let articleHtml = "";
-  let modifiedList = {};
+  const readlist = selectList(readlistId);
+  let newReadlist = {};
 
   // @TODO validate params
 
@@ -69,25 +111,23 @@ export function putArticle(url, list) {
         ...restOfarticle,
       };
 
-      modifiedList = {
-        ...list,
-        articles: list.articles.concat(article),
+      newReadlist = {
+        ...readlist,
+        articles: readlist.articles.concat(article),
       };
 
       return Promise.all([
         putFile(
-          `/test/${modifiedList.id}/list.json`,
-          JSON.stringify(modifiedList, null, 2)
+          `/test/${newReadlist.id}/list.json`,
+          JSON.stringify(newReadlist, null, 2)
         ),
         putFile(
-          `/test/${modifiedList.id}/${article.id}.article.html`,
+          `/test/${newReadlist.id}/${article.id}.article.html`,
           articleHtml
         ),
       ]);
     })
-    .then(() => {
-      return modifiedList;
-    });
+    .then(() => updateListInStore(newReadlist));
 }
 
 /**
@@ -109,6 +149,10 @@ function putFile(path, contents) {
   });
 }
 
+export function updateList(newList) {
+  return putList(newList); //.then(() => updateListInStore(newList));
+}
+
 /**
  * Put a list to dropbox.
  * @param {List} list
@@ -125,78 +169,35 @@ export function putList(list) {
   // });
 }
 
-export function createList() {
-  const id = Date.now();
-  // Apr 27, 2020
-  const prettyDate = new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(id));
-  const contents = {
-    id,
-    title: `My Readlist (${prettyDate})`,
-    description: "[[ description ]]",
-    articles: [],
-  };
-  return new Promise((resolve, reject) => {
-    try {
-      dbx
-        .filesUpload({
-          path: `/test/${id}/list.json`,
-          contents: new File([JSON.stringify(contents, null, 2)], "list.json", {
-            type: "application/json",
-          }),
-          mode: { ".tag": "add" },
-          autorename: false,
-        })
-        .then((res) => {
-          resolve(id);
-        });
-    } catch (e) {
-      reject();
-    }
-  });
-}
-
 export function getLists() {
   return new Promise((resolve, reject) => {
-    try {
-      dbx
-        .filesListFolder({ path: "/test/" })
-        // list of files, get just the .list.json
-        .then((res) => {
-          const listFolderIds = res.entries
-            .filter((entry) => entry[".tag"] === "folder")
-            .map((entry) => entry.path_lower.replace("/test/", ""));
-          return Promise.all(
-            listFolderIds.map((folderId) =>
-              dbx
-                .filesDownload({ path: `/test/${folderId}/list.json` })
-                .then((file) => {
-                  console.log(file);
-                  return file.fileBlob.text();
-                })
-                .then((fileContents) => JSON.parse(fileContents))
-            )
-          );
-        })
-        .then((Lists) => {
-          resolve(Lists);
-        });
-    } catch (e) {
-      console.error(e);
-      reject();
-    }
+    dbx
+      .filesListFolder({ path: "/test/" })
+      // list of files, get just the .list.json
+      .then((res) => {
+        const listFolderIds = res.entries
+          .filter((entry) => entry[".tag"] === "folder")
+          .map((entry) => entry.path_lower.replace("/test/", ""));
+        console.log(listFolderIds);
+        return Promise.all(
+          listFolderIds.map((folderId) =>
+            downloadJSONFile(`/test/${folderId}/list.json`)
+          )
+        );
+      })
+      .then((Lists) => {
+        resolve(Lists);
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
 }
 
-export function getList(id) {
+function downloadJSONFile(path) {
   return new Promise((resolve, reject) => {
     dbx
-      .filesDownload({ path: `/test/${id}/list.json` })
+      .filesDownload({ path })
       .then((file) => {
         var reader = new FileReader();
         reader.onload = () => {
@@ -210,6 +211,58 @@ export function getList(id) {
       .catch((err) => reject(err));
   });
 }
+
+export function getList(id) {
+  return downloadJSONFile(`/test/${id}/list.json`);
+}
+
+class SyncQueue {
+  constructor() {
+    this.promises = [];
+    this.isSyncing = false;
+  }
+
+  enqueue(fn) {
+    this.promises.push(fn);
+    if (!this.isSyncing) {
+      console.log("SYNCING: start queue");
+      this.sync();
+    }
+  }
+
+  dequeue() {
+    return this.promises.shift();
+  }
+
+  sync() {
+    this.isSyncing = true;
+    document.querySelector("my-app").setAttribute("loading", true);
+    const promise = this.dequeue();
+    console.log("SYNCING: start promise...");
+    promise()
+      .then(() => {
+        console.log("SYNCING: end promise");
+        if (this.promises.length === 0) {
+          console.log("SYNCING: pause queue");
+          this.isSyncing = false;
+          document.querySelector("my-app").removeAttribute("loading");
+        } else {
+          this.sync();
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        window.alert(
+          "Something went wrong syncing your data. This page will reload.",
+          err
+        );
+        // document.querySelector("my-app"); // @TODO
+        window.location.reload();
+      });
+  }
+}
+
+export const sync = new SyncQueue();
 
 /**
  * @typedef MercuryArticle

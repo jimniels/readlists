@@ -1,17 +1,77 @@
+:root {
+  --color-accent: hsl(215, 100%, 51%);
+  --color-accent-hsl: 215, 100%, 51%;
+  --color-bg-primary: hsl(255, 0%, 100%);
+  --color-bg-secondary: hsl(255, 0%, 90%);
+  --color-text: hsl(0, 0%, 10%);
+
+  --border-radius: 8px;
+  --spacer: 15px;
+
+  --font-size-xlg: 24px;
+  --font-size-lg: 18px;
+  --font-size-base: 16px;
+  --font-size-sm: 14px;
+  --font-size-xsm: 12px;
+}
+
 @media (prefers-color-scheme: dark) {
-  html {
-    background: #222;
-    color: white;
-  }
-  a {
-    color: lightblue !important;
+  :root {
+    --color-bg-primary: hsl(0, 0%, 10%);
+    --color-bg-secondary: hsl(0, 0%, 20%);
+    --color-text: hsl(255, 0%, 100%);
   }
 }
 
+html {
+  box-sizing: border-box;
+}
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+a,
+a:hover,
+a:focus {
+  text-decoration: none;
+  color: inherit;
+}
+
+a.link {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+a.link:hover,
+a.link:focus {
+  text-decoration: underline;
+}
+
 body {
-  max-width: 800px;
-  margin: 0 auto;
-  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg-secondary);
+  color: var(--color-text);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+select {
+  font-size: var(--font-size-sm);
+  border: 1px solid hsl(0, 0%, 75%);
+  background: #fff;
+  border-radius: var(--border-radius);
+  box-shadoow: 0 1px 1px hsl(0, 0%, 95%);
+}
+input {
+  font-size: 1rem;
 }
 
 #header {
@@ -37,14 +97,14 @@ read-list {
   /* display: block; */
   content: "";
 }
-[loading] input,
+/* [loading] input,
 [loading] select,
 [loading] textarea,
 [loading] button {
   cursor: not-allowed;
   pointer-events: none;
   opacity: 0.75;
-}
+} */
 
 textarea {
   font-size: 1em;
@@ -54,36 +114,127 @@ textarea {
   padding: 0;
   border: 0;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 1);
+  background: transparent;
+  color: inherit;
 }
 
-textarea[id="title"] {
+[contenteditable] {
+  display: inline;
+}
+[contenteditable]:after {
+  content: "";
+  display: block;
+}
+[contenteditable]:hover,
+[contenteditable]:focus {
+  box-shadow: inset 0 -4px 0 blue;
+}
+[id="title"] {
   font-size: 2em;
 }
 
+button.loading {
+  position: relative;
+}
+button.loading:after {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  content: "";
+  background: rgba(255, 255, 255, 1) url(/loading.svg) no-repeat 50%;
+  left: 0;
+  background-size: contain;
+}
+
 .error {
-  opacity: 0;
-  visibility: hidden;
   position: fixed;
-  width: 300px;
+  top: 0;
+  width: 500px;
+  left: 50%;
+  margin-left: -250px;
   background: red;
   color: white;
-  top: 20px;
-  left: 50%;
-  margin-left: -150px;
-  text-align: center;
   padding: 15px;
-  transition: 0.3s ease all;
+  transition: 0.3s ease transform;
   display: flex;
-  align-items: center;
   justify-content: space-between;
+
+  transform: translateY(-100%);
 }
 
 .error:after {
   content: "\00D7";
   margin-left: 15px;
 }
+.error:after:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+  margin-left: 15px;
+  width: 1rem;
+  height: 1rem;
+  display: flex;
+  align-content: center;
+  align-items: center;
+  display: flex;
+  padding: 0.25rem;
+  border-radius: 5px;
+  vertical-align: middle;
+  line-height: 0.85;
+}
 
 .error--visible {
-  opacity: 1;
-  visibility: visible;
+  transform: translateY(0);
+}
+.error--visible:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  bottom: 0px;
+  animation-duration: 5s;
+  animation-name: timer;
+  animation-timing-function: linear;
+}
+
+@keyframes timer {
+  from {
+    width: 100%;
+  }
+
+  to {
+    width: 0%;
+  }
+}
+
+#article-form {
+  display: flex;
+}
+#article-form input {
+  flex: 1 1 auto;
+  margin-right: 1rem;
+}
+#article-form button {
+  flex: 0 0 auto;
+}
+
+#list {
+  margin: 0;
+  padding: 0;
+}
+#list li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid;
+}
+#list li > div {
+  margin: 0 1rem;
+}
+#list h3,
+#list p {
+  margin: 0;
+  padding: 0;
 }
