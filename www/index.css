@@ -4,6 +4,7 @@
   --color-bg-primary: hsl(255, 0%, 100%);
   --color-bg-secondary: hsl(255, 0%, 90%);
   --color-text: hsl(0, 0%, 10%);
+  --color-text-light: hsl(0, 0%, 50%);
 
   --border-radius: 8px;
   --spacer: 15px;
@@ -124,10 +125,11 @@ textarea {
 [contenteditable]:after {
   content: "";
   display: block;
+  margin-bottom: calc(var(--spacer) / 4);
 }
 [contenteditable]:hover,
 [contenteditable]:focus {
-  box-shadow: inset 0 -4px 0 blue;
+  box-shadow: inset 0 -4px 0 var(--color-accent);
 }
 [id="title"] {
   font-size: 2em;
@@ -159,6 +161,7 @@ button.loading:after {
   transition: 0.3s ease transform;
   display: flex;
   justify-content: space-between;
+  z-index: 10;
 
   transform: translateY(-100%);
 }
@@ -219,6 +222,9 @@ button.loading:after {
   flex: 0 0 auto;
 }
 
+readlist-view header {
+  padding: calc(var(--spacer) * 2);
+}
 #list {
   margin: 0;
   padding: 0;
@@ -226,9 +232,12 @@ button.loading:after {
 #list li {
   display: flex;
   align-items: flex-start;
-  margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid;
+  border-top: 1px solid hsla(0, 0%, 0%, 0.1);
+  padding: var(--spacer) calc(var(--spacer) * 2);
+}
+#list li.active {
+  background-color: hsla(var(--color-accent-hsl), 0.1);
 }
 #list li > div {
   margin: 0 1rem;
@@ -237,4 +246,10 @@ button.loading:after {
 #list p {
   margin: 0;
   padding: 0;
+}
+
+readlist-view header time {
+  display: block;
+  margin-bottom: calc(var(--spacer) / 2);
+  color: var(--color-text-light);
 }

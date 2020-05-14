@@ -1,0 +1,223 @@
+readlists-app {
+  display: flex;
+  overflow: hidden;
+}
+readlists-nav {
+  flex: 0 0 300px;
+  box-shadow: 0 0 3px hsla(0, 0%, 0%, 0.5);
+}
+readlist-view,
+readlist-article {
+  overflow-y: scroll;
+  height: 100vh;
+  flex: 1;
+}
+readlist-view {
+  max-width: 800px;
+}
+readlist-article {
+}
+
+readlist-article {
+  background: var(--color-bg-secondary);
+}
+
+readlists-nav {
+  background: var(--color-bg-primary);
+}
+
+readlist-view {
+  background: var(--color-bg-primary);
+  box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.25);
+}
+readlist-article {
+  padding: 30px;
+  overflow: scroll;
+}
+
+readlist-article[loading]:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  botttom: 0;
+  right: 0;
+  top: 0;
+  background: url("./loading.svg") no-repeat 50%;
+}
+
+readlist-article {
+  transform: translateX(0px);
+  background: var(--color-bg-primary);
+  box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.25);
+}
+
+readlists-nav {
+  z-index: 3;
+}
+readlist-view {
+  z-index: 2;
+}
+readlist-article {
+  z-index: 1;
+}
+
+readlist-article,
+readlist-view {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+  transition: 0.3s ease all;
+}
+readlist-article[hidden],
+readlist-view[hidden] {
+  transform: translateX(-50px);
+  opacity: 0;
+  visibility: hidden;
+}
+
+/**
+ * Header
+ */
+
+readlists-nav header {
+  background: var(--color-accent);
+  color: var(--color-bg-primary);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 15px;
+  height: 50px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  z-index: 2;
+}
+
+readlists-nav header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+}
+
+readlists-nav header a {
+  text-decoration: none;
+  color: inherit;
+}
+
+readlists-nav header a,
+readlists-nav header button {
+  color: inherit;
+}
+
+readlists-nav header button {
+  font-size: 24px;
+  background: transparent;
+  border: none;
+}
+
+/**
+ * List
+ */
+
+readlists-nav {
+  --width: 300px;
+}
+
+readlists-nav ul {
+  background: var(--color-bg-primary);
+  position: fixed;
+  top: 50px;
+  bottom: 40px;
+  width: var(--width);
+  overflow: scroll;
+  padding-bottom: 20px;
+  margin: 0;
+  padding: 0;
+}
+readlists-nav ul:after {
+  content: "";
+  position: fixed;
+  bottom: 40px;
+  height: 10px;
+  width: var(--width);
+  background: linear-gradient(transparent, var(--color-bg-primary) 100%);
+}
+
+readlists-nav li {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+readlists-nav li a {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 50px;
+  padding: var(--spacer);
+  padding-right: calc(var(--spacer) * 3);
+  border-bottom: 1px solid hsla(0, 0%, 0%, 0.1);
+  position: relative;
+}
+
+readlists-nav li a::after {
+  content: attr(data-count);
+  position: absolute;
+  right: var(--spacer);
+  padding: calc(var(--spacer) / 2);
+  background: hsl(var(--color-accent-hsl), 0.1);
+  border-radius: 50%;
+  line-height: 0.5;
+  top: 50%;
+  margin-top: -1em;
+  font-size: var(--font-size-xsm);
+  color: var(--color-accent);
+}
+
+readlists-nav li a.active {
+  background: hsla(var(--color-accent-hsl), 0.1);
+}
+
+readlists-nav li a * {
+  pointer-events: none;
+}
+
+readlists-nav ul h2 {
+  font-size: var(--font-size-lg);
+  font-weight: 400;
+  margin: 0;
+  padding: 0;
+}
+readlists-nav ul p {
+  font-size: var(--font-size-sm);
+  margin: calc(var(--spacer) / 4) 0 0 0;
+  opacity: 0.6; /* @TODO */
+}
+
+/**
+ * Footer
+ */
+
+readlists-nav footer {
+  position: fixed;
+  bottom: 0;
+  height: 40px;
+  left: 0;
+  padding: var(--spacer);
+  width: var(--width);
+  background: var(--color-bg-primary);
+  font-size: var(--font-size-sm);
+  border-top: 1px solid hsla(0, 0%, 0%, 0.1);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+readlists-nav footer a {
+  text-decoration: underline;
+}

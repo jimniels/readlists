@@ -6,33 +6,28 @@ import {
   sync,
   putList,
 } from "./api.js";
-import { store, selectList } from "./redux.js";
-import { store as s } from "./r.js";
+import { store, selectActiveReadlistArticle } from "./r.js";
 
 class ReadlistArticle extends HTMLElement {
-  constructor() {
-    super();
-    this.articleHTML = "";
-    this.loading = false;
-  }
-
   connectedCallback() {
     this.render();
 
     this.addEventListener("click", (e) => {
       // @TODO
-      s.dispatch({ type: "DESELECT_READLIST_ARTICLE" });
+      store.dispatch({
+        type: "SELECT_READLIST_ARTICLE",
+        readlistArticleId: "",
+      });
     });
 
-    s.subscribe(() => {
-      const state = s.getState();
+    store.subscribe(() => {
+      const state = store.getState();
       const {
         lastActionType,
         activeReadlistId,
         activeReadlistArticleId,
       } = state;
       switch (lastActionType) {
-        case "DESELECT_READLIST_ARTICLE":
         case "SELECT_READLIST":
           this.render();
           break;
@@ -41,15 +36,28 @@ class ReadlistArticle extends HTMLElement {
           this.setAttribute("loading", true);
           this.render();
 
+          if (!activeReadlistArticleId) {
+            return;
+          }
+
           getArticleHTML({
             readlistId: activeReadlistId,
             readlistArticleId: activeReadlistArticleId,
           })
             .then((html) => {
-              this.render({ ...state, articleHTML: html });
+              this.render(state, html);
             })
             .catch((err) => {
               console.error(err);
+              store.dispatch({
+                type: "SET_ERROR",
+                error:
+                  "Failed to load the target article. It may be missing from the server. Try loading it again or try deleting it and re-adding it.",
+              });
+              store.dispatch({
+                type: "SELECT_READLIST_ARTICLE",
+                activeReadlistArticleId: "",
+              });
             })
             .then(() => {
               this.removeAttribute("loading");
@@ -60,8 +68,8 @@ class ReadlistArticle extends HTMLElement {
     });
   }
 
-  render(state = {}) {
-    const { activeReadlistId, activeReadlistArticleId, articleHTML } = state;
+  render(state = {}, articleHTML) {
+    const { activeReadlistId, activeReadlistArticleId } = state;
 
     if (activeReadlistId && activeReadlistArticleId) {
       this.removeAttribute("hidden");
@@ -70,7 +78,22 @@ class ReadlistArticle extends HTMLElement {
     }
 
     if (articleHTML) {
-      this.innerHTML = articleHTML;
+      const {
+        author,
+        date_published,
+        domain,
+        title,
+        url,
+      } = selectActiveReadlistArticle(state);
+      this.innerHTML = /*html*/ `
+        <header>
+          <a href="${url}" class="link" target="__blank">${domain}</a>
+          ${date_published ? `<time>${date_published}</time>` : ""}
+          <h1>${title}</h1>
+          ${author ? `<p>${author}</p>` : ""}
+        </header>
+        ${articleHTML}
+      `;
     }
   }
 }

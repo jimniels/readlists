@@ -6,6 +6,7 @@ const initialState = {
   readlists: [],
   lastActionType: "",
   user: "",
+  error: "",
 };
 
 const createReadlist = () => ({
@@ -31,6 +32,11 @@ function reducer(state, action) {
         ...state,
         readlists: action.readlists,
         user: action.user,
+      };
+    case "SET_ERROR":
+      return {
+        ...state,
+        error: action.error,
       };
     case "SELECT_READLIST":
       return {
@@ -95,6 +101,19 @@ let store = Redux.createStore(
   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 );
 
+const selectActiveReadlist = (state) => {
+  return state.readlists.find(
+    (readlist) => readlist.id == state.activeReadlistId
+  );
+};
+
+const selectActiveReadlistArticle = (state) => {
+  const readlist = selectActiveReadlist(state);
+  return readlist.articles.find(
+    (article) => article.id == state.activeReadlistArticleId
+  );
+};
+
 // let previousState = store.getState();
 // store.subscribe((unsubscribe) => {
 //   console.log("fired subscribe");
@@ -111,4 +130,4 @@ let store = Redux.createStore(
 
 // store.dispatch({ type: "UPDATE_ACTIVE_READLIST" });
 
-export { store };
+export { store, selectActiveReadlist, selectActiveReadlistArticle };

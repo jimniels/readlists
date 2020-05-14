@@ -178,7 +178,6 @@ export function getLists() {
         const listFolderIds = res.entries
           .filter((entry) => entry[".tag"] === "folder")
           .map((entry) => entry.path_lower.replace("/test/", ""));
-        console.log(listFolderIds);
         return Promise.all(
           listFolderIds.map((folderId) =>
             downloadJSONFile(`/test/${folderId}/list.json`)

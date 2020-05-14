@@ -6,33 +6,25 @@ import {
   deleteReadlist,
   sync,
 } from "./api.js";
-import { store, selectList } from "./redux.js";
-import { store as s } from "./r.js";
+import { store, selectActiveReadlist } from "./r.js";
 
-const $app = document.querySelector("my-app");
-
-export class ReadList extends HTMLElement {
+export class ReadListView extends HTMLElement {
   connectedCallback() {
     const state = store.getState();
-    const list = selectList(this.getAttribute("list-id"));
+    const list = selectActiveReadlist(state);
 
-    s.subscribe(() => {
-      const { lastActionType } = s.getState();
-      console.log(lastActionType);
+    store.subscribe(() => {
+      const { lastActionType } = store.getState();
+
       switch (lastActionType) {
         case "SELECT_READLIST":
           this.renderInitial();
           break;
+        case "SELECT_READLIST_ARTICLE":
+          this.renderList();
+          break;
       }
     });
-
-    if (!list) {
-      this.innerHTML = /*html*/ `
-          <p>The specificed list cannot be found.</p>
-          <p><a href="/" data-js-action="navigate-to-home">View all Readlists</a></p>
-        `;
-      return;
-    }
 
     this.renderInitial();
 
@@ -53,7 +45,9 @@ export class ReadList extends HTMLElement {
     this.addEventListener(
       "click",
       (e) => {
-        switch (e.target.dataset.jsAction) {
+        const state = store.getState();
+
+        switch (e.target.dataset.actionKey) {
           case "delete-article":
             const articleId = e.target.id;
             if (window.__DEV__)
@@ -88,6 +82,16 @@ export class ReadList extends HTMLElement {
             break;
           case "delete-readlist":
             this.handleDeleteReadlist();
+            break;
+          case "select-article":
+            const readlistArticleId = e.target.dataset.actionValue;
+            store.dispatch({
+              type: "SELECT_READLIST_ARTICLE",
+              readlistArticleId:
+                readlistArticleId == state.activeReadlistArticleId
+                  ? ""
+                  : readlistArticleId,
+            });
             break;
         }
       },
@@ -241,17 +245,30 @@ export class ReadList extends HTMLElement {
   }
 
   renderInitial() {
-    const { activeReadlistId } = s.getState();
-    const list = selectList(activeReadlistId);
+    const state = store.getState();
+    const readlist = selectActiveReadlist(state);
+    this.setAttribute("hidden", true);
+    // no active readlist selected!
+    if (!readlist) {
+      return;
+    }
 
-    this.innerHTML = /*html*/ `
+    // conditionally set timeout? might not want to do this, idk
+    setTimeout(() => {
+      const d = new Date(readlist.id);
+      const dFormatted = new Intl.DateTimeFormat("en-US").format(d);
+
+      this.innerHTML = /*html*/ `
       <header>
-        <div>
-          <button data-js-action="delete-readlist">Delete</button>
-          <button data-js-action="export-epub">Export as Epub</button>
-        </div>
-        <h1 id="title" contenteditable>${list.title}</h1>
-        <h2 id="description" contenteditable>${list.description}</h2>
+        <time datetime="${d.toISOString()}">
+          Created ${dFormatted}
+        </time>
+        <h1 id="title" contenteditable>${readlist.title}</h1>
+        <h2 id="description" contenteditable>${readlist.description}</h2>
+        
+        <button data-js-action="delete-readlist">Delete</button>
+        <button data-js-action="export-epub">Export as Epub</button>
+        
       </header>
       <ul id="list"></ul>
       <form id="article-form" data-js-action="create-article">
@@ -259,26 +276,19 @@ export class ReadList extends HTMLElement {
         <button type="submit">Add Article</button>
       </form>
     `;
-    this.$title = this.querySelector("#title");
-    this.$description = this.querySelector("#description");
-    this.$list = this.querySelector("#list");
+      this.$title = this.querySelector("#title");
+      this.$description = this.querySelector("#description");
+      this.$list = this.querySelector("#list");
 
-    // Array.from(this.querySelectorAll("textarea")).forEach(($el) => {
-    //   $el.addEventListener(
-    //     "input",
-    //     () => {
-    //       autoExpand($el);
-    //     },
-    //     false
-    //   );
-    // });
-
-    this.renderList();
+      this.renderList();
+      this.removeAttribute("hidden");
+    }, 300);
   }
 
   renderList() {
-    const { activeReadlistId } = s.getState();
-    const list = selectList(activeReadlistId);
+    const state = store.getState();
+    const { activeReadlistId, activeReadlistArticleId } = state;
+    const list = selectActiveReadlist(state);
 
     if (list.articles.length === 0) {
       this.$list.innerHTML = `<li>No articles</li>`;
@@ -286,11 +296,13 @@ export class ReadList extends HTMLElement {
     }
 
     const indexes = [...Array(list.articles.length).keys()];
-    this.$list.innerHTML = `
+    this.$list.innerHTML = /*html*/ `
         ${list.articles
           .map(
             (article, articleIndex) => /*html*/ `
-            <li>
+            <li class="${
+              article.id == activeReadlistArticleId ? "active" : ""
+            }">
               <select
                 data-js-action="change-article-order"
                 data-current-index="${articleIndex}"
@@ -329,4 +341,4 @@ export class ReadList extends HTMLElement {
   }
 }
 
-customElements.define("read-list", ReadList);
+customElements.define("readlist-view", ReadListView);

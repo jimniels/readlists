@@ -4,19 +4,24 @@
     <title>Readlists</title>
     <!-- <link rel="stylesheet" href="./reset.css" /> -->
     <link rel="stylesheet" href="./index.css" />
-    <link rel="stylesheet" href="./read-lists.css" />
+    <link rel="stylesheet" href="./readlists-nav.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body>
-    <my-app>
+    <readlists-app>
+      <img
+        src="./loading.svg"
+        style="
+          margin: 0 auto;
+          display: block;
+          width: 48px;
+          margin-top: calc(var(--spacer) * 4);
+        "
+      />
       <noscript>JavaScript is required.</noscript>
-    </my-app>
+    </readlists-app>
 
     <script src="https://unpkg.com/dropbox@4.0.30/dist/Dropbox-sdk.js"></script>
-    <script type="module" src="./app.js"></script>
-    <script type="module">
-      // import Default from "https://unpkg.com/dropbox@4.0.30/es/index.es6.js?module";
-      // console.log(Default);
-    </script>
+    <script type="module" src="./readlists-app.js"></script>
   </body>
 </html>
