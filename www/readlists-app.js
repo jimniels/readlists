@@ -13,7 +13,6 @@ class ReadlistsApp extends HTMLElement {
 
     store.subscribe(() => {
       const state = store.getState();
-      console.log(state.lastActionType);
       switch (state.lastActionType) {
         case "INIT":
           this.render(state);

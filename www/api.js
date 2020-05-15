@@ -235,7 +235,7 @@ class SyncQueue {
 
   sync() {
     this.isSyncing = true;
-    document.querySelector("my-app").setAttribute("loading", true);
+    document.querySelector("readlists-app").setAttribute("loading", true);
     const promise = this.dequeue();
     console.log("SYNCING: start promise...");
     promise()
@@ -244,7 +244,7 @@ class SyncQueue {
         if (this.promises.length === 0) {
           console.log("SYNCING: pause queue");
           this.isSyncing = false;
-          document.querySelector("my-app").removeAttribute("loading");
+          document.querySelector("readlists-app").removeAttribute("loading");
         } else {
           this.sync();
         }

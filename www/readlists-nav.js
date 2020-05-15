@@ -1,4 +1,5 @@
 import { store } from "./r.js";
+import { putList, sync } from "./api.js";
 
 class ReadlistsNav extends HTMLElement {
   connectedCallback() {
@@ -7,11 +8,14 @@ class ReadlistsNav extends HTMLElement {
     store.subscribe(() => {
       const state = store.getState();
       switch (state.lastActionType) {
-        case "INIT":
-          this.render(state);
-        case "SELECT_READLIST":
+        // it's ok to re-render everything because 1st element in list will be selected
         case "CREATE_READLIST":
+        case "DELETE_READLIST":
+        case "UPDATE_READLIST":
           this.render(state);
+          break;
+        case "SELECT_READLIST":
+          this.render__selectActiveList(state);
           break;
       }
     });
@@ -23,33 +27,40 @@ class ReadlistsNav extends HTMLElement {
 
       switch (e.target.dataset.actionKey) {
         case "select-list":
-          const readlistId = e.target.dataset.actionValue;
-          store.dispatch({
-            type: "SELECT_READLIST",
-            readlistId:
-              store.getState().activeReadlistId == readlistId ? "" : readlistId,
-          });
+          this.handleSelectList(e.target.dataset.actionValue);
+          break;
+        case "create-readlist":
+          this.handleCreateReadlist();
           break;
         case "log-out":
-          window.sessionStorage.setItem("dbx-token", "");
-          window.location.reload();
+          this.handleLogOut();
           break;
       }
     });
   }
 
-  // handleCreateReadlist() {
-  //   // Create a new readlist in the app
-  //   store.dispatch({ type: "NEW_READLIST" });
-  //   const state = store.getState();
-  //   const newList = state.lists[state.lists.length - 1];
+  handleSelectList(readlistId) {
+    store.dispatch({
+      type: "SELECT_READLIST",
+      readlistId:
+        store.getState().activeReadlistId == readlistId ? "" : readlistId,
+    });
+  }
 
-  //   // Navigate to the new readlist
-  //   this.setAttribute("list-id", newList.id);
+  handleLogOut() {
+    window.sessionStorage.setItem("dbx-token", "");
+    window.location.reload();
+  }
 
-  //   // Sync it
-  //   sync.enqueue(() => putList(newList));
-  // }
+  handleCreateReadlist() {
+    // Create a new readlist in the app
+    store.dispatch({ type: "CREATE_READLIST" });
+    const state = store.getState();
+    const newReadlist = state.readlists[0];
+
+    // Sync things
+    sync.enqueue(() => putList(newReadlist));
+  }
 
   render(state) {
     const { activeReadlistId, user, readlists } = state;
@@ -57,17 +68,15 @@ class ReadlistsNav extends HTMLElement {
     this.innerHTML = /*html*/ `
       <header class="header">
         <h1>
-          <a href="./" id="home" data-js-action="navigate-to-home">
-            Readlists
-          </a>
+          Readlists
         </h1>
-        <button>+</button>
+        <button data-action-key="create-readlist"><span>+</span></button>
       </header>
       <ul>
         ${readlists
           .map(
             (readlist) => /*html*/ `
-              <li>
+              <li id="readlist-${readlist.id}">
                 <a
                   href="./id?${readlist.id}"
                   class="${activeReadlistId == readlist.id ? "active" : ""}"
@@ -86,9 +95,21 @@ class ReadlistsNav extends HTMLElement {
       </ul>
       <footer class="header__buttons">
         <p>${user}</p>
-        <button data-action="log-out">Log Out</button>
+        <button data-action="log-out" class="danger">Log Out</button>
       </footer>
     `;
+  }
+
+  render__selectActiveList(state) {
+    const { activeReadlistId } = state;
+    const active = this.querySelector(".active");
+    if (active) {
+      active.classList.remove("active");
+    }
+    const newActive = this.querySelector(`#readlist-${activeReadlistId} a`);
+    if (newActive) {
+      newActive.classList.add("active");
+    }
   }
 }
 

@@ -17,7 +17,9 @@ export class ReadListView extends HTMLElement {
       const { lastActionType } = store.getState();
 
       switch (lastActionType) {
+        case "DELETE_READLIST":
         case "SELECT_READLIST":
+        case "CREATE_READLIST":
           this.renderInitial();
           break;
         case "SELECT_READLIST_ARTICLE":
@@ -32,11 +34,12 @@ export class ReadListView extends HTMLElement {
      * Event Listeners
      */
     this.addEventListener("focusout", (e) => {
-      if (e.target.id === "title" && e.target.textContent !== list.title) {
+      const readlist = selectActiveReadlist(store.getState());
+      if (e.target.id === "title" && e.target.textContent !== readlist.title) {
         this.handleUpdatePartOfReadlist({ title: e.target.textContent });
       } else if (
         e.target.id === "description" &&
-        e.target.textContent !== list.description
+        e.target.textContent !== readlist.description
       ) {
         this.handleUpdatePartOfReadlist({ description: e.target.textContent });
       }
@@ -125,8 +128,8 @@ export class ReadListView extends HTMLElement {
   /**
    * Delete the given readlist
    */
-  handleDeleteReadlist() {
-    const readlist = selectList(this.getAttribute("list-id"));
+  handleDeleteReadlist(readlistId) {
+    const readlist = selectActiveReadlist(store.getState());
     const articlesCount = readlist.articles.length;
     let msg = "Please confirm that you want to delete this Readlist";
     if (articlesCount.length > 0) {
@@ -136,10 +139,8 @@ export class ReadListView extends HTMLElement {
     msg += ".";
 
     if (window.confirm(msg)) {
-      console.warn("Deleting readlist %s", readlist.id);
       // Update app state
       store.dispatch({ type: "DELETE_READLIST", readlistId: readlist.id });
-      $app.removeAttribute("list-id");
 
       // Sync app state
       sync.enqueue(() => deleteReadlist(readlist.id));
@@ -150,28 +151,16 @@ export class ReadListView extends HTMLElement {
    * Sync a given a set of changes to a readlist.
    * @param {Object} readlistChanges - Partial Readlist object
    */
-  handleUpdatePartOfReadlist(readlistChanges) {
-    let readlist = selectList(this.getAttribute("list-id"));
-    let newReadlist = {
-      ...readlist,
-      ...readlistChanges,
-    };
+  handleUpdatePartOfReadlist(readlistUpdates) {
+    const { activeReadlistId } = store.getState();
+    store.dispatch({
+      type: "UPDATE_READLIST",
+      readlistId: activeReadlistId,
+      readlistUpdates,
+    });
 
-    store.dispatch({ type: "UPDATE_READLIST" });
-    this.toggleLoading();
-    return updateList(newReadlist)
-      .then(() => {
-        this.renderList();
-      })
-      .catch((err) => {
-        console.error(err);
-        store.dispatch({ type: "REVERT" });
-        this.renderList();
-        $app.setAttribute("error", "Failed to sync changes.");
-      })
-      .then(() => {
-        this.toggleLoading();
-      });
+    const newReadlist = selectActiveReadlist(store.getState());
+    sync.enqueue(() => putList(newReadlist));
   }
 
   /**
@@ -264,9 +253,12 @@ export class ReadListView extends HTMLElement {
           Created ${dFormatted}
         </time>
         <h1 id="title" contenteditable>${readlist.title}</h1>
-        <h2 id="description" contenteditable>${readlist.description}</h2>
-        
-        <button data-js-action="delete-readlist">Delete</button>
+        <br />
+        <h2 id="description" contenteditable class="${
+          readlist.description ? "" : "empty"
+        }">${readlist.description ? readlist.description : "[Description]"}</h2>
+        <br />
+        <button data-action-key="delete-readlist">Delete</button>
         <button data-js-action="export-epub">Export as Epub</button>
         
       </header>

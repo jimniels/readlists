@@ -9,10 +9,6 @@ const initialState = {
   error: "",
 };
 
-const createReadlist = () => ({
-  type: "CREATE_READLIST",
-});
-
 // CREATE_READLIST -> create new readlist, change view
 // UPDATE_READLIST -> update meta on readlist
 // DELETE_READLIST ->
@@ -30,7 +26,7 @@ function reducer(state, action) {
     case "INIT":
       return {
         ...state,
-        readlists: action.readlists,
+        readlists: action.readlists.reverse(),
         user: action.user,
       };
     case "SET_ERROR":
@@ -72,18 +68,23 @@ function reducer(state, action) {
       };
       return {
         ...state,
-        readlists: state.readlists.concat(newReadlist),
+        readlists: [newReadlist, ...state.readlists],
         activeReadlistId: newReadlist.id,
         activeReadlistArticleId: "",
       };
+    /**
+     * type = ""
+     * readlistId = ""
+     * updates = {}
+     */
     case "UPDATE_READLIST":
       return {
         ...state,
         readlists: state.readlists.map((readlist) => {
-          if (readlist.id === action.readlistId) {
+          if (readlist.id == action.readlistId) {
             return {
               ...readlist,
-              ...action.updates,
+              ...action.readlistUpdates,
             };
           } else {
             return readlist;
