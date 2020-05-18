@@ -5,7 +5,7 @@
 // import Dropbox from "https://unpkg.com/dropbox@4.0.30/es/index.es6.js?module";
 // import * as Dropbox from "https://cdn.pika.dev/dropbox@^4.0.30";
 
-import { store, selectList } from "./redux.js";
+import { store, selectActiveReadlist, selectReadlistById } from "./r.js";
 
 export const dbx = new Dropbox.Dropbox({
   accessToken: "", // we'll set this when we auth
@@ -49,26 +49,18 @@ export function deleteReadlist(readlistId) {
  * @param {List} list
  * @returns {List}
  */
-export function deleteArticle(articleId, listId) {
-  const list = selectList(listId);
-
-  const newList = {
-    ...list,
-    articles: list.articles.filter((article) => article.id != articleId),
-  };
-
+export function deleteReadlistArticle({ readlistId, readlistArticleId }) {
   return dbx
     .filesDelete({
-      path: `/test/${listId}/${articleId}.article.html`,
+      path: `/test/${readlistId}/${readlistArticleId}.article.html`,
     })
     .catch((err) => {
       console.error(
-        `Could not delete the ${listId}-${articleId}.article.html file.`,
+        `Failed to delete the ${readlistId}-${readlistArticleId}.article.html file.`,
         err
       );
     })
-    .then(() => putList(newList))
-    .then(() => updateListInStore(newList));
+    .then(() => putList(selectReadlistById(store.getState(), readlistId)));
 }
 
 function updateListInStore(list) {
@@ -77,6 +69,16 @@ function updateListInStore(list) {
     list,
   });
   return;
+}
+
+export function getMercuryArticle(url) {
+  return fetch(`/api/mercury/?url=${url}`).then((res) => {
+    if (res.ok) {
+      return res.json();
+    } else {
+      throw new Error("Mercury failed to parse the given URL.");
+    }
+  });
 }
 
 /**
@@ -88,46 +90,44 @@ function updateListInStore(list) {
  * @param {List} list
  * @returns {List}
  */
-export function createArticle(url, readlistId) {
-  let articleHtml = "";
-  const readlist = selectList(readlistId);
-  let newReadlist = {};
-
+export function createReadlistArticle(url, readlistId) {
   // @TODO validate params
 
-  return fetch(`/api/mercury/?url=${url}`)
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        throw new Error("Mercury failed to parse the given URL.");
-      }
-    })
-    .then((mercuryArticle) => {
-      const { content, ...restOfarticle } = mercuryArticle;
-      articleHtml = content;
-      const article = {
-        id: Date.now(),
-        ...restOfarticle,
-      };
+  return getMercuryArticle(url).then((mercuryArticle) => {
+    const { content: articleHTML, ...readlistArticle } = mercuryArticle;
+    store.dispatch({
+      type: "CREATE_READLIST_ARTICLE",
+      readlistId,
+      readlistArticle,
+    });
 
-      newReadlist = {
-        ...readlist,
-        articles: readlist.articles.concat(article),
-      };
-
-      return Promise.all([
+    // Sync stuff
+    const state = store.getState();
+    const readlist = selectActiveReadlist(state);
+    sync.enqueue(() =>
+      Promise.all([
         putFile(
-          `/test/${newReadlist.id}/list.json`,
-          JSON.stringify(newReadlist, null, 2)
+          `/test/${readlist.id}/list.json`,
+          JSON.stringify(readlist, null, 2)
         ),
         putFile(
-          `/test/${newReadlist.id}/${article.id}.article.html`,
-          articleHtml
+          `/test/${readlist.id}/${readlist.articles[0].id}.article.html`,
+          articleHTML
         ),
-      ]);
-    })
-    .then(() => updateListInStore(newReadlist));
+      ])
+    );
+  });
+}
+
+export function putArticle({
+  readlistId,
+  readlistArticleId,
+  readlistArticleHTML,
+}) {
+  return putFile(
+    `/test/${readlistId}/${readlistArticleId}.article.html`,
+    readlistArticleHTML
+  );
 }
 
 /**
@@ -135,7 +135,7 @@ export function createArticle(url, readlistId) {
  * @param {*} path
  * @param {*} contents
  */
-function putFile(path, contents) {
+export function putFile(path, contents) {
   // Get the filename from the path
   const filename = path.slice(path.lastIndexOf("/") + 1, path.length);
   // Upload!

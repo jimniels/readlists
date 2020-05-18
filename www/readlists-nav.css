@@ -148,7 +148,7 @@ readlists-nav ul {
   overflow: scroll;
   padding-bottom: 20px;
   margin: 0;
-  padding: 0;
+  padding: 0 0 calc(var(--spacer) * 3) 0;
 }
 readlists-nav ul:after {
   content: "";

@@ -24,6 +24,7 @@
     --color-bg-primary: hsl(0, 0%, 10%);
     --color-bg-secondary: hsl(0, 0%, 20%);
     --color-text: hsl(255, 0%, 100%);
+    --color-border: hsl(0, 0%, 20%);
   }
 }
 
@@ -75,7 +76,7 @@ select {
 }
 button {
   border: 1px solid var(--color-border);
-  background: #fff;
+  background: var(--color-bg-primary);
   border-radius: var(--border-radius);
   box-shadoow: 0 1px 1px hsl(0, 0%, 95%);
   color: var(--color-accent);
@@ -85,6 +86,14 @@ button:hover {
 }
 input {
   font-size: 1rem;
+}
+
+readlist-nav ul,
+readlists-nav p,
+readlist-view ul,
+readlist-view p {
+  margin: 0;
+  padding: 0;
 }
 
 #header {
@@ -212,25 +221,326 @@ button.loading:after {
 readlist-view header {
   padding: calc(var(--spacer) * 2);
 }
-#list {
+
+/* =============================================================================
+   Article
+   ========================================================================== */
+
+.articles {
   margin: 0;
   padding: 0;
 }
-#list li {
+
+.article {
   display: flex;
   align-items: flex-start;
   padding-bottom: 1rem;
   border-top: 1px solid hsla(0, 0%, 0%, 0.1);
   padding: var(--spacer) calc(var(--spacer) * 2);
 }
-#list li.active {
+.article--active {
   background-color: hsla(var(--color-accent-hsl), 0.1);
 }
-#list li > div {
+.article > div {
   margin: 0 1rem;
+  flex-grow: 1;
 }
-#list h3,
-#list p {
+.article__title,
+.article__description {
   margin: 0;
   padding: 0;
+}
+.article__title {
+  font-weight: 500;
+}
+
+.article--create {
+  align-items: center;
+}
+.article--create input {
+  font-size: var(--font-size-lg);
+  padding: calc(var(--spacer) / 2);
+  width: 100%;
+  border: none;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--border-radius);
+  color: var(--color-text);
+}
+
+readlists-app {
+  display: flex;
+  overflow: hidden;
+}
+readlists-nav {
+  flex: 0 0 300px;
+  box-shadow: 0 0 3px hsla(0, 0%, 0%, 0.5);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+readlist-view,
+readlist-article {
+  overflow-y: scroll;
+  height: 100vh;
+  flex: 1;
+}
+readlist-view {
+  max-width: 800px;
+}
+readlist-article {
+}
+
+readlist-article {
+  background: var(--color-bg-secondary);
+}
+
+readlists-nav {
+  background: var(--color-bg-primary);
+}
+
+readlist-view {
+  background: var(--color-bg-primary);
+  box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.25);
+}
+readlist-article {
+  padding: 30px;
+  overflow: scroll;
+}
+
+readlist-article[loading]:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  botttom: 0;
+  right: 0;
+  top: 0;
+  background: url("./loading.svg") no-repeat 50%;
+}
+
+readlist-article {
+  transform: translateX(0px);
+  background: var(--color-bg-primary);
+  box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.25);
+}
+
+readlists-nav {
+  z-index: 3;
+}
+readlist-view {
+  z-index: 2;
+}
+readlist-article {
+  z-index: 1;
+}
+
+readlist-article,
+readlist-view {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+  transition: 0.3s ease all;
+}
+readlist-article[hidden],
+readlist-view[hidden] {
+  transform: translateX(-50px);
+  opacity: 0;
+  visibility: hidden;
+}
+
+/**
+ * Header
+ */
+
+readlists-nav header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: calc(var(--spacer) * 2) var(--spacer) var(--spacer);
+  z-index: 2;
+  border-bottom: 1px solid var(--color-border);
+}
+
+readlists-nav header h1 {
+  font-size: var(--font-size-xxl);
+  font-weight: 800;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+readlists-nav header a {
+  text-decoration: none;
+  color: inherit;
+}
+
+readlists-nav header a,
+readlists-nav header button {
+  color: inherit;
+}
+
+readlists-nav header button:hover {
+  text-decoration: none;
+}
+readlists-nav header button {
+  border: none;
+  background: var(--color-accent);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: white;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+readlists-nav header button span {
+  font-size: 28px;
+  top: -3px;
+  line-height: 1;
+  position: relative;
+  pointer-events: none;
+}
+
+/**
+ * List
+ */
+
+readlists-nav {
+  --width: 300px;
+}
+
+readlists-nav ul {
+  background: var(--color-bg-primary);
+  overflow: scroll;
+  padding-bottom: 20px;
+  margin: 0;
+  padding: 0 0 calc(var(--spacer) * 3) 0;
+}
+readlists-nav ul:after {
+  content: "";
+  position: fixed;
+  bottom: 40px;
+  height: 10px;
+  width: var(--width);
+  background: linear-gradient(
+    var(--color-bg-primary),
+    var(--color-bg-primary) 100%
+  );
+}
+
+readlists-nav li {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+readlists-nav li a {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 50px;
+  padding: var(--spacer);
+  padding-right: calc(var(--spacer) * 3);
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+
+readlists-nav li a::after {
+  content: attr(data-count);
+  position: absolute;
+  right: var(--spacer);
+  padding: calc(var(--spacer) / 2);
+  background: hsl(var(--color-accent-hsl), 0.1);
+  border-radius: 50%;
+  line-height: 0.5;
+  top: 50%;
+  margin-top: -1em;
+  font-size: var(--font-size-xsm);
+  color: var(--color-accent);
+}
+
+readlists-nav li a.active {
+  background: hsla(var(--color-accent-hsl), 0.1);
+}
+
+readlists-nav li a * {
+  pointer-events: none;
+}
+
+readlists-nav ul h2 {
+  font-size: var(--font-size-lg);
+  font-weight: 400;
+  margin: 0;
+  padding: 0;
+}
+readlists-nav ul p {
+  font-size: var(--font-size-sm);
+  margin: calc(var(--spacer) / 4) 0 0 0;
+  opacity: 0.6; /* @TODO */
+}
+
+/**
+ * Footer
+ */
+
+readlists-nav footer {
+  position: fixed;
+  bottom: 0;
+  height: 40px;
+  left: 0;
+  padding: var(--spacer);
+  width: var(--width);
+  background: var(--color-bg-primary);
+  font-size: var(--font-size-sm);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+readlists-nav footer a {
+  text-decoration: underline;
+}
+
+/**
+ * Readlist VIew
+ */
+readlist-view header textarea {
+  display: inline;
+  width: 100%;
+  background: var(--color-bg-secondary);
+  border: none;
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacer) / 2);
+  color: var(--color-text);
+}
+readlist-view header .title {
+  font-size: var(--font-size-xlg);
+  font-weight: 500;
+  font-size: 24px;
+}
+
+readlist-view header .description {
+  font-weight: 400;
+  font-size: var(--font-size-base);
+}
+
+readlist-view header time {
+  display: block;
+  margin-bottom: calc(var(--spacer) / 2);
+  color: var(--color-text-light);
+}
+
+readlist-view [contenteditable].empty {
+  opacity: 0.5;
+}
+readlist-view [contenteditable] {
+  display: inline;
+}
+readlist-view [contenteditable]:hover,
+readlist-view [contenteditable]:focus {
+  box-shadow: inset 0 -4px 0 var(--color-accent);
 }

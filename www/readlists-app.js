@@ -29,7 +29,8 @@ class ReadlistsApp extends HTMLElement {
 
       switch (e.target.dataset.actionKey) {
         case "log-in":
-          const accessToken = e.target.elements[0].value;
+          const user = e.target.elements[0].value;
+          const accessToken = e.target.elements[1].value;
           window.sessionStorage.setItem("dbx-token", accessToken);
           this.authenticate();
           break;
@@ -137,7 +138,8 @@ class ReadlistsApp extends HTMLElement {
               <readlist-article></readlist-article>
             `
           : `<form data-action-key="log-in">
-              <input type="text" />
+              <input type="text" placeholder="Username" />
+              <input type="text" placeholder="Token" />
               <button id="login" type="submit">
                 Log In
               </button>

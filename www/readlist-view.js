@@ -1,10 +1,13 @@
 import {
   putList,
+  putArticle,
   updateList,
-  createArticle,
-  deleteArticle,
+  deleteReadlistArticle,
   deleteReadlist,
   sync,
+  getArticleHTML,
+  getMercuryArticle,
+  createReadlistArticle,
 } from "./api.js";
 import { store, selectActiveReadlist } from "./r.js";
 
@@ -23,6 +26,8 @@ export class ReadListView extends HTMLElement {
           this.renderInitial();
           break;
         case "SELECT_READLIST_ARTICLE":
+        case "CREATE_READLIST_ARTICLE":
+        case "DELETE_READLIST_ARTICLE":
           this.renderList();
           break;
       }
@@ -52,13 +57,18 @@ export class ReadListView extends HTMLElement {
 
         switch (e.target.dataset.actionKey) {
           case "delete-article":
-            const articleId = e.target.id;
+            const articleId = e.target.dataset.actionValue;
             if (window.__DEV__)
               console.log(
                 "Deleting article %s from list %s",
                 articleId,
-                list.id
+                state.activeReadlistId
               );
+            store.dispatch({
+              type: "DELETE_READLIST_ARTICLE",
+              readlistId: state.activeReadlistId,
+              readlistArticleId: articleId,
+            });
 
             //   const oldList = selectList(this.getAttribute("list-id"));
             // const newList = {
@@ -70,18 +80,18 @@ export class ReadListView extends HTMLElement {
 
             // putList(list).then(syncArticles).then()
 
-            this.toggleLoading();
-            deleteArticle(articleId, list.id)
-              .then(() => {
-                this.renderList();
-              })
-              .catch((err) => {
-                console.error(err);
-                $app.setAttribute("error", "Deleting the article failed");
-              })
-              .then(() => {
-                this.toggleLoading();
-              });
+            // this.toggleLoading();
+            // deleteReadlistArticle(articleId, list.id)
+            //   .then(() => {
+            //     this.renderList();
+            //   })
+            //   .catch((err) => {
+            //     console.error(err);
+            //     $app.setAttribute("error", "Deleting the article failed");
+            //   })
+            //   .then(() => {
+            //     this.toggleLoading();
+            //   });
             break;
           case "delete-readlist":
             this.handleDeleteReadlist();
@@ -108,8 +118,9 @@ export class ReadListView extends HTMLElement {
     });
 
     this.addEventListener("submit", (e) => {
-      if (e.target.dataset.jsAction === "create-article") {
-        this.handleCreateArticle(e);
+      e.preventDefault();
+      if (e.target.dataset.actionKey === "create-article") {
+        this.handleCreateReadlistArticle(e);
       }
     });
   }
@@ -209,28 +220,31 @@ export class ReadListView extends HTMLElement {
    * Handlw when user creates a new article for a readlist
    * @param {*} e
    */
-  handleCreateArticle(e) {
-    e.preventDefault();
-    const $input = e.target[0];
-    that.toggleLoading();
-    createArticle($input.value, that.getAttribute("list-id"))
-      .then(() => {
+  handleCreateReadlistArticle(e) {
+    const $select = e.target.elements[0];
+    const $input = e.target.elements[1];
+    const $btn = e.target.elements[2];
+
+    $btn.classList.add("loading");
+    getMercuryArticle($input.value)
+      .then((mercuryArticle) => {
         $input.value = "";
-        that.renderList();
+        store.dispatch({
+          type: "CREATE_READLIST_ARTICLE",
+          readlistId: store.getState().activeReadlistId,
+          mercuryArticle,
+        });
       })
       .catch((err) => {
         console.error(err);
-        $app.setAttribute("error", "Failed to add a new article");
+        store.dispatch({
+          type: "SET_ERROR",
+          error: "There was a problem adding this URL as an article.",
+        });
       })
       .then(() => {
-        that.toggleLoading();
+        $btn.classList.remove("loading");
       });
-
-    // postArticle().then(article => {
-    //   store.dispatch({})
-    //   sync() // sync should have posting an article as optional
-    //   postArticle()
-    // })
   }
 
   renderInitial() {
@@ -252,25 +266,33 @@ export class ReadListView extends HTMLElement {
         <time datetime="${d.toISOString()}">
           Created ${dFormatted}
         </time>
-        <h1 id="title" contenteditable>${readlist.title}</h1>
-        <br />
-        <h2 id="description" contenteditable class="${
-          readlist.description ? "" : "empty"
-        }">${readlist.description ? readlist.description : "[Description]"}</h2>
-        <br />
+        <textarea class="title" placeholder="Title...">${
+          readlist.title
+        }</textarea>
+        
+        <textarea class="description" placeholder="Description...">${
+          readlist.description
+        }</textarea>
+        
         <button data-action-key="delete-readlist">Delete</button>
         <button data-js-action="export-epub">Export as Epub</button>
-        
       </header>
-      <ul id="list"></ul>
-      <form id="article-form" data-js-action="create-article">
-        <input type="text" id="create-article" placeholder="Add URL...">
-        <button type="submit">Add Article</button>
+      <form class="article article--create" data-action-key="create-article">
+        <select disabled name="article-order">
+          <option value="0">1</option>
+        </select>
+        <div>
+          <input name="article-url" type="text" placeholder="http://your-article-url.com/goes/here" />
+        </div>
+        <button>
+          Add
+        </button>
       </form>
+      <ul class="articles"></ul>
     `;
       this.$title = this.querySelector("#title");
       this.$description = this.querySelector("#description");
-      this.$list = this.querySelector("#list");
+      this.$articles = this.querySelector(".articles");
 
       this.renderList();
       this.removeAttribute("hidden");
@@ -282,18 +304,13 @@ export class ReadListView extends HTMLElement {
     const { activeReadlistId, activeReadlistArticleId } = state;
     const list = selectActiveReadlist(state);
 
-    if (list.articles.length === 0) {
-      this.$list.innerHTML = `<li>No articles</li>`;
-      return;
-    }
-
     const indexes = [...Array(list.articles.length).keys()];
-    this.$list.innerHTML = /*html*/ `
+    this.$articles.innerHTML = /*html*/ `
         ${list.articles
           .map(
             (article, articleIndex) => /*html*/ `
-            <li class="${
-              article.id == activeReadlistArticleId ? "active" : ""
+            <li class="article ${
+              article.id == activeReadlistArticleId ? "article--active" : ""
             }">
               <select
                 data-js-action="change-article-order"
@@ -309,8 +326,8 @@ export class ReadListView extends HTMLElement {
                 )}
               </select>
               <div>
-                <a href="${article.url}">${article.domain}</a>
-                <h3>
+                <p class="article__domain">${article.domain}</p>
+                <h3 class="article__title">
                   <a
                     href="./data/${list.id}-${article.id}.article.html"
                     data-action-key="select-article"
@@ -319,11 +336,11 @@ export class ReadListView extends HTMLElement {
                     ${article.title}
                   </a>
                 </h3>
-                <p>${article.excerpt}</p>
+                <p class="article__excerpt">${article.excerpt}</p>
               </div>
               <button
-                data-js-action="delete-article"
-                id="${article.id}">
+                data-action-key="delete-article"
+                data-action-value="${article.id}">
                 Delete
               </button>
             </li>`

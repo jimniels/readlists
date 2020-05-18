@@ -1,10 +1,12 @@
 import * as Redux from "https://cdn.pika.dev/redux@^4.0.5";
+import { putFile, sync, deleteReadlistArticle } from "./api.js";
 
 const initialState = {
   activeReadlistId: "",
   activeReadlistArticleId: "",
   readlists: [],
   lastActionType: "",
+  lastAction: {},
   user: "",
   error: "",
 };
@@ -21,6 +23,7 @@ const initialState = {
 
 function reducer(state, action) {
   state.lastActionType = action.type;
+  state.lastAction = action;
 
   switch (action.type) {
     case "INIT":
@@ -91,6 +94,56 @@ function reducer(state, action) {
           }
         }),
       };
+    /**
+     * @param {string|number} readlistId
+     * @param {MercuryArticle} mercuryArticle
+     */
+    case "CREATE_READLIST_ARTICLE":
+      {
+        const { readlistId, mercuryArticle } = action;
+        const { content, ...article } = mercuryArticle;
+        return {
+          ...state,
+          readlists: state.readlists.map((readlist) => {
+            if (readlist.id == readlistId) {
+              return {
+                ...readlist,
+                articles: [
+                  { id: Date.now(), ...article },
+                  ...readlist.articles,
+                ],
+              };
+            } else {
+              return readlist;
+            }
+          }),
+        };
+      }
+      break;
+    /**
+     * @param {string} readlistId
+     * @param {string} readlistArticleId
+     */
+    case "DELETE_READLIST_ARTICLE":
+      {
+        const { readlistId, readlistArticleId } = action;
+        return {
+          ...state,
+          readlists: state.readlists.map((readlist) => {
+            if (readlist.id != readlistId) {
+              return readlist;
+            }
+
+            return {
+              ...readlist,
+              articles: readlist.articles.filter(
+                (article) => article.id != readlistArticleId
+              ),
+            };
+          }),
+        };
+      }
+      break;
     default:
       return state;
   }
@@ -101,6 +154,10 @@ let store = Redux.createStore(
   initialState,
   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 );
+
+const selectReadlistById = (state, id) => {
+  return state.readlists.find((readlist) => readlist.id == id);
+};
 
 const selectActiveReadlist = (state) => {
   return state.readlists.find(
@@ -114,6 +171,46 @@ const selectActiveReadlistArticle = (state) => {
     (article) => article.id == state.activeReadlistArticleId
   );
 };
+
+/**
+ * All necssary syncing takes place here based on the events that occur
+ */
+store.subscribe(() => {
+  const state = store.getState();
+  switch (state.lastAction.type) {
+    case "CREATE_READLIST_ARTICLE":
+      {
+        const {
+          lastAction: {
+            readlistId,
+            mercuryArticle: { content },
+          },
+        } = state;
+        const readlist = selectReadlistById(state, readlistId);
+        const articleId = readlist.articles[0].id;
+        sync.enqueue(() =>
+          Promise.all([
+            putFile(
+              `/test/${readlistId}/list.json`,
+              JSON.stringify(readlist, null, 2)
+            ),
+            putFile(`/test/${readlistId}/${articleId}.article.html`, content),
+          ])
+        );
+      }
+      break;
+    case "DELETE_READLIST_ARTICLE":
+      {
+        const {
+          lastAction: { readlistId, readlistArticleId },
+        } = state;
+        sync.enqueue(() =>
+          deleteReadlistArticle({ readlistArticleId, readlistId })
+        );
+      }
+      break;
+  }
+});
 
 // let previousState = store.getState();
 // store.subscribe((unsubscribe) => {
@@ -131,4 +228,9 @@ const selectActiveReadlistArticle = (state) => {
 
 // store.dispatch({ type: "UPDATE_ACTIVE_READLIST" });
 
-export { store, selectActiveReadlist, selectActiveReadlistArticle };
+export {
+  store,
+  selectActiveReadlist,
+  selectActiveReadlistArticle,
+  selectReadlistById,
+};

@@ -12,6 +12,7 @@ class ReadlistsNav extends HTMLElement {
         case "CREATE_READLIST":
         case "DELETE_READLIST":
         case "UPDATE_READLIST":
+        case "CREATE_READLIST_ARTICLE": // update count
           this.render(state);
           break;
         case "SELECT_READLIST":
