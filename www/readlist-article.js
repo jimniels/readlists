@@ -92,7 +92,9 @@ class ReadlistArticle extends HTMLElement {
           <h1>${title}</h1>
           ${author ? `<p>${author}</p>` : ""}
         </header>
-        ${articleHTML}
+        <div>
+          ${articleHTML}
+        </div>
       `;
     }
   }

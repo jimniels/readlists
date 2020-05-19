@@ -199,7 +199,7 @@ store.subscribe(() => {
   switch (state.lastAction.type) {
     case "UPDATE_READLIST":
       {
-        const { readlistId } = state.lastActioon;
+        const { readlistId } = state.lastAction;
         const readlist = selectReadlistById(state, readlistId);
         sync.enqueue(() => putList(readlist));
       }

@@ -335,6 +335,12 @@ export class ReadListView extends HTMLElement {
                 data-action-value="${article.id}">
                 Delete
               </button>
+              <button
+                class="button"
+                data-action-key="view-article"
+                data-action-value="${article.id}">
+                View
+              </button>
             </li>`
           )
           .join("")}
