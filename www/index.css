@@ -3,7 +3,7 @@
   --color-accent-hsl: 215, 100%, 51%;
   --color-bg-primary: hsl(255, 0%, 100%);
   --color-bg-secondary: hsl(255, 0%, 90%);
-  --color-danger: var(--color-accent);
+  --color-danger: red;
   --color-text: hsl(0, 0%, 10%);
   --color-text-light: hsl(0, 0%, 50%);
   --color-border: hsla(0, 0%, 90%);
@@ -67,25 +67,40 @@ img {
   height: auto;
 }
 
-button.danger {
-  color: var(--color-danger);
-}
-button,
 select {
   font-size: var(--font-size-sm);
 }
-button {
+input {
+  font-size: 1rem;
+}
+textarea {
+  display: inline;
+  width: 100%;
+  background: var(--color-bg-secondary);
+  border: none;
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacer) / 2);
+  color: var(--color-text);
+  resize: none;
+}
+
+/*
+  Buttons
+*/
+
+.button {
+  font-size: var(--font-size-sm);
   border: 1px solid var(--color-border);
   background: var(--color-bg-primary);
   border-radius: var(--border-radius);
   box-shadoow: 0 1px 1px hsl(0, 0%, 95%);
   color: var(--color-accent);
 }
-button:hover {
+.button:hover {
   text-decoration: underline;
 }
-input {
-  font-size: 1rem;
+.button--danger {
+  color: var(--color-danger);
 }
 
 readlist-nav ul,
@@ -241,17 +256,20 @@ readlist-view header {
 .article--active {
   background-color: hsla(var(--color-accent-hsl), 0.1);
 }
+.article > select {
+  margin-right: var(--spacer);
+}
 .article > div {
-  margin: 0 1rem;
+  margin-right: var(--spacer);
   flex-grow: 1;
 }
-.article__title,
 .article__description {
   margin: 0;
   padding: 0;
 }
 .article__title {
   font-weight: 500;
+  font-size: var(--font-size-lg);
 }
 
 .article--create {
@@ -508,15 +526,6 @@ readlists-nav footer a {
 /**
  * Readlist VIew
  */
-readlist-view header textarea {
-  display: inline;
-  width: 100%;
-  background: var(--color-bg-secondary);
-  border: none;
-  border-radius: var(--border-radius);
-  padding: calc(var(--spacer) / 2);
-  color: var(--color-text);
-}
 readlist-view header .title {
   font-size: var(--font-size-xlg);
   font-weight: 500;

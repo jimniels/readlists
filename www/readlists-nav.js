@@ -96,7 +96,9 @@ class ReadlistsNav extends HTMLElement {
       </ul>
       <footer class="header__buttons">
         <p>${user}</p>
-        <button data-action="log-out" class="danger">Log Out</button>
+        <button data-action="log-out" class="button button--danger">
+          Log Out
+        </button>
       </footer>
     `;
   }

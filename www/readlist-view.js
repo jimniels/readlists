@@ -9,7 +9,8 @@ import {
   getMercuryArticle,
   createReadlistArticle,
 } from "./api.js";
-import { store, selectActiveReadlist } from "./r.js";
+import { store, selectActiveReadlist, selectReadlistArticleById } from "./r.js";
+import { autoExpand } from "./utils.js";
 
 export class ReadListView extends HTMLElement {
   connectedCallback() {
@@ -39,77 +40,50 @@ export class ReadListView extends HTMLElement {
      * Event Listeners
      */
     this.addEventListener("focusout", (e) => {
-      const readlist = selectActiveReadlist(store.getState());
-      if (e.target.id === "title" && e.target.textContent !== readlist.title) {
-        this.handleUpdatePartOfReadlist({ title: e.target.textContent });
-      } else if (
-        e.target.id === "description" &&
-        e.target.textContent !== readlist.description
-      ) {
-        this.handleUpdatePartOfReadlist({ description: e.target.textContent });
+      switch (e.target.dataset.actionKey) {
+        case "update-readlist":
+          this.handleUpdatePartOfReadlist(e);
+          break;
+        case "update-readlist-article":
+          console.log(e.target.value);
+          const state = store.getState();
+          const readlistArticle = selectReadlistArticleById(
+            state,
+            state.activeReadlistId,
+            e.target.dataset.actionValue
+          );
+          if (readlistArticle.title != e.target.value) {
+            store.dispatch({
+              type: "UPDATE_READLIST_ARTICLE",
+              readlistId: store.getState().activeReadlistId,
+              readlistArticleId: e.target.dataset.actionValue,
+              readlistArticleUpdates: { title: e.target.value },
+            });
+          }
+          break;
       }
     });
 
-    this.addEventListener(
-      "click",
-      (e) => {
-        const state = store.getState();
+    this.addEventListener("input", (e) => {
+      if (e.target.tagName === "TEXTAREA") {
+        autoExpand(e.target);
+      }
+    });
 
-        switch (e.target.dataset.actionKey) {
-          case "delete-article":
-            const articleId = e.target.dataset.actionValue;
-            if (window.__DEV__)
-              console.log(
-                "Deleting article %s from list %s",
-                articleId,
-                state.activeReadlistId
-              );
-            store.dispatch({
-              type: "DELETE_READLIST_ARTICLE",
-              readlistId: state.activeReadlistId,
-              readlistArticleId: articleId,
-            });
-
-            //   const oldList = selectList(this.getAttribute("list-id"));
-            // const newList = {
-            //   ...oldList,
-            //   articles: oldList.articles.filter(article => article.id != articleId)
-            // };
-            // dispatch({ })
-            // this.syncList({ list, syncArticles: true });
-
-            // putList(list).then(syncArticles).then()
-
-            // this.toggleLoading();
-            // deleteReadlistArticle(articleId, list.id)
-            //   .then(() => {
-            //     this.renderList();
-            //   })
-            //   .catch((err) => {
-            //     console.error(err);
-            //     $app.setAttribute("error", "Deleting the article failed");
-            //   })
-            //   .then(() => {
-            //     this.toggleLoading();
-            //   });
-            break;
-          case "delete-readlist":
-            this.handleDeleteReadlist();
-            break;
-          case "select-article":
-            const readlistArticleId = e.target.dataset.actionValue;
-            store.dispatch({
-              type: "SELECT_READLIST_ARTICLE",
-              readlistArticleId:
-                readlistArticleId == state.activeReadlistArticleId
-                  ? ""
-                  : readlistArticleId,
-            });
-            break;
-        }
-      },
-      false
-    );
+    this.addEventListener("click", (e) => {
+      // console.log(e, e.target.closest("li"));
+      switch (e.target.dataset.actionKey) {
+        case "delete-article":
+          this.handleDeleteReadlistArticle(e);
+          break;
+        case "delete-readlist":
+          this.handleDeleteReadlist();
+          break;
+        case "select-article":
+          this.handleSelectReadlistArticle(e);
+          break;
+      }
+    });
 
     this.addEventListener("input", (e) => {
       if (e.target.dataset.jsAction === "change-article-order") {
@@ -125,15 +99,16 @@ export class ReadListView extends HTMLElement {
     });
   }
 
-  /**
-   * Loading indicator to show that a network event is happening
-   */
-  toggleLoading() {
-    if ($app.hasAttribute("loading")) {
-      $app.removeAttribute("loading");
-    } else {
-      $app.setAttribute("loading", true);
-    }
+  handleSelectReadlistArticle(e) {
+    const state = store.getState();
+    const readlistArticleId = e.target.dataset.actionValue;
+    store.dispatch({
+      type: "SELECT_READLIST_ARTICLE",
+      readlistArticleId:
+        readlistArticleId == state.activeReadlistArticleId
+          ? "" // deselect the current one
+          : readlistArticleId, // select a new one
+    });
   }
 
   /**
@@ -150,11 +125,7 @@ export class ReadListView extends HTMLElement {
     msg += ".";
 
     if (window.confirm(msg)) {
-      // Update app state
       store.dispatch({ type: "DELETE_READLIST", readlistId: readlist.id });
-
-      // Sync app state
-      sync.enqueue(() => deleteReadlist(readlist.id));
     }
   }
 
@@ -162,16 +133,18 @@ export class ReadListView extends HTMLElement {
    * Sync a given a set of changes to a readlist.
    * @param {Object} readlistChanges - Partial Readlist object
    */
-  handleUpdatePartOfReadlist(readlistUpdates) {
-    const { activeReadlistId } = store.getState();
-    store.dispatch({
-      type: "UPDATE_READLIST",
-      readlistId: activeReadlistId,
-      readlistUpdates,
-    });
+  handleUpdatePartOfReadlist(e) {
+    const changeKey = e.target.dataset.actionValue;
+    const value = e.target.value;
+    const readlist = selectActiveReadlist(store.getState());
 
-    const newReadlist = selectActiveReadlist(store.getState());
-    sync.enqueue(() => putList(newReadlist));
+    if (readlist[changeKey] != value) {
+      store.dispatch({
+        type: "UPDATE_READLIST",
+        readlistId: readlist.id,
+        readlistUpdates: { [changeKey]: value },
+      });
+    }
   }
 
   /**
@@ -221,9 +194,8 @@ export class ReadListView extends HTMLElement {
    * @param {*} e
    */
   handleCreateReadlistArticle(e) {
-    const $select = e.target.elements[0];
-    const $input = e.target.elements[1];
-    const $btn = e.target.elements[2];
+    const $input = e.target.elements[0];
+    const $btn = e.target.elements[1];
 
     $btn.classList.add("loading");
     getMercuryArticle($input.value)
@@ -247,6 +219,14 @@ export class ReadListView extends HTMLElement {
       });
   }
 
+  handleDeleteReadlistArticle(e) {
+    store.dispatch({
+      type: "DELETE_READLIST_ARTICLE",
+      readlistId: store.getState().activeReadlistId,
+      readlistArticleId: e.target.dataset.actionValue,
+    });
+  }
+
   renderInitial() {
     const state = store.getState();
     const readlist = selectActiveReadlist(state);
@@ -266,34 +246,45 @@ export class ReadListView extends HTMLElement {
         <time datetime="${d.toISOString()}">
           Created ${dFormatted}
         </time>
-        <textarea class="title" placeholder="Title...">${
-          readlist.title
-        }</textarea>
+        <textarea
+          class="title"
+          placeholder="Title..."
+          data-action-key="update-readlist"
+          data-action-value="title">${readlist.title}</textarea>
         
-        <textarea class="description" placeholder="Description...">${
-          readlist.description
-        }</textarea>
+        <textarea
+          class="description"
+          placeholder="Description..."
+          data-action-key="update-readlist"
+          data-action-value="description">${readlist.description}</textarea>
         
-        <button data-action-key="delete-readlist">Delete</button>
-        <button data-js-action="export-epub">Export as Epub</button>
+        <button class="button" data-js-action="export-epub">
+          Export as Epub
+        </button>          
+        <button class="button button--danger" data-action-key="delete-readlist">
+          Delete
+        </button>
       </header>
+      <ul class="articles"></ul>
       <form class="article article--create" data-action-key="create-article">
-        <select disabled name="article-order">
-          <option value="0">1</option>
-        </select>
         <div>
-          <input name="article-url" type="text" placeholder="http://your-article-url.com/goes/here" />
+          <input
+            name="article-url"
+            type="text"
+            placeholder="http://your-article-url.com/goes/here"
+          />
         </div>
-        <button>
+        <button class="button" type="submit">
           Add
         </button>
       </form>
-      <ul class="articles"></ul>
     `;
       this.$title = this.querySelector("#title");
       this.$description = this.querySelector("#description");
       this.$articles = this.querySelector(".articles");
-
+      // this.querySelectorAll("textarea").forEach(($el) => {
+      //   autoExpand($el);
+      // });
       this.renderList();
       this.removeAttribute("hidden");
     }, 300);
@@ -309,9 +300,12 @@ export class ReadListView extends HTMLElement {
         ${list.articles
           .map(
             (article, articleIndex) => /*html*/ `
-            <li class="article ${
-              article.id == activeReadlistArticleId ? "article--active" : ""
-            }">
+            <li
+              data-action-key="select-article"
+              data-action-value="${article.id}"
+              class="article ${
+                article.id == activeReadlistArticleId ? "article--active" : ""
+              }">
               <select
                 data-js-action="change-article-order"
                 data-current-index="${articleIndex}"
@@ -327,18 +321,16 @@ export class ReadListView extends HTMLElement {
               </select>
               <div>
                 <p class="article__domain">${article.domain}</p>
-                <h3 class="article__title">
-                  <a
-                    href="./data/${list.id}-${article.id}.article.html"
-                    data-action-key="select-article"
-                    data-action-value="${article.id}"
-                    target="_blank">
-                    ${article.title}
-                  </a>
-                </h3>
+                <textarea
+                  class="article__title"
+                  placeholder="Article Name..."
+                  data-action-key="update-readlist-article"
+                  data-action-value="${article.id}"
+                >${article.title}</textarea>    
                 <p class="article__excerpt">${article.excerpt}</p>
               </div>
               <button
+                class="button button--danger"
                 data-action-key="delete-article"
                 data-action-value="${article.id}">
                 Delete
@@ -347,6 +339,11 @@ export class ReadListView extends HTMLElement {
           )
           .join("")}
     `;
+
+    // Auto-expand all the textarea(s)
+    Array.from(this.$articles.querySelectorAll("textarea")).forEach(($el) => {
+      autoExpand($el);
+    });
   }
 }
 

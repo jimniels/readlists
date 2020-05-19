@@ -1,4 +1,8 @@
 export function autoExpand(field) {
+  field.style.height = ""; /* Reset the height*/
+  field.style.height = Math.min(field.scrollHeight, 200) + "px";
+  return;
+
   // Reset field height
   field.style.height = "inherit";
 

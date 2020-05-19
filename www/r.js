@@ -1,11 +1,11 @@
 import * as Redux from "https://cdn.pika.dev/redux@^4.0.5";
-import { putFile, sync, deleteReadlistArticle } from "./api.js";
+import { putFile, sync, deleteReadlistArticle, putList } from "./api.js";
 
 const initialState = {
   activeReadlistId: "",
   activeReadlistArticleId: "",
   readlists: [],
-  lastActionType: "",
+  lastActionType: "", // @deprecate
   lastAction: {},
   user: "",
   error: "",
@@ -48,20 +48,6 @@ function reducer(state, action) {
         ...state,
         activeReadlistArticleId: action.readlistArticleId,
       };
-    case "DESELECT_READLIST_ARTICLE":
-      return {
-        ...state,
-        activeReadlistArticleId: "",
-      };
-    case "DELETE_READLIST":
-      return {
-        ...state,
-        readlists: state.readlists.filter(
-          (readlist) => readlist.id != action.readlistId
-        ),
-        activeReadlistId: "",
-        activeReadlistArticleId: "",
-      };
     case "CREATE_READLIST":
       const newReadlist = {
         id: Date.now(),
@@ -75,77 +61,103 @@ function reducer(state, action) {
         activeReadlistId: newReadlist.id,
         activeReadlistArticleId: "",
       };
-    /**
-     * type = ""
-     * readlistId = ""
-     * updates = {}
-     */
-    case "UPDATE_READLIST":
+    case "DELETE_READLIST":
       return {
         ...state,
-        readlists: state.readlists.map((readlist) => {
-          if (readlist.id == action.readlistId) {
-            return {
-              ...readlist,
-              ...action.readlistUpdates,
-            };
-          } else {
-            return readlist;
-          }
-        }),
+        readlists: state.readlists.filter(
+          (readlist) => readlist.id != action.readlistId
+        ),
+        activeReadlistId: "",
+        activeReadlistArticleId: "",
       };
+    case "UPDATE_READLIST":
+    case "CREATE_READLIST_ARTICLE":
+    case "UPDATE_READLIST_ARTICLE":
+    case "DELETE_READLIST_ARTICLE":
+      return {
+        ...state,
+        readlists: readlistsReducer(state, action),
+      };
+    default:
+      return state;
+  }
+}
+
+function readlistsReducer(state = [], action) {
+  switch (action.type) {
+    case "UPDATE_READLIST": {
+      const { readlistId, readlistUpdates } = action;
+      return state.readlists.map((readlist) =>
+        readlist.id == readlistId
+          ? {
+              ...readlist,
+              ...readlistUpdates,
+            }
+          : readlist
+      );
+    }
     /**
      * @param {string|number} readlistId
      * @param {MercuryArticle} mercuryArticle
      */
     case "CREATE_READLIST_ARTICLE":
-      {
-        const { readlistId, mercuryArticle } = action;
-        const { content, ...article } = mercuryArticle;
-        return {
-          ...state,
-          readlists: state.readlists.map((readlist) => {
-            if (readlist.id == readlistId) {
-              return {
-                ...readlist,
-                articles: [
-                  { id: Date.now(), ...article },
-                  ...readlist.articles,
-                ],
-              };
-            } else {
-              return readlist;
+      const {
+        readlistId,
+        mercuryArticle: { content, ...article },
+      } = action;
+      return state.readlists.map((readlist) =>
+        readlist.id == readlistId
+          ? {
+              ...readlist,
+              articles: readlist.articles.concat({
+                id: Date.now(),
+                ...article,
+              }),
             }
-          }),
-        };
-      }
-      break;
+          : readlist
+      );
+    /**
+     * @param {string} readlistId
+     * @param {string} readlistArticleId
+     * @param {Object} readlistArticleUpdates
+     */
+    case "UPDATE_READLIST_ARTICLE": {
+      const { readlistId, readlistArticleId, readlistArticleUpdates } = action;
+      return state.readlists.map((readlist) =>
+        readlist.id == readlistId
+          ? {
+              ...readlist,
+              articles: readlist.articles.map((article) =>
+                article.id == readlistArticleId
+                  ? {
+                      ...article,
+                      ...readlistArticleUpdates,
+                    }
+                  : article
+              ),
+            }
+          : readlist
+      );
+    }
     /**
      * @param {string} readlistId
      * @param {string} readlistArticleId
      */
-    case "DELETE_READLIST_ARTICLE":
-      {
-        const { readlistId, readlistArticleId } = action;
-        return {
-          ...state,
-          readlists: state.readlists.map((readlist) => {
-            if (readlist.id != readlistId) {
-              return readlist;
-            }
-
-            return {
+    case "DELETE_READLIST_ARTICLE": {
+      const { readlistId, readlistArticleId } = action;
+      return state.readlists.map((readlist) =>
+        readlist.id == readlistId
+          ? {
               ...readlist,
               articles: readlist.articles.filter(
                 (article) => article.id != readlistArticleId
               ),
-            };
-          }),
-        };
-      }
-      break;
+            }
+          : readlist
+      );
+    }
     default:
-      return state;
+      state;
   }
 }
 
@@ -157,6 +169,12 @@ let store = Redux.createStore(
 
 const selectReadlistById = (state, id) => {
   return state.readlists.find((readlist) => readlist.id == id);
+};
+
+const selectReadlistArticleById = (state, readlistId, readlistArticleId) => {
+  return selectReadlistById(state, readlistId).articles.find(
+    (article) => article.id == readlistArticleId
+  );
 };
 
 const selectActiveReadlist = (state) => {
@@ -177,17 +195,30 @@ const selectActiveReadlistArticle = (state) => {
  */
 store.subscribe(() => {
   const state = store.getState();
+
   switch (state.lastAction.type) {
+    case "UPDATE_READLIST":
+      {
+        const { readlistId } = state.lastActioon;
+        const readlist = selectReadlistById(state, readlistId);
+        sync.enqueue(() => putList(readlist));
+      }
+      break;
+    case "DELETE_READLIST":
+      {
+        const { readlistId } = state.lastAction;
+        sync.enqueue(() => deleteReadlist(readlistId));
+      }
+      break;
     case "CREATE_READLIST_ARTICLE":
       {
         const {
-          lastAction: {
-            readlistId,
-            mercuryArticle: { content },
-          },
-        } = state;
+          readlistId,
+          mercuryArticle: { content },
+        } = state.lastAction;
         const readlist = selectReadlistById(state, readlistId);
-        const articleId = readlist.articles[0].id;
+        // It will be the last one by default
+        const articleId = readlist.articles[readlist.articles.length - 1].id;
         sync.enqueue(() =>
           Promise.all([
             putFile(
@@ -201,12 +232,16 @@ store.subscribe(() => {
       break;
     case "DELETE_READLIST_ARTICLE":
       {
-        const {
-          lastAction: { readlistId, readlistArticleId },
-        } = state;
+        const { readlistId, readlistArticleId } = state.lastAction;
         sync.enqueue(() =>
-          deleteReadlistArticle({ readlistArticleId, readlistId })
+          deleteReadlistArticle({ readlistId, readlistArticleId })
         );
+      }
+      break;
+    case "UPDATE_READLIST_ARTICLE":
+      {
+        const { readlistId } = state.lastAction;
+        sync.enqueue(() => putList(selectReadlistById(state, readlistId)));
       }
       break;
   }
@@ -232,5 +267,6 @@ export {
   store,
   selectActiveReadlist,
   selectActiveReadlistArticle,
+  selectReadlistArticleById,
   selectReadlistById,
 };
