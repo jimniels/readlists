@@ -86,15 +86,17 @@ class ReadlistArticle extends HTMLElement {
         url,
       } = selectActiveReadlistArticle(state);
       this.innerHTML = /*html*/ `
-        <header>
-          <a href="${url}" class="link" target="__blank">${domain}</a>
-          ${date_published ? `<time>${date_published}</time>` : ""}
-          <h1>${title}</h1>
-          ${author ? `<p>${author}</p>` : ""}
-        </header>
         <div>
+          <header>
+            <a href="${url}" class="link" target="__blank">${domain}</a>
+            ${date_published ? `<time>${date_published}</time>` : ""}
+            <h1>${title}</h1>
+            ${author ? `<p>${author}</p>` : ""}
+          </header>
+        
           ${articleHTML}
         </div>
+        
       `;
     }
   }

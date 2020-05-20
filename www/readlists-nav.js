@@ -86,7 +86,13 @@ class ReadlistsNav extends HTMLElement {
                   data-count="${readlist.articles.length}">
                   <h2>${readlist.title}</h2>
                   ${
-                    readlist.description ? `<p>${readlist.description}</p>` : ""
+                    readlist.description
+                      ? `<p>${
+                          readlist.description.length > 100
+                            ? readlist.description.substring(0, 100) + "..."
+                            : readlist.description
+                        }</p>`
+                      : ""
                   }
                 </a>
               </li>

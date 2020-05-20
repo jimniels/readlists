@@ -39,7 +39,9 @@ class ReadlistsApp extends HTMLElement {
 
     this.addEventListener("click", (e) => {
       if (e.target.href) {
-        e.preventDefault();
+        if (!e.target.classList.contains("link")) {
+          e.preventDefault();
+        }
       }
     });
 

@@ -2,7 +2,7 @@
   --color-accent: hsl(215, 100%, 51%);
   --color-accent-hsl: 215, 100%, 51%;
   --color-bg-primary: hsl(255, 0%, 100%);
-  --color-bg-secondary: hsl(255, 0%, 90%);
+  --color-bg-secondary: hsl(255, 0%, 95%);
   --color-danger: red;
   --color-text: hsl(0, 0%, 10%);
   --color-text-light: hsl(0, 0%, 50%);
@@ -237,6 +237,16 @@ readlist-view header {
   padding: calc(var(--spacer) * 2);
 }
 
+[contenteditable] {
+  background-color: var(--color-bg-secondary);
+  padding: calc(var(--spacer) / 4) calc(var(--spacer) / 2);
+  border-radius: var(--border-radius);
+  min-width: 100px;
+}
+[contenteditable]:hover {
+  background-color: hsla(var(--color-accent-hsl), 0.1);
+}
+
 /* =============================================================================
    Article
    ========================================================================== */
@@ -249,19 +259,24 @@ readlist-view header {
 .article {
   display: flex;
   align-items: flex-start;
+  flex-direction: column;
   padding-bottom: 1rem;
   border-top: 1px solid hsla(0, 0%, 0%, 0.1);
-  padding: var(--spacer) calc(var(--spacer) * 2);
+  padding: var(--spacer) calc(var(--spacer) * 2) var(--spacer) 80px;
+  position: relative;
 }
 .article--active {
   background-color: hsla(var(--color-accent-hsl), 0.1);
 }
-.article > select {
-  margin-right: var(--spacer);
+.article__order {
+  position: absolute;
+  left: calc(var(--spacer) * 2);
+  top: var(--spacer);
 }
 .article > div {
-  margin-right: var(--spacer);
-  flex-grow: 1;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 .article__description {
   margin: 0;
@@ -270,6 +285,7 @@ readlist-view header {
 .article__title {
   font-weight: 500;
   font-size: var(--font-size-lg);
+  margin: calc(var(--spacer) / 2) 0;
 }
 
 .article--create {
@@ -288,29 +304,23 @@ readlist-view header {
 readlists-app {
   display: flex;
   overflow: hidden;
+  justify-content: center;
 }
 readlists-nav {
   flex: 0 0 300px;
-  box-shadow: 0 0 3px hsla(0, 0%, 0%, 0.5);
   height: 100vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow: -2px 0 6px hsla(0, 0%, 0%, 0.1);
+  border-right: 1px solid var(--color-border);
 }
-readlist-view,
-readlist-article {
+readlist-view {
   overflow-y: scroll;
   height: 100vh;
   flex: 1;
-}
-readlist-view {
   max-width: 800px;
-}
-readlist-article {
-}
-
-readlist-article {
-  background: var(--color-bg-secondary);
+  box-shadow: 2px 0 6px hsla(0, 0%, 0%, 0.1);
 }
 
 readlists-nav {
@@ -319,11 +329,28 @@ readlists-nav {
 
 readlist-view {
   background: var(--color-bg-primary);
-  box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.25);
 }
 readlist-article {
-  padding: 30px;
+  background: rgba(0, 0, 0, 0.5);
   overflow: scroll;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+readlist-article > div {
+  background: #fff;
+  max-width: 800px;
+  margin: calc(var(--spacer) * 2) auto;
+  padding: calc(var(--spacer) * 2);
+  border-radius: var(--border-radius);
+  transition: 0.3s ease transform;
+  transform: translateY(0px);
+}
+readlist-article[hidden] > div {
+  transform: translateY(100px);
 }
 
 readlist-article[loading]:after {
@@ -337,31 +364,17 @@ readlist-article[loading]:after {
 }
 
 readlist-article {
-  transform: translateX(0px);
-  background: var(--color-bg-primary);
-  box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.25);
+  z-index: 10;
 }
 
-readlists-nav {
-  z-index: 3;
-}
-readlist-view {
-  z-index: 2;
-}
 readlist-article {
-  z-index: 1;
-}
-
-readlist-article,
-readlist-view {
   display: block;
   opacity: 1;
   visibility: visible;
   transition: 0.3s ease all;
 }
-readlist-article[hidden],
-readlist-view[hidden] {
-  transform: translateX(-50px);
+
+readlist-article[hidden] {
   opacity: 0;
   visibility: hidden;
 }
@@ -464,6 +477,7 @@ readlists-nav li a {
   padding-right: calc(var(--spacer) * 3);
   border-bottom: 1px solid var(--color-border);
   position: relative;
+  transition: 0.3s ease all;
 }
 
 readlists-nav li a::after {
@@ -482,6 +496,7 @@ readlists-nav li a::after {
 
 readlists-nav li a.active {
   background: hsla(var(--color-accent-hsl), 0.1);
+  box-shadow: inset 2px 0 0 var(--color-accent);
 }
 
 readlists-nav li a * {
@@ -530,26 +545,17 @@ readlist-view header .title {
   font-size: var(--font-size-xlg);
   font-weight: 500;
   font-size: 24px;
+  margin: 0;
 }
 
 readlist-view header .description {
   font-weight: 400;
   font-size: var(--font-size-base);
+  margin: calc(var(--spacer) / 2) 0;
 }
 
 readlist-view header time {
   display: block;
   margin-bottom: calc(var(--spacer) / 2);
   color: var(--color-text-light);
-}
-
-readlist-view [contenteditable].empty {
-  opacity: 0.5;
-}
-readlist-view [contenteditable] {
-  display: inline;
-}
-readlist-view [contenteditable]:hover,
-readlist-view [contenteditable]:focus {
-  box-shadow: inset 0 -4px 0 var(--color-accent);
 }

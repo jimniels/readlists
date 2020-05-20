@@ -1,5 +1,11 @@
 import * as Redux from "https://cdn.pika.dev/redux@^4.0.5";
-import { putFile, sync, deleteReadlistArticle, putList } from "./api.js";
+import {
+  putFile,
+  sync,
+  deleteReadlist,
+  deleteReadlistArticle,
+  putList,
+} from "./api.js";
 
 const initialState = {
   activeReadlistId: "",
@@ -73,6 +79,7 @@ function reducer(state, action) {
     case "UPDATE_READLIST":
     case "CREATE_READLIST_ARTICLE":
     case "UPDATE_READLIST_ARTICLE":
+    case "UPDATE_READLIST_ARTICLE_ORDER":
     case "DELETE_READLIST_ARTICLE":
       return {
         ...state,
@@ -138,6 +145,30 @@ function readlistsReducer(state = [], action) {
             }
           : readlist
       );
+    }
+    /**
+     *
+     */
+    case "UPDATE_READLIST_ARTICLE_ORDER": {
+      const { readlistId, readlistArticleId, currentIndex, newIndex } = action;
+      return state.readlists.map((readlist) => {
+        console.warn(readlist.id, readlistId);
+        if (readlist.id == readlistId) {
+          let newReadlist = {
+            ...readlist,
+            articles: readlist.articles.map((article) => ({ ...article })),
+          };
+          newReadlist.articles.splice(
+            newIndex,
+            0,
+            newReadlist.articles.splice(currentIndex, 1)[0]
+          );
+
+          return newReadlist;
+        } else {
+          return readlist;
+        }
+      });
     }
     /**
      * @param {string} readlistId
@@ -239,6 +270,7 @@ store.subscribe(() => {
       }
       break;
     case "UPDATE_READLIST_ARTICLE":
+    case "UPDATE_READLIST_ARTICLE_ORDER":
       {
         const { readlistId } = state.lastAction;
         sync.enqueue(() => putList(selectReadlistById(state, readlistId)));

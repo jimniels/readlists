@@ -26,7 +26,8 @@ export class ReadListView extends HTMLElement {
         case "CREATE_READLIST":
           this.renderInitial();
           break;
-        case "SELECT_READLIST_ARTICLE":
+        // case "SELECT_READLIST_ARTICLE":
+        case "UPDATE_READLIST_ARTICLE_ORDER":
         case "CREATE_READLIST_ARTICLE":
         case "DELETE_READLIST_ARTICLE":
           this.renderList();
@@ -39,25 +40,31 @@ export class ReadListView extends HTMLElement {
     /**
      * Event Listeners
      */
+    // https://stackoverflow.com/questions/12027137/javascript-trick-for-paste-as-plain-text-in-execcommand
+    this.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const text = (e.originalEvent || e).clipboardData.getData("text/plain");
+      document.execCommand("insertHTML", false, text);
+    });
     this.addEventListener("focusout", (e) => {
       switch (e.target.dataset.actionKey) {
         case "update-readlist":
           this.handleUpdatePartOfReadlist(e);
           break;
         case "update-readlist-article":
-          console.log(e.target.value);
           const state = store.getState();
           const readlistArticle = selectReadlistArticleById(
             state,
             state.activeReadlistId,
             e.target.dataset.actionValue
           );
-          if (readlistArticle.title != e.target.value) {
+          const value = e.target.textContent;
+          if (readlistArticle.title != value) {
             store.dispatch({
               type: "UPDATE_READLIST_ARTICLE",
               readlistId: store.getState().activeReadlistId,
               readlistArticleId: e.target.dataset.actionValue,
-              readlistArticleUpdates: { title: e.target.value },
+              readlistArticleUpdates: { title: value },
             });
           }
           break;
@@ -135,7 +142,7 @@ export class ReadListView extends HTMLElement {
    */
   handleUpdatePartOfReadlist(e) {
     const changeKey = e.target.dataset.actionValue;
-    const value = e.target.value;
+    const value = e.target.textContent;
     const readlist = selectActiveReadlist(store.getState());
 
     if (readlist[changeKey] != value) {
@@ -153,40 +160,24 @@ export class ReadListView extends HTMLElement {
    */
   handleChangeArticleOrder(e) {
     e.target.blur();
-    const articleId = e.target.dataset.articleId;
+    const readlistArticleId = e.target.dataset.articleId;
     const currentIndex = Number(e.target.dataset.currentIndex);
     const newIndex = Number(e.target.value);
 
     console.warn(
       "Switch article %s from index %s to index %s",
-      articleId,
+      readlistArticleId,
       currentIndex,
       newIndex
     );
 
-    const readlist = selectList(this.getAttribute("list-id"));
-    let newReadlist = {
-      ...readlist,
-      articles: readlist.articles.map((article) => ({ ...article })),
-    };
-    newReadlist.articles.splice(
+    store.dispatch({
+      type: "UPDATE_READLIST_ARTICLE_ORDER",
+      readlistId: store.getState().activeReadlistId,
+      readlistArticleId,
+      currentIndex,
       newIndex,
-      0,
-      newReadlist.articles.splice(currentIndex, 1)[0]
-    );
-
-    this.toggleLoading();
-    updateList(newReadlist)
-      .then(() => {
-        this.renderList();
-      })
-      .catch((e) => {
-        console.error(e);
-        $app.setAttribute("error", "Failed to re-sort article list.");
-      })
-      .then(() => {
-        this.toggleLoading();
-      });
+    });
   }
 
   /**
@@ -230,33 +221,34 @@ export class ReadListView extends HTMLElement {
   renderInitial() {
     const state = store.getState();
     const readlist = selectActiveReadlist(state);
-    this.setAttribute("hidden", true);
+
     // no active readlist selected!
     if (!readlist) {
+      this.innerHTML = "";
       return;
     }
 
-    // conditionally set timeout? might not want to do this, idk
-    setTimeout(() => {
-      const d = new Date(readlist.id);
-      const dFormatted = new Intl.DateTimeFormat("en-US").format(d);
+    const d = new Date(readlist.id);
+    const dFormatted = new Intl.DateTimeFormat("en-US").format(d);
 
-      this.innerHTML = /*html*/ `
+    this.innerHTML = /*html*/ `
       <header>
         <time datetime="${d.toISOString()}">
           Created ${dFormatted}
         </time>
-        <textarea
+        <h1
           class="title"
-          placeholder="Title..."
+          contenteditable
+          role="textbox"
           data-action-key="update-readlist"
-          data-action-value="title">${readlist.title}</textarea>
+          data-action-value="title">${readlist.title}</h1>
         
-        <textarea
+        <h2
           class="description"
-          placeholder="Description..."
+          contenteditable
+          role="textbox" 
           data-action-key="update-readlist"
-          data-action-value="description">${readlist.description}</textarea>
+          data-action-value="description">${readlist.description}</h2>
         
         <button class="button" data-js-action="export-epub">
           Export as Epub
@@ -279,15 +271,13 @@ export class ReadListView extends HTMLElement {
         </button>
       </form>
     `;
-      this.$title = this.querySelector("#title");
-      this.$description = this.querySelector("#description");
-      this.$articles = this.querySelector(".articles");
-      // this.querySelectorAll("textarea").forEach(($el) => {
-      //   autoExpand($el);
-      // });
-      this.renderList();
-      this.removeAttribute("hidden");
-    }, 300);
+    this.$title = this.querySelector("#title");
+    this.$description = this.querySelector("#description");
+    this.$articles = this.querySelector(".articles");
+    // this.querySelectorAll("textarea").forEach(($el) => {
+    //   autoExpand($el);
+    // });
+    this.renderList();
   }
 
   renderList() {
@@ -300,47 +290,52 @@ export class ReadListView extends HTMLElement {
         ${list.articles
           .map(
             (article, articleIndex) => /*html*/ `
-            <li
-              data-action-key="select-article"
-              data-action-value="${article.id}"
-              class="article ${
-                article.id == activeReadlistArticleId ? "article--active" : ""
-              }">
-              <select
-                data-js-action="change-article-order"
-                data-current-index="${articleIndex}"
-                data-article-id="${article.id}">
-                ${indexes.map(
-                  (index) =>
-                    `<option
-                      value="${index}"
-                      ${index === articleIndex ? "selected" : ""}>
-                      ${index + 1}
-                    </option>`
-                )}
-              </select>
-              <div>
-                <p class="article__domain">${article.domain}</p>
-                <textarea
+            <li class="article">
+              
+                <div>
+                  <select
+                    class="article__order"
+                    data-js-action="change-article-order"
+                    data-current-index="${articleIndex}"
+                    data-article-id="${article.id}">
+                    ${indexes.map(
+                      (index) =>
+                        `<option
+                          value="${index}"
+                          ${index === articleIndex ? "selected" : ""}>
+                          ${index + 1}
+                        </option>`
+                    )}
+                  </select>
+                  <p class="article__domain">
+                    <a href="${article.url}" class="link" target="__blank">
+                      ${article.domain}
+                    </a>
+                  </p>
+                  <div>
+                    <button
+                      class="button"
+                      data-action-key="select-article"
+                      data-action-value="${article.id}">
+                      Preview
+                    </button>
+                    <button
+                      class="button button--danger"
+                      data-action-key="delete-article"
+                      data-action-value="${article.id}">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                
+                <h3
                   class="article__title"
-                  placeholder="Article Name..."
+                  contenteditable
                   data-action-key="update-readlist-article"
                   data-action-value="${article.id}"
-                >${article.title}</textarea>    
+                >${article.title}</h3>
                 <p class="article__excerpt">${article.excerpt}</p>
-              </div>
-              <button
-                class="button button--danger"
-                data-action-key="delete-article"
-                data-action-value="${article.id}">
-                Delete
-              </button>
-              <button
-                class="button"
-                data-action-key="view-article"
-                data-action-value="${article.id}">
-                View
-              </button>
+              
             </li>`
           )
           .join("")}
