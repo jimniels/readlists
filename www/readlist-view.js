@@ -239,6 +239,7 @@ export class ReadListView extends HTMLElement {
         <h1
           class="title"
           contenteditable
+          placeholder="Readlist title..."
           role="textbox"
           data-action-key="update-readlist"
           data-action-value="title">${readlist.title}</h1>
@@ -246,6 +247,7 @@ export class ReadListView extends HTMLElement {
         <h2
           class="description"
           contenteditable
+          placeholder="Readlist description..."
           role="textbox" 
           data-action-key="update-readlist"
           data-action-value="description">${readlist.description}</h2>
@@ -331,6 +333,7 @@ export class ReadListView extends HTMLElement {
                 <h3
                   class="article__title"
                   contenteditable
+                  placeholder="Article title..."
                   data-action-key="update-readlist-article"
                   data-action-value="${article.id}"
                 >${article.title}</h3>
