@@ -20,6 +20,6 @@ export function autoExpand(field) {
   field.style.height = height + "px";
 }
 
-export function sum(a, b) {
-  return a + b;
+export function formatDate(date) {
+  return new Intl.DateTimeFormat("en-US").format(date);
 }

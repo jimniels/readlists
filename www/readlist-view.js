@@ -58,7 +58,7 @@ export class ReadListView extends HTMLElement {
             state.activeReadlistId,
             e.target.dataset.actionValue
           );
-          const value = e.target.textContent;
+          const value = e.target.value;
           if (readlistArticle.title != value) {
             store.dispatch({
               type: "UPDATE_READLIST_ARTICLE",
@@ -142,7 +142,7 @@ export class ReadListView extends HTMLElement {
    */
   handleUpdatePartOfReadlist(e) {
     const changeKey = e.target.dataset.actionValue;
-    const value = e.target.textContent;
+    const value = e.target.value;
     const readlist = selectActiveReadlist(store.getState());
 
     if (readlist[changeKey] != value) {
@@ -236,21 +236,22 @@ export class ReadListView extends HTMLElement {
         <time datetime="${d.toISOString()}">
           Created ${dFormatted}
         </time>
-        <h1
-          class="title"
-          contenteditable
-          placeholder="Readlist title..."
-          role="textbox"
-          data-action-key="update-readlist"
-          data-action-value="title">${readlist.title}</h1>
-        
-        <h2
-          class="description"
-          contenteditable
-          placeholder="Readlist description..."
-          role="textbox" 
-          data-action-key="update-readlist"
-          data-action-value="description">${readlist.description}</h2>
+        <div>
+          <textarea
+            class="title"
+            placeholder="Readlist title..."
+            role="textbox"
+            data-action-key="update-readlist"
+            data-action-value="title">${readlist.title}</textarea>
+        </div>
+        <div>
+          <textarea
+            class="description"
+            placeholder="Readlist description..."
+            role="textbox" 
+            data-action-key="update-readlist"
+            data-action-value="description">${readlist.description}</textarea>
+        </div>
         
         <button class="button" data-js-action="export-epub">
           Export as Epub
@@ -314,31 +315,31 @@ export class ReadListView extends HTMLElement {
                       ${article.domain}
                     </a>
                   </p>
-                  <div>
-                    <button
-                      class="button"
-                      data-action-key="select-article"
-                      data-action-value="${article.id}">
-                      Preview
-                    </button>
-                    <button
-                      class="button button--danger"
-                      data-action-key="delete-article"
-                      data-action-value="${article.id}">
-                      Delete
-                    </button>
-                  </div>
                 </div>
                 
-                <h3
+                <textarea
+                  rows="1"
                   class="article__title"
-                  contenteditable
                   placeholder="Article title..."
                   data-action-key="update-readlist-article"
                   data-action-value="${article.id}"
-                >${article.title}</h3>
+                >${article.title}</textarea>
                 <p class="article__excerpt">${article.excerpt}</p>
-              
+                
+                <div class="article__actions">
+                  <button
+                    class="button"
+                    data-action-key="select-article"
+                    data-action-value="${article.id}">
+                    Preview
+                  </button>
+                  <button
+                    class="button button--danger"
+                    data-action-key="delete-article"
+                    data-action-value="${article.id}">
+                    Delete
+                  </button>
+                </div>
             </li>`
           )
           .join("")}

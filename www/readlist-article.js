@@ -7,10 +7,17 @@ import {
   putList,
 } from "./api.js";
 import { store, selectActiveReadlistArticle } from "./r.js";
+import { formatDate } from "./utils.js";
 
 class ReadlistArticle extends HTMLElement {
+  constructor() {
+    super();
+    this.setAttribute("hidden", true);
+  }
+
   connectedCallback() {
-    this.render();
+    this.innerHTML = `<div id="container"></div>`;
+    this.$container = this.querySelector("#container");
 
     this.addEventListener("click", (e) => {
       // @TODO
@@ -22,30 +29,23 @@ class ReadlistArticle extends HTMLElement {
 
     store.subscribe(() => {
       const state = store.getState();
-      const {
-        lastActionType,
-        activeReadlistId,
-        activeReadlistArticleId,
-      } = state;
-      switch (lastActionType) {
-        case "SELECT_READLIST":
-          this.render();
-          break;
+      const { lastAction, activeReadlistId, activeReadlistArticleId } = state;
+      switch (lastAction.type) {
         case "SELECT_READLIST_ARTICLE":
-          // @TODO fetch article and render it
-          this.setAttribute("loading", true);
-          this.render();
-
           if (!activeReadlistArticleId) {
+            this.setAttribute("hidden", true);
             return;
           }
 
+          this.setAttribute("data-is-loading", true);
+          this.removeAttribute("hidden");
           getArticleHTML({
             readlistId: activeReadlistId,
             readlistArticleId: activeReadlistArticleId,
           })
             .then((html) => {
-              this.render(state, html);
+              this.renderHTML(state, html);
+              this.removeAttribute("data-is-loading", true);
             })
             .catch((err) => {
               console.error(err);
@@ -58,47 +58,56 @@ class ReadlistArticle extends HTMLElement {
                 type: "SELECT_READLIST_ARTICLE",
                 activeReadlistArticleId: "",
               });
-            })
-            .then(() => {
-              this.removeAttribute("loading");
-              // @TODO handle fail by trigger in app?
             });
           break;
       }
     });
   }
 
-  render(state = {}, articleHTML) {
-    const { activeReadlistId, activeReadlistArticleId } = state;
+  renderLoading(state) {
+    const { activeReadlistArticleId } = state;
+    const html = /*html*/ `
+      <div>
+        <img src="./loading.svg" />
+      </div>
+    `;
 
-    if (activeReadlistId && activeReadlistArticleId) {
+    if (activeReadlistArticleId) {
+      this.innerHTML = html;
       this.removeAttribute("hidden");
     } else {
       this.setAttribute("hidden", true);
+      this.innerHTML = html;
     }
+  }
 
-    if (articleHTML) {
-      const {
-        author,
-        date_published,
-        domain,
-        title,
-        url,
-      } = selectActiveReadlistArticle(state);
-      this.innerHTML = /*html*/ `
-        <div>
+  renderHTML(state = {}, articleHTML) {
+    const { activeReadlistId, activeReadlistArticleId } = state;
+
+    const {
+      author,
+      date_published,
+      domain,
+      title,
+      url,
+    } = selectActiveReadlistArticle(state);
+    this.$container.innerHTML = /*html*/ `
+        
           <header>
-            <a href="${url}" class="link" target="__blank">${domain}</a>
-            ${date_published ? `<time>${date_published}</time>` : ""}
+            <a href="${url}" class="link" target="__blank">
+              ${domain}
+            </a>
+            ${
+              date_published ? `<time>${formatDate(date_published)}</time>` : ""
+            }
             <h1>${title}</h1>
             ${author ? `<p>${author}</p>` : ""}
           </header>
         
           ${articleHTML}
-        </div>
+        
         
       `;
-    }
   }
 }
 customElements.define("readlist-article", ReadlistArticle);

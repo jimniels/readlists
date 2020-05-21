@@ -2,6 +2,7 @@
   --color-accent: hsl(215, 100%, 51%);
   --color-accent-hsl: 215, 100%, 51%;
   --color-bg-primary: hsl(255, 0%, 100%);
+  --color-bg-primary-hsl: 255, 0%, 100%;
   --color-bg-secondary: hsl(255, 0%, 95%);
   --color-danger: red;
   --color-text: hsl(0, 0%, 10%);
@@ -277,11 +278,7 @@ readlist-view header {
   left: calc(var(--spacer) * 2);
   top: var(--spacer);
 }
-.article > div {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-}
+
 .article__description {
   margin: 0;
   padding: 0;
@@ -290,6 +287,24 @@ readlist-view header {
   font-weight: 500;
   font-size: var(--font-size-lg);
   margin: calc(var(--spacer) / 2) 0;
+}
+
+.article__actions {
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.2s ease all;
+  padding: var(--spacer);
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  background: var(--color-bg-primary); /* @TODO make gradient */
+}
+.article:hover .article__actions {
+  opacity: 1;
+  visibility: visible;
+}
+.article__actions .button {
+  margin-left: calc(var(--spacer) / 2);
 }
 
 .article--create {
@@ -350,21 +365,28 @@ readlist-article > div {
   margin: calc(var(--spacer) * 2) auto;
   padding: calc(var(--spacer) * 2);
   border-radius: var(--border-radius);
-  transition: 0.3s ease transform;
-  transform: translateY(0px);
+  overflow: hidden;
+  position: relative;
+  transition: 0.4s ease transform;
+  transform: scale(1);
+  transform-origin: 50% 0;
 }
 readlist-article[hidden] > div {
-  transform: translateY(100px);
+  transform: scale(0.95);
 }
 
-readlist-article[loading]:after {
+readlist-article[data-is-loading] > div {
+  height: 300px;
+}
+readlist-article[data-is-loading] > div:after {
   content: "";
+  background: var(--color-bg-primary) url(./loading.svg) no-repeat 50%;
+  background-size: 48px;
   position: absolute;
-  left: 0;
-  botttom: 0;
-  right: 0;
   top: 0;
-  background: url("./loading.svg") no-repeat 50%;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 readlist-article {
@@ -375,7 +397,7 @@ readlist-article {
   display: block;
   opacity: 1;
   visibility: visible;
-  transition: 0.3s ease all;
+  transition: 0.2s ease all;
 }
 
 readlist-article[hidden] {
@@ -453,17 +475,7 @@ readlists-nav ul {
   padding-bottom: 20px;
   margin: 0;
   padding: 0 0 calc(var(--spacer) * 3) 0;
-}
-readlists-nav ul:after {
-  content: "";
-  position: fixed;
-  bottom: 40px;
-  height: 10px;
-  width: var(--width);
-  background: linear-gradient(
-    var(--color-bg-primary),
-    var(--color-bg-primary) 100%
-  );
+  flex: 1;
 }
 
 readlists-nav li {
@@ -481,7 +493,6 @@ readlists-nav li a {
   padding-right: calc(var(--spacer) * 3);
   border-bottom: 1px solid var(--color-border);
   position: relative;
-  transition: 0.3s ease all;
 }
 
 readlists-nav li a::after {
@@ -499,8 +510,13 @@ readlists-nav li a::after {
 }
 
 readlists-nav li a.active {
-  background: hsla(var(--color-accent-hsl), 0.1);
-  box-shadow: inset 2px 0 0 var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-bg-primary);
+}
+
+readlists-nav li a.active::after {
+  background: hsla(var(--color-bg-primary-hsl), 0.2);
+  color: var(--color-bg);
 }
 
 readlists-nav li a * {
@@ -524,10 +540,8 @@ readlists-nav ul p {
  */
 
 readlists-nav footer {
-  position: fixed;
-  bottom: 0;
   height: 40px;
-  left: 0;
+
   padding: var(--spacer);
   width: var(--width);
   background: var(--color-bg-primary);
@@ -550,12 +564,14 @@ readlist-view header .title {
   font-weight: 500;
   font-size: 24px;
   margin: 0;
+  display: inline-block;
 }
 
 readlist-view header .description {
   font-weight: 400;
   font-size: var(--font-size-base);
   margin: calc(var(--spacer) / 2) 0;
+  display: inline-block;
 }
 
 readlist-view header time {

@@ -1,5 +1,6 @@
 import { store } from "./r.js";
 import { putList, sync } from "./api.js";
+import { formatDate } from "./utils.js";
 
 class ReadlistsNav extends HTMLElement {
   connectedCallback() {
@@ -85,14 +86,18 @@ class ReadlistsNav extends HTMLElement {
                   data-action-value="${readlist.id}"
                   data-count="${readlist.articles.length}">
                   <h2>${readlist.title}</h2>
+                  <p class="article-description">
+                    ${formatDate(readlist.id)}
+                  </p>
                   ${
-                    readlist.description
+                    ""
+                    /*readlist.description
                       ? `<p>${
                           readlist.description.length > 100
                             ? readlist.description.substring(0, 100) + "..."
                             : readlist.description
                         }</p>`
-                      : ""
+                      : ""*/
                   }
                 </a>
               </li>
