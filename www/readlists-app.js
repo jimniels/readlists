@@ -139,10 +139,10 @@ class ReadlistsApp extends HTMLElement {
               <readlist-view></readlist-view>
               <readlist-article></readlist-article>
             `
-          : `<form data-action-key="log-in">
+          : `<form class="login" data-action-key="log-in">
               <input type="text" placeholder="Username" />
               <input type="text" placeholder="Token" />
-              <button id="login" class="button" type="submit">
+              <button id="login" class="button button--block" type="submit">
                 Log In
               </button>
             </form>`

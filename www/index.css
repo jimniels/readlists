@@ -103,6 +103,9 @@ textarea {
 .button--danger {
   color: var(--color-danger);
 }
+.button--block {
+  width: 100%;
+}
 
 readlist-nav ul,
 readlists-nav p,
@@ -578,4 +581,14 @@ readlist-view header time {
   display: block;
   margin-bottom: calc(var(--spacer) / 2);
   color: var(--color-text-light);
+}
+
+readlists-app {
+  height: 100vh;
+}
+.login {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
 }
