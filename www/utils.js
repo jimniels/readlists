@@ -23,3 +23,31 @@ export function autoExpand(field) {
 export function formatDate(date) {
   return new Intl.DateTimeFormat("en-US").format(date);
 }
+
+/**
+ * Take a given node and a method for that node and give back the global
+ * event handler that will call that method.
+ *
+ * eventHandler('readlist-nav', 'handleButtonClick') calls the `handleButtonClick`
+ * method for the `readlist-nav` element, which is a parent element somewhere
+ * in the DOM of the given event.target.
+ *
+ * @param {string} node
+ * @param {string} method
+ * @returns {string}
+ */
+export function eventHandler(node, method) {
+  return `window.handleAppEvent(event, '${node}', '${method}')`;
+}
+window.handleAppEvent = function (event, elName, elFnName) {
+  event.composedPath().forEach((node) => {
+    if (
+      node.tagName &&
+      node.tagName.toLowerCase() === elName &&
+      node[elFnName]
+    ) {
+      console.warn(`Firing event handler: <${elName}>.${elFnName}`);
+      node[elFnName](event);
+    }
+  });
+};

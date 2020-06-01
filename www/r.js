@@ -228,6 +228,13 @@ store.subscribe(() => {
   const state = store.getState();
 
   switch (state.lastAction.type) {
+    case "CREATE_READLIST":
+      {
+        // Active readlist will be the one just created
+        const newReadlist = selectActiveReadlist(state);
+        sync.enqueue(() => putList(newReadlist));
+      }
+      break;
     case "UPDATE_READLIST":
       {
         const { readlistId } = state.lastAction;

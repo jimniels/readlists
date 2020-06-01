@@ -83,6 +83,7 @@ textarea {
   padding: calc(var(--spacer) / 2);
   color: var(--color-text);
   resize: none;
+  font: inherit;
 }
 
 /*
@@ -139,7 +140,7 @@ readlists-app[loading]:before {
   height: 36px;
   z-index: 100;
   top: 31px;
-  left: 217px;
+  left: 320px;
 }
 /* [loading] input,
 [loading] select,
@@ -514,7 +515,7 @@ readlists-nav li a::after {
 
 readlists-nav li a.active {
   background: var(--color-accent);
-  color: var(--color-bg-primary);
+  color: #fff;
 }
 
 readlists-nav li a.active::after {
@@ -529,12 +530,11 @@ readlists-nav li a * {
 readlists-nav ul h2 {
   font-size: var(--font-size-lg);
   font-weight: 400;
-  margin: 0;
+  margin: calc(var(--spacer) / 4) 0 0 0;
   padding: 0;
 }
 readlists-nav ul p {
   font-size: var(--font-size-sm);
-  margin: calc(var(--spacer) / 4) 0 0 0;
   opacity: 0.6; /* @TODO */
 }
 

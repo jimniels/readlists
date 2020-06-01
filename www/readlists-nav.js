@@ -1,6 +1,6 @@
 import { store } from "./r.js";
 import { putList, sync } from "./api.js";
-import { formatDate } from "./utils.js";
+import { eventHandler, formatDate } from "./utils.js";
 
 class ReadlistsNav extends HTMLElement {
   connectedCallback() {
@@ -21,31 +21,16 @@ class ReadlistsNav extends HTMLElement {
           break;
       }
     });
-
-    this.addEventListener("click", (e) => {
-      if (e.target.href) {
-        e.preventDefault();
-      }
-
-      switch (e.target.dataset.actionKey) {
-        case "select-list":
-          this.handleSelectList(e.target.dataset.actionValue);
-          break;
-        case "create-readlist":
-          this.handleCreateReadlist();
-          break;
-        case "log-out":
-          this.handleLogOut();
-          break;
-      }
-    });
   }
 
-  handleSelectList(readlistId) {
+  handleSelectList(e) {
+    e.preventDefault();
+    const readlistId = e.target.href.split("readlist-id=")[1];
+    const { activeReadlistId } = store.getState();
+
     store.dispatch({
       type: "SELECT_READLIST",
-      readlistId:
-        store.getState().activeReadlistId == readlistId ? "" : readlistId,
+      readlistId: activeReadlistId == readlistId ? "" : readlistId,
     });
   }
 
@@ -55,13 +40,7 @@ class ReadlistsNav extends HTMLElement {
   }
 
   handleCreateReadlist() {
-    // Create a new readlist in the app
     store.dispatch({ type: "CREATE_READLIST" });
-    const state = store.getState();
-    const newReadlist = state.readlists[0];
-
-    // Sync things
-    sync.enqueue(() => putList(newReadlist));
   }
 
   render(state) {
@@ -72,42 +51,41 @@ class ReadlistsNav extends HTMLElement {
         <h1>
           Readlists
         </h1>
-        <button data-action-key="create-readlist"><span>+</span></button>
+        <button onclick="${eventHandler(
+          "readlists-nav",
+          "handleCreateReadlist"
+        )}">
+          <span>+</span>
+        </button>
       </header>
       <ul>
         ${readlists
-          .map(
-            (readlist) => /*html*/ `
+          .map((readlist) => {
+            let title = readlist.title;
+            if (title.length > 58) {
+              title = title.slice(0, 58) + "…";
+            }
+
+            return /*html*/ `
               <li id="readlist-${readlist.id}">
                 <a
-                  href="./id?${readlist.id}"
+                  href="./?readlist-id=${readlist.id}"
                   class="${activeReadlistId == readlist.id ? "active" : ""}"
-                  data-action-key="select-list"
-                  data-action-value="${readlist.id}"
+                  onclick="${eventHandler("readlists-nav", "handleSelectList")}"
                   data-count="${readlist.articles.length}">
-                  <h2>${readlist.title}</h2>
-                  <p class="article-description">
-                    ${formatDate(readlist.id)}
-                  </p>
-                  ${
-                    ""
-                    /*readlist.description
-                      ? `<p>${
-                          readlist.description.length > 100
-                            ? readlist.description.substring(0, 100) + "..."
-                            : readlist.description
-                        }</p>`
-                      : ""*/
-                  }
+                  ${title ? /*html*/ `<h2>${title}</h2>` : ""}
+                  <p>${formatDate(readlist.id)}</p>
                 </a>
               </li>
-            `
-          )
+            `;
+          })
           .join("")}
       </ul>
       <footer class="header__buttons">
         <p>${user}</p>
-        <button data-action="log-out" class="button button--danger">
+        <button
+          class="button button--danger"
+          onclick="${eventHandler("readlists-nav", "handleLogOut")}">
           Log Out
         </button>
       </footer>

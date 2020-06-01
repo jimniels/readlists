@@ -10,7 +10,7 @@ import {
   createReadlistArticle,
 } from "./api.js";
 import { store, selectActiveReadlist, selectReadlistArticleById } from "./r.js";
-import { autoExpand } from "./utils.js";
+import { eventHandler, autoExpand } from "./utils.js";
 
 export class ReadListView extends HTMLElement {
   connectedCallback() {
@@ -24,7 +24,7 @@ export class ReadListView extends HTMLElement {
         case "DELETE_READLIST":
         case "SELECT_READLIST":
         case "CREATE_READLIST":
-          this.renderInitial();
+          this.renderView();
           break;
         // case "SELECT_READLIST_ARTICLE":
         case "UPDATE_READLIST_ARTICLE_ORDER":
@@ -35,41 +35,41 @@ export class ReadListView extends HTMLElement {
       }
     });
 
-    this.renderInitial();
+    this.renderView();
 
     /**
      * Event Listeners
      */
     // https://stackoverflow.com/questions/12027137/javascript-trick-for-paste-as-plain-text-in-execcommand
-    this.addEventListener("paste", (e) => {
-      e.preventDefault();
-      const text = (e.originalEvent || e).clipboardData.getData("text/plain");
-      document.execCommand("insertHTML", false, text);
-    });
-    this.addEventListener("focusout", (e) => {
-      switch (e.target.dataset.actionKey) {
-        case "update-readlist":
-          this.handleUpdatePartOfReadlist(e);
-          break;
-        case "update-readlist-article":
-          const state = store.getState();
-          const readlistArticle = selectReadlistArticleById(
-            state,
-            state.activeReadlistId,
-            e.target.dataset.actionValue
-          );
-          const value = e.target.value;
-          if (readlistArticle.title != value) {
-            store.dispatch({
-              type: "UPDATE_READLIST_ARTICLE",
-              readlistId: store.getState().activeReadlistId,
-              readlistArticleId: e.target.dataset.actionValue,
-              readlistArticleUpdates: { title: value },
-            });
-          }
-          break;
-      }
-    });
+    // this.addEventListener("paste", (e) => {
+    //   e.preventDefault();
+    //   const text = (e.originalEvent || e).clipboardData.getData("text/plain");
+    //   document.execCommand("insertHTML", false, text);
+    // });
+    // this.addEventListener("focusout", (e) => {
+    //   switch (e.target.dataset.actionKey) {
+    //     case "update-readlist":
+    //       this.handleUpdatePartOfReadlist(e);
+    //       break;
+    //     case "update-readlist-article":
+    //       const state = store.getState();
+    //       const readlistArticle = selectReadlistArticleById(
+    //         state,
+    //         state.activeReadlistId,
+    //         e.target.dataset.actionValue
+    //       );
+    //       const value = e.target.value;
+    //       if (readlistArticle.title != value) {
+    //         store.dispatch({
+    //           type: "UPDATE_READLIST_ARTICLE",
+    //           readlistId: store.getState().activeReadlistId,
+    //           readlistArticleId: e.target.dataset.actionValue,
+    //           readlistArticleUpdates: { title: value },
+    //         });
+    //       }
+    //       break;
+    //   }
+    // });
 
     this.addEventListener("input", (e) => {
       if (e.target.tagName === "TEXTAREA") {
@@ -80,12 +80,12 @@ export class ReadListView extends HTMLElement {
     this.addEventListener("click", (e) => {
       // console.log(e, e.target.closest("li"));
       switch (e.target.dataset.actionKey) {
-        case "delete-article":
-          this.handleDeleteReadlistArticle(e);
-          break;
-        case "delete-readlist":
-          this.handleDeleteReadlist();
-          break;
+        // case "delete-article":
+        //   this.handleDeleteReadlistArticle(e);
+        //   break;
+        // case "delete-readlist":
+        //   this.handleDeleteReadlist();
+        //   break;
         case "select-article":
           this.handleSelectReadlistArticle(e);
           break;
@@ -119,9 +119,9 @@ export class ReadListView extends HTMLElement {
   }
 
   /**
-   * Delete the given readlist
+   * Delete the active readlist
    */
-  handleDeleteReadlist(readlistId) {
+  handleDeleteActiveReadlist() {
     const readlist = selectActiveReadlist(store.getState());
     const articlesCount = readlist.articles.length;
     let msg = "Please confirm that you want to delete this Readlist";
@@ -214,11 +214,11 @@ export class ReadListView extends HTMLElement {
     store.dispatch({
       type: "DELETE_READLIST_ARTICLE",
       readlistId: store.getState().activeReadlistId,
-      readlistArticleId: e.target.dataset.actionValue,
+      readlistArticleId: e.target.value,
     });
   }
 
-  renderInitial() {
+  renderView() {
     const state = store.getState();
     const readlist = selectActiveReadlist(state);
 
@@ -241,6 +241,22 @@ export class ReadListView extends HTMLElement {
             class="title"
             placeholder="Readlist title..."
             role="textbox"
+            onfocusoutzz="store.dispatch({
+              type: 'UPDATE_READLIST', 
+              payload: {
+                readlistId: ${readlist.id},
+                readlistUpdates: { title: this.value }
+              }
+            })"
+            onfocusout="${eventHandler(
+              "readlist-view",
+              "handleUpdatePartOfReadlist"
+            )}"
+            data-action="UPDATE_READLIST"
+            data-payload="{
+              readlistId: ${readlist.id},
+              readlistUpdates: { title: value },
+            }"
             data-action-key="update-readlist"
             data-action-value="title">${readlist.title}</textarea>
         </div>
@@ -249,6 +265,11 @@ export class ReadListView extends HTMLElement {
             class="description"
             placeholder="Readlist description..."
             role="textbox" 
+            onfocusout="${eventHandler(
+              "readlist-view",
+              "handleUpdatePartOfReadlist"
+            )}"
+            data-action="{ type: '', payload: {} }"
             data-action-key="update-readlist"
             data-action-value="description">${readlist.description}</textarea>
         </div>
@@ -256,7 +277,12 @@ export class ReadListView extends HTMLElement {
         <button class="button" data-js-action="export-epub">
           Export as Epub
         </button>          
-        <button class="button button--danger" data-action-key="delete-readlist">
+        <button
+          class="button button--danger"
+          onclick="${eventHandler(
+            "readlist-view",
+            "handleDeleteActiveReadlist"
+          )}">
           Delete
         </button>
       </header>
@@ -277,9 +303,9 @@ export class ReadListView extends HTMLElement {
     this.$title = this.querySelector("#title");
     this.$description = this.querySelector("#description");
     this.$articles = this.querySelector(".articles");
-    // this.querySelectorAll("textarea").forEach(($el) => {
-    //   autoExpand($el);
-    // });
+    this.querySelectorAll("textarea").forEach(($el) => {
+      autoExpand($el);
+    });
     this.renderList();
   }
 
@@ -335,8 +361,11 @@ export class ReadListView extends HTMLElement {
                   </button>
                   <button
                     class="button button--danger"
-                    data-action-key="delete-article"
-                    data-action-value="${article.id}">
+                    onclick="${eventHandler(
+                      "readlist-view",
+                      "handleDeleteReadlistArticle"
+                    )}"
+                    value="${article.id}">
                     Delete
                   </button>
                 </div>
