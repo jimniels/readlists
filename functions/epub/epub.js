@@ -10,15 +10,15 @@ const fs = require("fs");
 // Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
 exports.handler = async (event, context) => {
   // @TODO check for correct query params
-  const listId = event.queryStringParameters["list-id"];
+  const book = JSON.parse(event.body);
 
-  if (!listId) {
-    return {
-      statusCode: 400,
-      body:
-        "Invalid request. URL paramter is required, i.e. `?list-id=123456789...`",
-    };
-  }
+  // if (!listId) {
+  //   return {
+  //     statusCode: 400,
+  //     body:
+  //       "Invalid request. URL paramter is required, i.e. `?list-id=123456789...`",
+  //   };
+  // }
 
   try {
     // const list = await getList(listId);
@@ -40,19 +40,7 @@ exports.handler = async (event, context) => {
     //   }),
     // };
 
-    await new Epub(
-      {
-        title: "Test",
-        author: "jim Nielsen",
-        content: [
-          {
-            title: "First chapter",
-            data: "<div>This is the first chapter.</div>",
-          },
-        ],
-      },
-      "./readlist.epub"
-    ).promise;
+    await new Epub(book, "./readlist.epub").promise;
     const fileBase64 = fs.readFileSync("./readlist.epub", {
       encoding: "base64",
     });

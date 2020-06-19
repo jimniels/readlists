@@ -5,7 +5,12 @@
 // import Dropbox from "https://unpkg.com/dropbox@4.0.30/es/index.es6.js?module";
 // import * as Dropbox from "https://cdn.pika.dev/dropbox@^4.0.30";
 
-import { store, selectActiveReadlist, selectReadlistById } from "./r.js";
+import {
+  store,
+  selectUser,
+  selectActiveReadlist,
+  selectReadlistById,
+} from "./redux.js";
 
 export const dbx = new Dropbox.Dropbox({
   accessToken: "", // we'll set this when we auth
@@ -13,10 +18,11 @@ export const dbx = new Dropbox.Dropbox({
 });
 
 export function getArticleHTML({ readlistId, readlistArticleId }) {
+  const user = selectUser(store.getState());
   return new Promise((resolve, reject) => {
     dbx
       .filesDownload({
-        path: `/test/${readlistId}/${readlistArticleId}.article.html`,
+        path: `/${user}/${readlistId}/${readlistArticleId}.article.html`,
       })
       .then((file) => {
         var reader = new FileReader();
@@ -38,7 +44,8 @@ export function getArticleHTML({ readlistId, readlistArticleId }) {
  * @param {string} readlistId
  */
 export function deleteReadlist(readlistId) {
-  return dbx.filesDelete({ path: `/test/${readlistId}` });
+  const user = selectUser(store.getState());
+  return dbx.filesDelete({ path: `/${user}/${readlistId}` });
 }
 
 /**
@@ -50,9 +57,10 @@ export function deleteReadlist(readlistId) {
  * @returns {List}
  */
 export function deleteReadlistArticle({ readlistId, readlistArticleId }) {
+  const user = selectUser(store.getState());
   return dbx
     .filesDelete({
-      path: `/test/${readlistId}/${readlistArticleId}.article.html`,
+      path: `/${user}/${readlistId}/${readlistArticleId}.article.html`,
     })
     .catch((err) => {
       console.error(
@@ -104,14 +112,15 @@ export function createReadlistArticle(url, readlistId) {
     // Sync stuff
     const state = store.getState();
     const readlist = selectActiveReadlist(state);
+    const user = selectUser(state);
     sync.enqueue(() =>
       Promise.all([
         putFile(
-          `/test/${readlist.id}/list.json`,
+          `/${user}/${readlist.id}/list.json`,
           JSON.stringify(readlist, null, 2)
         ),
         putFile(
-          `/test/${readlist.id}/${readlist.articles[0].id}.article.html`,
+          `/${user}/${readlist.id}/${readlist.articles[0].id}.article.html`,
           articleHTML
         ),
       ])
@@ -124,8 +133,9 @@ export function putArticle({
   readlistArticleId,
   readlistArticleHTML,
 }) {
+  const user = selectUser(store.getState());
   return putFile(
-    `/test/${readlistId}/${readlistArticleId}.article.html`,
+    `/${user}/${readlistId}/${readlistArticleId}.article.html`,
     readlistArticleHTML
   );
 }
@@ -158,7 +168,11 @@ export function updateList(newList) {
  * @param {List} list
  */
 export function putList(list) {
-  return putFile(`/test/${list.id}/list.json`, JSON.stringify(list, null, 2));
+  const user = selectUser(store.getState());
+  return putFile(
+    `/${user}/${list.id}/list.json`,
+    JSON.stringify(list, null, 2)
+  );
   // return dbx.filesUpload({
   //   path: `/test/${list.id}/list.json`,
   //   contents: new File([JSON.stringify(list, null, 2)], "list.json", {
@@ -170,17 +184,18 @@ export function putList(list) {
 }
 
 export function getLists() {
+  const user = selectUser(store.getState());
   return new Promise((resolve, reject) => {
     dbx
-      .filesListFolder({ path: "/test/" })
+      .filesListFolder({ path: `/${user}/` })
       // list of files, get just the .list.json
       .then((res) => {
         const listFolderIds = res.entries
           .filter((entry) => entry[".tag"] === "folder")
-          .map((entry) => entry.path_lower.replace("/test/", ""));
+          .map((entry) => entry.path_lower.replace(`/${user}/`, ""));
         return Promise.all(
           listFolderIds.map((folderId) =>
-            downloadJSONFile(`/test/${folderId}/list.json`)
+            downloadJSONFile(`/${user}/${folderId}/list.json`)
           )
         );
       })
@@ -212,7 +227,36 @@ function downloadJSONFile(path) {
 }
 
 export function getList(id) {
-  return downloadJSONFile(`/test/${id}/list.json`);
+  return downloadJSONFile(`/${user}/${id}/list.json`);
+}
+
+export function fetchEpub(readlist) {
+  // @TODO verify that the readlist actually has articles
+  let book = {
+    title: readlist.title,
+    author: "@TODO", // username?
+    content: [],
+  };
+  return Promise.all(
+    readlist.articles.map((article) =>
+      getArticleHTML({ readlistId: readlist.id, readlistArticleId: article.id })
+    )
+  ).then((articles) => {
+    book.content = readlist.articles.map((article, i) => ({
+      title: article.title,
+      data: articles[i],
+    }));
+
+    return fetch(`/api/epub/`, {
+      method: "POST",
+      body: JSON.stringify(book),
+    }).then((res) => {
+      if (!res.ok) {
+        throw new Error("Failed to turn into an ebook");
+      }
+      return res.blob();
+    });
+  });
 }
 
 class SyncQueue {

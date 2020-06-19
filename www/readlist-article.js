@@ -6,8 +6,8 @@ import {
   sync,
   putList,
 } from "./api.js";
-import { store, selectActiveReadlistArticle } from "./r.js";
-import { formatDate } from "./utils.js";
+import { store, selectActiveReadlistArticle } from "./redux.js";
+import { html, formatDate } from "./utils.js";
 
 class ReadlistArticle extends HTMLElement {
   constructor() {
@@ -16,7 +16,7 @@ class ReadlistArticle extends HTMLElement {
   }
 
   connectedCallback() {
-    this.innerHTML = `<div id="container"></div>`;
+    this.innerHTML = html`<div id="container"></div>`;
     this.$container = this.querySelector("#container");
 
     this.addEventListener("click", (e) => {
@@ -66,18 +66,18 @@ class ReadlistArticle extends HTMLElement {
 
   renderLoading(state) {
     const { activeReadlistArticleId } = state;
-    const html = /*html*/ `
+    const markup = html`
       <div>
         <img src="./loading.svg" />
       </div>
     `;
 
     if (activeReadlistArticleId) {
-      this.innerHTML = html;
+      this.innerHTML = markup;
       this.removeAttribute("hidden");
     } else {
       this.setAttribute("hidden", true);
-      this.innerHTML = html;
+      this.innerHTML = markup;
     }
   }
 
@@ -91,23 +91,18 @@ class ReadlistArticle extends HTMLElement {
       title,
       url,
     } = selectActiveReadlistArticle(state);
-    this.$container.innerHTML = /*html*/ `
-        
-          <header>
-            <a href="${url}" class="link" target="__blank">
-              ${domain}
-            </a>
-            ${
-              date_published ? `<time>${formatDate(date_published)}</time>` : ""
-            }
-            <h1>${title}</h1>
-            ${author ? `<p>${author}</p>` : ""}
-          </header>
-        
-          ${articleHTML}
-        
-        
-      `;
+    this.$container.innerHTML = html`
+      <header>
+        <a href="${url}" class="link" target="__blank">
+          ${domain}
+        </a>
+        ${date_published && html`<time>${formatDate(date_published)}</time>`}
+        <h1>${title}</h1>
+        ${author && html`<p>${author}</p>`}
+      </header>
+
+      ${articleHTML}
+    `;
   }
 }
 customElements.define("readlist-article", ReadlistArticle);

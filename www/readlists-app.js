@@ -1,9 +1,9 @@
-// @TODO rename list to readlist
 import "./readlists-nav.js";
 import "./readlist-view.js";
 import "./readlist-article.js";
-import { store } from "./r.js";
+import { store } from "./redux.js";
 import { dbx, getLists } from "./api.js";
+import { eventHandler, html } from "./utils.js";
 
 window.__DEV__ = window.location.hostname === "localhost";
 
@@ -13,64 +13,33 @@ class ReadlistsApp extends HTMLElement {
 
     store.subscribe(() => {
       const state = store.getState();
-      switch (state.lastActionType) {
+      switch (state.lastAction.type) {
         case "INIT":
           this.render(state);
           break;
         case "SET_ERROR":
-          console.log("firing");
           this.renderError(state);
           break;
       }
     });
+  }
 
-    this.addEventListener("submit", (e) => {
-      e.preventDefault();
-
-      switch (e.target.dataset.actionKey) {
-        case "log-in":
-          const user = e.target.elements[0].value;
-          const accessToken = e.target.elements[1].value;
-          window.sessionStorage.setItem("dbx-token", accessToken);
-          this.authenticate();
-          break;
-      }
-    });
-
-    this.addEventListener("click", (e) => {
-      if (e.target.href) {
-        if (!e.target.classList.contains("link")) {
-          e.preventDefault();
-        }
-      }
-    });
-
-    // this.addEventListener("click", (e) => {
-    //   switch (e.target.dataset.jsAction) {
-    //     case "create-readlist":
-    //       this.handleCreateReadlist();
-    //       break;
-    //     case "dismiss-error":
-    //       this.removeAttribute("error");
-    //       break;
-    //     case "log-out":
-    //       window.sessionStorage.setItem("dbx-token", "");
-    //       window.location.reload();
-    //       break;
-    //     case "navigate-to-home":
-    //       e.preventDefault();
-    //       this.removeAttribute("list-id");
-    //       break;
-    //   }
-    // });
+  handleLogIn(e) {
+    e.preventDefault();
+    const user = e.target.elements[0].value;
+    const accessToken = e.target.elements[1].value;
+    window.sessionStorage.setItem("dbx-token", accessToken);
+    window.sessionStorage.setItem("user", user);
+    this.authenticate();
   }
 
   authenticate() {
     const state = store.getState();
     const accessToken = sessionStorage.getItem("dbx-token");
+    const user = sessionStorage.getItem("user");
 
     // If there's no accesstoken in local memory, go ahead and render the app
-    if (!accessToken) {
+    if (!accessToken || !user) {
       this.render(state);
       return;
     }
@@ -81,16 +50,15 @@ class ReadlistsApp extends HTMLElement {
     // If the login form is on screen
     this.toggleLoginBtn();
 
-    let user = "";
     dbx
       .usersGetCurrentAccount()
       .then((res) => {
-        user = res.email;
+        store.dispatch({ type: "AUTHENTICATE", user });
         if (__DEV__) console.warn("Authenticated", res);
         return getLists();
       })
       .then((readlists) => {
-        store.dispatch({ type: "INIT", readlists, user });
+        store.dispatch({ type: "INIT", readlists });
       })
       .catch((err) => {
         console.error(err);
@@ -99,26 +67,9 @@ class ReadlistsApp extends HTMLElement {
           error: "Failed to authenticate and retrieve your Readlists.",
         });
         window.sessionStorage.setItem("dbx-token", "");
+        window.sessionStorage.setItem("user", "");
         this.toggleLoginBtn();
       });
-
-    // dbx
-    //   .usersGetCurrentAccount()
-    //   .then((res) => {
-
-    //     this.state.isAuthenticated = true;
-    //     this.render();
-    //     this.removeAttribute("error");
-    //     // save token in local storage
-    //   })
-    //   .catch((err) => {
-    //     console.error(err);
-    //     this.setAttribute("error", "Failed to authenticate to Dropbox.");
-    //     window.sessionStorage.setItem("dbx-token", "");
-    //   })
-    //   .then(() => {
-    //     this.removeAttribute("loading", true);
-    //   });
   }
 
   toggleLoginBtn() {
@@ -131,22 +82,25 @@ class ReadlistsApp extends HTMLElement {
 
   render(state) {
     const { user } = state;
-    this.innerHTML = /*html*/ `
-      ${
-        user
-          ? `
-              <readlists-nav></readlists-nav>
-              <readlist-view></readlist-view>
-              <readlist-article></readlist-article>
-            `
-          : `<form class="login" data-action-key="log-in">
-              <input type="text" placeholder="Username" />
-              <input type="text" placeholder="Token" />
+    this.innerHTML = html`
+      ${user
+        ? html`
+            <readlists-nav></readlists-nav>
+            <readlist-view></readlist-view>
+            <readlist-article></readlist-article>
+          `
+        : html`
+            <form
+              class="login"
+              onsubmit="${eventHandler("readlists-app", "handleLogIn")}"
+            >
+              <input type="text" name="user" placeholder="User ID" />
+              <input type="text" name="token" placeholder="Token" />
               <button id="login" class="button button--block" type="submit">
                 Log In
               </button>
-            </form>`
-      }
+            </form>
+          `}
       <div id="error" class="error"></div>
     `;
     this.$error = this.querySelector("#error");

@@ -1,6 +1,6 @@
-import { store } from "./r.js";
+import { store } from "./redux.js";
 import { putList, sync } from "./api.js";
-import { eventHandler, formatDate } from "./utils.js";
+import { eventHandler, formatDate, html } from "./utils.js";
 
 class ReadlistsNav extends HTMLElement {
   connectedCallback() {
@@ -8,9 +8,8 @@ class ReadlistsNav extends HTMLElement {
 
     store.subscribe(() => {
       const state = store.getState();
-      switch (state.lastActionType) {
-        // it's ok to re-render everything because 1st element in list will be selected
-        case "CREATE_READLIST":
+      switch (state.lastAction.type) {
+        case "CREATE_READLIST": // it's ok to re-render everything because 1st element in list will be selected
         case "DELETE_READLIST":
         case "UPDATE_READLIST":
         case "CREATE_READLIST_ARTICLE": // update count
@@ -23,7 +22,7 @@ class ReadlistsNav extends HTMLElement {
     });
   }
 
-  handleSelectList(e) {
+  handleSelectReadlist(e) {
     e.preventDefault();
     const readlistId = e.target.href.split("readlist-id=")[1];
     const { activeReadlistId } = store.getState();
@@ -36,6 +35,7 @@ class ReadlistsNav extends HTMLElement {
 
   handleLogOut() {
     window.sessionStorage.setItem("dbx-token", "");
+    window.sessionStorage.setItem("user", "");
     window.location.reload();
   }
 
@@ -71,9 +71,12 @@ class ReadlistsNav extends HTMLElement {
                 <a
                   href="./?readlist-id=${readlist.id}"
                   class="${activeReadlistId == readlist.id ? "active" : ""}"
-                  onclick="${eventHandler("readlists-nav", "handleSelectList")}"
+                  onclick="${eventHandler(
+                    "readlists-nav",
+                    "handleSelectReadlist"
+                  )}"
                   data-count="${readlist.articles.length}">
-                  ${title ? /*html*/ `<h2>${title}</h2>` : ""}
+                  ${readlist.title && html`<h2>${readlist.title}</h2>`}
                   <p>${formatDate(readlist.id)}</p>
                 </a>
               </li>

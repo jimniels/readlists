@@ -18,14 +18,18 @@
   --font-size-base: 16px;
   --font-size-sm: 14px;
   --font-size-xsm: 12px;
+
+  color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg-primary: hsl(0, 0%, 10%);
-    --color-bg-secondary: hsl(0, 0%, 20%);
+    --color-bg-primary: hsl(0, 0%, 15%);
+    --color-bg-secondary: hsl(0, 0%, 10%);
     --color-text: hsl(255, 0%, 100%);
-    --color-border: hsl(0, 0%, 20%);
+    --color-border: hsl(0, 0%, 25%);
+    --color-accent: hsl(215, 100%, 51%);
+    --color-accent-hsl: 215, 100%, 51%;
   }
 }
 
@@ -69,7 +73,7 @@ img {
 }
 
 select {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
 }
 input {
   font-size: 1rem;
@@ -124,23 +128,26 @@ readlist-view p {
   margin-bottom: 1em;
 }
 
-[loading]:before {
+readlists-nav {
+  position: relative;
+}
+readlists-app[loading] readlists-nav:before {
   position: absolute;
   top: 24px;
-  left: calc(50% - 12px);
+
   width: 32px;
   height: 32px;
-  background: url(./loading.svg) no-repeat;
+  background: url(./loading.gif) no-repeat;
   background-size: cover;
   /* display: block; */
   content: "";
 }
-readlists-app[loading]:before {
-  width: 36px;
-  height: 36px;
+readlists-app[loading] readlists-nav:before {
+  width: 28px;
+  height: 28px;
   z-index: 100;
-  top: 31px;
-  left: 320px;
+  top: 34px;
+  right: 54px;
 }
 /* [loading] input,
 [loading] select,
@@ -283,6 +290,17 @@ readlist-view header {
   top: var(--spacer);
 }
 
+.article__main {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: calc(var(--spacer) / 2) 0;
+}
+.article__meta {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
 .article__description {
   margin: 0;
   padding: 0;
@@ -290,29 +308,15 @@ readlist-view header {
 .article__title {
   font-weight: 500;
   font-size: var(--font-size-lg);
-  margin: calc(var(--spacer) / 2) 0;
 }
 
-.article__actions {
-  opacity: 0;
-  visibility: hidden;
-  transition: 0.2s ease all;
-  padding: var(--spacer);
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  background: var(--color-bg-primary); /* @TODO make gradient */
-}
-.article:hover .article__actions {
-  opacity: 1;
-  visibility: visible;
-}
 .article__actions .button {
   margin-left: calc(var(--spacer) / 2);
 }
 
 .article--create {
   align-items: center;
+  padding-left: calc(var(--spacer) * 2);
 }
 .article--create input {
   font-size: var(--font-size-lg);
@@ -530,8 +534,13 @@ readlists-nav li a * {
 readlists-nav ul h2 {
   font-size: var(--font-size-lg);
   font-weight: 400;
-  margin: calc(var(--spacer) / 4) 0 0 0;
+  margin: 0 0 calc(var(--spacer) / 4) 0;
   padding: 0;
+  /* truncate at n lines */
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  overflow: hidden;
 }
 readlists-nav ul p {
   font-size: var(--font-size-sm);

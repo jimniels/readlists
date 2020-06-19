@@ -4,23 +4,26 @@ import {
   updateList,
   deleteReadlistArticle,
   deleteReadlist,
-  sync,
   getArticleHTML,
   getMercuryArticle,
   createReadlistArticle,
+  fetchEpub,
 } from "./api.js";
-import { store, selectActiveReadlist, selectReadlistArticleById } from "./r.js";
-import { eventHandler, autoExpand } from "./utils.js";
+import {
+  store,
+  selectActiveReadlist,
+  selectReadlistArticleById,
+} from "./redux.js";
+import { html, eventHandler, autoExpand } from "./utils.js";
 
 export class ReadListView extends HTMLElement {
   connectedCallback() {
-    const state = store.getState();
-    const list = selectActiveReadlist(state);
+    this.renderView();
 
     store.subscribe(() => {
-      const { lastActionType } = store.getState();
+      const { lastAction } = store.getState();
 
-      switch (lastActionType) {
+      switch (lastAction.type) {
         case "DELETE_READLIST":
         case "SELECT_READLIST":
         case "CREATE_READLIST":
@@ -35,84 +38,43 @@ export class ReadListView extends HTMLElement {
       }
     });
 
-    this.renderView();
-
     /**
-     * Event Listeners
+     * Event listeners
      */
-    // https://stackoverflow.com/questions/12027137/javascript-trick-for-paste-as-plain-text-in-execcommand
-    // this.addEventListener("paste", (e) => {
-    //   e.preventDefault();
-    //   const text = (e.originalEvent || e).clipboardData.getData("text/plain");
-    //   document.execCommand("insertHTML", false, text);
-    // });
-    // this.addEventListener("focusout", (e) => {
-    //   switch (e.target.dataset.actionKey) {
-    //     case "update-readlist":
-    //       this.handleUpdatePartOfReadlist(e);
-    //       break;
-    //     case "update-readlist-article":
-    //       const state = store.getState();
-    //       const readlistArticle = selectReadlistArticleById(
-    //         state,
-    //         state.activeReadlistId,
-    //         e.target.dataset.actionValue
-    //       );
-    //       const value = e.target.value;
-    //       if (readlistArticle.title != value) {
-    //         store.dispatch({
-    //           type: "UPDATE_READLIST_ARTICLE",
-    //           readlistId: store.getState().activeReadlistId,
-    //           readlistArticleId: e.target.dataset.actionValue,
-    //           readlistArticleUpdates: { title: value },
-    //         });
-    //       }
-    //       break;
-    //   }
-    // });
-
     this.addEventListener("input", (e) => {
       if (e.target.tagName === "TEXTAREA") {
         autoExpand(e.target);
       }
     });
+  }
 
-    this.addEventListener("click", (e) => {
-      // console.log(e, e.target.closest("li"));
-      switch (e.target.dataset.actionKey) {
-        // case "delete-article":
-        //   this.handleDeleteReadlistArticle(e);
-        //   break;
-        // case "delete-readlist":
-        //   this.handleDeleteReadlist();
-        //   break;
-        case "select-article":
-          this.handleSelectReadlistArticle(e);
-          break;
-      }
-    });
-
-    this.addEventListener("input", (e) => {
-      if (e.target.dataset.jsAction === "change-article-order") {
-        this.handleChangeArticleOrder(e);
-      }
-    });
-
-    this.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (e.target.dataset.actionKey === "create-article") {
-        this.handleCreateReadlistArticle(e);
-      }
-    });
+  handleUpdateReadlistArticle(e) {
+    const state = store.getState();
+    const readlistId = state.activeReadlistId;
+    const readlistArticleId = e.target.dataset.readlistArticleId;
+    const readlistArticle = selectReadlistArticleById(
+      state,
+      readlistId,
+      readlistArticleId
+    );
+    const value = e.target.value;
+    if (readlistArticle.title != value) {
+      store.dispatch({
+        type: "UPDATE_READLIST_ARTICLE",
+        readlistId,
+        readlistArticleId,
+        readlistArticleUpdates: { title: value },
+      });
+    }
   }
 
   handleSelectReadlistArticle(e) {
-    const state = store.getState();
-    const readlistArticleId = e.target.dataset.actionValue;
+    const { activeReadlistArticleId } = store.getState();
+    const readlistArticleId = e.target.value;
     store.dispatch({
       type: "SELECT_READLIST_ARTICLE",
       readlistArticleId:
-        readlistArticleId == state.activeReadlistArticleId
+        readlistArticleId == activeReadlistArticleId
           ? "" // deselect the current one
           : readlistArticleId, // select a new one
     });
@@ -138,7 +100,6 @@ export class ReadListView extends HTMLElement {
 
   /**
    * Sync a given a set of changes to a readlist.
-   * @param {Object} readlistChanges - Partial Readlist object
    */
   handleUpdatePartOfReadlist(e) {
     const changeKey = e.target.dataset.actionValue;
@@ -156,11 +117,10 @@ export class ReadListView extends HTMLElement {
 
   /**
    * Handle when user changes order of readlist articles
-   * @param {*} e
    */
   handleChangeArticleOrder(e) {
     e.target.blur();
-    const readlistArticleId = e.target.dataset.articleId;
+    const { readlistArticleId } = e.target.dataset;
     const currentIndex = Number(e.target.dataset.currentIndex);
     const newIndex = Number(e.target.value);
 
@@ -185,6 +145,7 @@ export class ReadListView extends HTMLElement {
    * @param {*} e
    */
   handleCreateReadlistArticle(e) {
+    e.preventDefault();
     const $input = e.target.elements[0];
     const $btn = e.target.elements[1];
 
@@ -218,6 +179,34 @@ export class ReadListView extends HTMLElement {
     });
   }
 
+  handleExportEpub(e) {
+    const state = store.getState();
+    const readlist = selectActiveReadlist(state);
+    e.target.setAttribute("disabled", true);
+    e.target.classList.add("loading");
+
+    fetchEpub(readlist)
+      .then((blob) => {
+        // https://stackoverflow.com/questions/4545311/download-a-file-by-jquery-ajax
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        // the filename you want
+        a.download = "file.epub";
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((e) => {
+        // @TODO
+      })
+      .then(() => {
+        e.target.removeAttribute("disabled");
+        e.target.classList.remove("loading");
+      });
+  }
+
   renderView() {
     const state = store.getState();
     const readlist = selectActiveReadlist(state);
@@ -236,74 +225,67 @@ export class ReadListView extends HTMLElement {
         <time datetime="${d.toISOString()}">
           Created ${dFormatted}
         </time>
-        <div>
-          <textarea
-            class="title"
-            placeholder="Readlist title..."
-            role="textbox"
-            onfocusoutzz="store.dispatch({
-              type: 'UPDATE_READLIST', 
-              payload: {
-                readlistId: ${readlist.id},
-                readlistUpdates: { title: this.value }
-              }
-            })"
-            onfocusout="${eventHandler(
-              "readlist-view",
-              "handleUpdatePartOfReadlist"
-            )}"
-            data-action="UPDATE_READLIST"
-            data-payload="{
-              readlistId: ${readlist.id},
-              readlistUpdates: { title: value },
-            }"
-            data-action-key="update-readlist"
-            data-action-value="title">${readlist.title}</textarea>
-        </div>
-        <div>
-          <textarea
-            class="description"
-            placeholder="Readlist description..."
-            role="textbox" 
-            onfocusout="${eventHandler(
-              "readlist-view",
-              "handleUpdatePartOfReadlist"
-            )}"
-            data-action="{ type: '', payload: {} }"
-            data-action-key="update-readlist"
-            data-action-value="description">${readlist.description}</textarea>
-        </div>
         
-        <button class="button" data-js-action="export-epub">
-          Export as Epub
-        </button>          
-        <button
-          class="button button--danger"
-          onclick="${eventHandler(
+        <textarea
+          class="title"
+          placeholder="Readlist title..."
+          onblur="${eventHandler(
             "readlist-view",
-            "handleDeleteActiveReadlist"
-          )}">
-          Delete
-        </button>
-      </header>
-      <ul class="articles"></ul>
-      <form class="article article--create" data-action-key="create-article">
+            "handleUpdatePartOfReadlist"
+          )}"
+          data-action-value="title">${readlist.title}</textarea>
+        
+        <textarea
+          class="description"
+          placeholder="Readlist description..."
+          onblur="${eventHandler(
+            "readlist-view",
+            "handleUpdatePartOfReadlist"
+          )}"
+          data-action-value="description">${readlist.description}</textarea>
+        
         <div>
+          <button class="button" onclick="${eventHandler(
+            "readlist-view",
+            "handleExportEpub"
+          )}">
+            Export as Epub
+          </button>          
+          <button
+            class="button button--danger"
+            onclick="${eventHandler(
+              "readlist-view",
+              "handleDeleteActiveReadlist"
+            )}">
+            Delete
+          </button>
+        </div>
+      </header>
+
+      <ul class="articles"></ul>
+
+      <form
+        class="article article--create"
+        onsubmit="${eventHandler(
+          "readlist-view",
+          "handleCreateReadlistArticle"
+        )}">
+        <div class="article__main">
           <input
             name="article-url"
             type="text"
             placeholder="http://your-article-url.com/goes/here"
           />
+          <div class="article__actions">
+            <button class="button" type="submit">
+              Add
+            </button>
+          </div>
         </div>
-        <button class="button" type="submit">
-          Add
-        </button>
       </form>
     `;
-    this.$title = this.querySelector("#title");
-    this.$description = this.querySelector("#description");
     this.$articles = this.querySelector(".articles");
-    this.querySelectorAll("textarea").forEach(($el) => {
+    Array.from(this.querySelectorAll("textarea")).forEach(($el) => {
       autoExpand($el);
     });
     this.renderList();
@@ -312,66 +294,77 @@ export class ReadListView extends HTMLElement {
   renderList() {
     const state = store.getState();
     const { activeReadlistId, activeReadlistArticleId } = state;
-    const list = selectActiveReadlist(state);
+    const readlist = selectActiveReadlist(state);
+    const indexes = [...Array(readlist.articles.length).keys()];
 
-    const indexes = [...Array(list.articles.length).keys()];
-    this.$articles.innerHTML = /*html*/ `
-        ${list.articles
-          .map(
-            (article, articleIndex) => /*html*/ `
-            <li class="article">
-              
-                <div>
-                  <select
-                    class="article__order"
-                    data-js-action="change-article-order"
-                    data-current-index="${articleIndex}"
-                    data-article-id="${article.id}">
-                    ${indexes.map(
-                      (index) =>
-                        `<option
-                          value="${index}"
-                          ${index === articleIndex ? "selected" : ""}>
-                          ${index + 1}
-                        </option>`
-                    )}
-                  </select>
-                  <p class="article__domain">
-                    <a href="${article.url}" class="link" target="__blank">
-                      ${article.domain}
-                    </a>
-                  </p>
-                </div>
-                
-                <textarea
-                  rows="1"
-                  class="article__title"
-                  placeholder="Article title..."
-                  data-action-key="update-readlist-article"
-                  data-action-value="${article.id}"
-                >${article.title}</textarea>
-                <p class="article__excerpt">${article.excerpt}</p>
-                
-                <div class="article__actions">
-                  <button
-                    class="button"
-                    data-action-key="select-article"
-                    data-action-value="${article.id}">
-                    Preview
-                  </button>
-                  <button
-                    class="button button--danger"
-                    onclick="${eventHandler(
-                      "readlist-view",
-                      "handleDeleteReadlistArticle"
-                    )}"
-                    value="${article.id}">
-                    Delete
-                  </button>
-                </div>
-            </li>`
-          )
-          .join("")}
+    this.$articles.innerHTML = html`
+      ${readlist.articles.map(
+        (article, articleIndex) => html` <li class="article">
+          <div class="article__meta">
+            <select
+              class="article__order"
+              onchange="${eventHandler(
+                "readlist-view",
+                "handleChangeArticleOrder"
+              )}"
+              data-readlist-article-id="${article.id}"
+              data-current-index="${articleIndex}"
+            >
+              ${indexes.map(
+                (index) =>
+                  html`<option
+                    value="${index}"
+                    ${index === articleIndex ? "selected" : ""}
+                  >
+                    ${index + 1}
+                  </option>`
+              )}
+            </select>
+            <p class="article__domain">
+              <a href="${article.url}" class="link" target="__blank">
+                ${article.domain}
+              </a>
+            </p>
+            <div class="article__actions">
+              <button
+                class="button"
+                onclick="${eventHandler(
+                  "readlist-view",
+                  "handleSelectReadlistArticle"
+                )}"
+                value="${article.id}"
+              >
+                Preview
+              </button>
+              <button
+                class="button button--danger"
+                onclick="${eventHandler(
+                  "readlist-view",
+                  "handleDeleteReadlistArticle"
+                )}"
+                value="${article.id}"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+          <div class="article__main">
+            <textarea
+              rows="1"
+              class="article__title"
+              placeholder="Article title..."
+              onblur="${eventHandler(
+                "readlist-view",
+                "handleUpdateReadlistArticle"
+              )}"
+              data-readlist-article-id="${article.id}"
+            >
+${article.title}</textarea
+            >
+          </div>
+          <p class="article__excerpt">${article.excerpt}</p>
+        </li>`
+      )}
     `;
 
     // Auto-expand all the textarea(s)
