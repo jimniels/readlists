@@ -1,4 +1,5 @@
 const Mercury = require("@postlight/mercury-parser");
+const { resolveImgPathsInHtml } = require("./utils.js");
 
 // Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
 exports.handler = async (event, context) => {
@@ -16,7 +17,11 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const result = await Mercury.parse(url);
+    let result = await Mercury.parse(url);
+    result.content = resolveImgPathsInHtml({
+      html: result.content,
+      url: result.url,
+    });
 
     return {
       statusCode: 200,

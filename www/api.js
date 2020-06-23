@@ -234,8 +234,9 @@ export function fetchEpub(readlist) {
   // @TODO verify that the readlist actually has articles
   let book = {
     title: readlist.title,
-    author: "@TODO", // username?
+    // author: "@TODO", // username?
     content: [],
+    // array of objects with title and data
   };
   return Promise.all(
     readlist.articles.map((article) =>

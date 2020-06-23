@@ -358,7 +358,7 @@ readlist-view {
   background: var(--color-bg-primary);
 }
 readlist-article {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.65);
   overflow: scroll;
   position: fixed;
   top: 0;
@@ -368,7 +368,7 @@ readlist-article {
 }
 
 readlist-article > div {
-  background: #fff;
+  background: var(--color-bg-primary);
   max-width: 800px;
   margin: calc(var(--spacer) * 2) auto;
   padding: calc(var(--spacer) * 2);
@@ -569,9 +569,9 @@ readlists-nav footer a {
 }
 
 /**
- * Readlist VIew
+ * Readlist Header in <readlist-view>
  */
-readlist-view header .title {
+.readlist-header__title {
   font-size: var(--font-size-xlg);
   font-weight: 500;
   font-size: 24px;
@@ -579,16 +579,20 @@ readlist-view header .title {
   display: inline-block;
 }
 
-readlist-view header .description {
+.readlist-header__description {
   font-weight: 400;
   font-size: var(--font-size-base);
   margin: calc(var(--spacer) / 2) 0;
   display: inline-block;
 }
 
-readlist-view header time {
-  display: block;
+.readlist-header__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: calc(var(--spacer) / 2);
+}
+.readlist-header__meta__time {
   color: var(--color-text-light);
 }
 

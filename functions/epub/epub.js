@@ -40,7 +40,9 @@ exports.handler = async (event, context) => {
     //   }),
     // };
 
-    await new Epub(book, "./readlist.epub").promise;
+    await new Epub(book, "./readlist.epub").promise.catch((e) => {
+      console.log(e);
+    });
     const fileBase64 = fs.readFileSync("./readlist.epub", {
       encoding: "base64",
     });
@@ -56,6 +58,7 @@ exports.handler = async (event, context) => {
       isBase64Encoded: true,
     };
   } catch (err) {
+    console.log(err);
     return { statusCode: 500, body: err.toString() };
   }
 };

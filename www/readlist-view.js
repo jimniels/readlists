@@ -185,6 +185,7 @@ export class ReadListView extends HTMLElement {
     e.target.setAttribute("disabled", true);
     e.target.classList.add("loading");
 
+    // @TODO rename to downloadEpub and put all this in the API part?
     fetchEpub(readlist)
       .then((blob) => {
         // https://stackoverflow.com/questions/4545311/download-a-file-by-jquery-ajax
@@ -199,7 +200,10 @@ export class ReadListView extends HTMLElement {
         window.URL.revokeObjectURL(url);
       })
       .catch((e) => {
-        // @TODO
+        store.dispatch({
+          type: "SET_ERROR",
+          error: "There was a problem expoorting your epub.",
+        });
       })
       .then(() => {
         e.target.removeAttribute("disabled");
@@ -221,13 +225,32 @@ export class ReadListView extends HTMLElement {
     const dFormatted = new Intl.DateTimeFormat("en-US").format(d);
 
     this.innerHTML = /*html*/ `
-      <header>
-        <time datetime="${d.toISOString()}">
-          Created ${dFormatted}
-        </time>
+      <header class="readlist-header">
+        <div class="readlist-header__meta">
+          <time datetime="${d.toISOString()}" class="readlist-header__meta__time">
+            Created ${dFormatted}
+          </time>
+
+          <div class="readlist-header__meta__actions">
+            <button class="button" onclick="${eventHandler(
+              "readlist-view",
+              "handleExportEpub"
+            )}">
+              Export as Epub
+            </button>          
+            <button
+              class="button button--danger"
+              onclick="${eventHandler(
+                "readlist-view",
+                "handleDeleteActiveReadlist"
+              )}">
+              Delete
+            </button>
+          </div>
+        </div>
         
         <textarea
-          class="title"
+          class="readlist-header__title"
           placeholder="Readlist title..."
           onblur="${eventHandler(
             "readlist-view",
@@ -236,30 +259,13 @@ export class ReadListView extends HTMLElement {
           data-action-value="title">${readlist.title}</textarea>
         
         <textarea
-          class="description"
+          class="readlist-header__description"
           placeholder="Readlist description..."
           onblur="${eventHandler(
             "readlist-view",
             "handleUpdatePartOfReadlist"
           )}"
           data-action-value="description">${readlist.description}</textarea>
-        
-        <div>
-          <button class="button" onclick="${eventHandler(
-            "readlist-view",
-            "handleExportEpub"
-          )}">
-            Export as Epub
-          </button>          
-          <button
-            class="button button--danger"
-            onclick="${eventHandler(
-              "readlist-view",
-              "handleDeleteActiveReadlist"
-            )}">
-            Delete
-          </button>
-        </div>
       </header>
 
       <ul class="articles"></ul>
