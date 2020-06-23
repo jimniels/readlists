@@ -39,18 +39,21 @@ export function formatDate(date) {
 export function eventHandler(node, method) {
   return `window.handleAppEvent(event, '${node}', '${method}')`;
 }
-window.handleAppEvent = function (event, elName, elFnName) {
-  event.composedPath().forEach((node) => {
-    if (
-      node.tagName &&
-      node.tagName.toLowerCase() === elName &&
-      node[elFnName]
-    ) {
-      console.warn(`Firing event handler: <${elName}>.${elFnName}`);
-      node[elFnName](event);
-    }
-  });
-};
+// so we can run this file in node too
+if (typeof window !== "undefined") {
+  window.handleAppEvent = function (event, elName, elFnName) {
+    event.composedPath().forEach((node) => {
+      if (
+        node.tagName &&
+        node.tagName.toLowerCase() === elName &&
+        node[elFnName]
+      ) {
+        console.warn(`Firing event handler: <${elName}>.${elFnName}`);
+        node[elFnName](event);
+      }
+    });
+  };
+}
 
 /**
  * Tagged template literal function for coercing certain values to what
@@ -87,4 +90,36 @@ export function html(strings, ...values) {
     }
   });
   return out;
+}
+
+/**
+ * Check if a URL is relative to the current path or not
+ * https://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
+ * @param {string} url
+ */
+export function isUrlAbsolute(url) {
+  if (url.indexOf("//") === 0) {
+    return true;
+  } // URL is protocol-relative (= absolute)
+  if (url.indexOf("://") === -1) {
+    return false;
+  } // URL has no protocol (= relative)
+  if (url.indexOf(".") === -1) {
+    return false;
+  } // URL does not contain a dot, i.e. no TLD (= relative, possibly REST)
+  if (url.indexOf("/") === -1) {
+    return false;
+  } // URL does not contain a single slash (= relative)
+  if (url.indexOf(":") > url.indexOf("/")) {
+    return false;
+  } // The first colon comes after the first slash (= relative)
+  if (url.indexOf("://") < url.indexOf(".")) {
+    return true;
+  } // Protocol is defined before first dot (= absolute)
+  return false; // Anything else must be relative
+}
+
+export function resolveImgSrc(articleUrl, imgSrc) {
+  const url = new URL(imgSrc, articleUrl);
+  return url.href ? url.href : "";
 }

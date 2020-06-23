@@ -277,7 +277,8 @@ readlist-view header {
   align-items: flex-start;
   flex-direction: column;
   padding-bottom: 1rem;
-  border-top: 1px solid hsla(0, 0%, 0%, 0.1);
+  border-top: 1px solid var(--color-border);
+  margin-left: calc(var(--spacer) * 2);
   padding: var(--spacer) calc(var(--spacer) * 2) var(--spacer) 80px;
   position: relative;
 }
@@ -286,8 +287,9 @@ readlist-view header {
 }
 .article__order {
   position: absolute;
-  left: calc(var(--spacer) * 2);
-  top: var(--spacer);
+  left: 0;
+  top: 54px;
+  min-width: 50px;
 }
 
 .article__main {
@@ -300,6 +302,7 @@ readlist-view header {
   display: flex;
   width: 100%;
   justify-content: space-between;
+  align-items: center;
 }
 .article__description {
   margin: 0;
