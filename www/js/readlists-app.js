@@ -24,8 +24,6 @@ class ReadlistsApp extends HTMLElement {
         case "CREATE_READLIST":
         case "DELETE_READLIST":
           this.render(state);
-        case "SET_ERROR":
-          this.renderError(state);
           break;
       }
     });
@@ -82,23 +80,8 @@ class ReadlistsApp extends HTMLElement {
                 -->
             </div>
           `}
-      <div id="error" class="error"></div>
+      <readlist-error class="error"></readlist-error>
     `;
-    this.$error = this.querySelector("#error");
-  }
-
-  renderError(state) {
-    const { error } = state;
-
-    if (error) {
-      this.$error.innerHTML = error;
-      this.$error.classList.add("error--visible");
-      setTimeout(() => {
-        store.dispatch({ type: "SET_ERROR", error: "" });
-      }, 5000); // matches 5s in css animation
-    } else {
-      this.$error.classList.remove("error--visible");
-    }
   }
 }
 customElements.define("readlists-app", ReadlistsApp);
