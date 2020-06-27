@@ -48,7 +48,9 @@ if (typeof window !== "undefined") {
         node.tagName.toLowerCase() === elName &&
         node[elFnName]
       ) {
-        console.warn(`Firing event handler: <${elName}>.${elFnName}`);
+        if (__DEV__) {
+          console.warn(`Firing event handler: <${elName}>.${elFnName}`);
+        }
         node[elFnName](event);
       }
     });
@@ -119,7 +121,69 @@ export function isUrlAbsolute(url) {
   return false; // Anything else must be relative
 }
 
+// instead, just check if img.src contains the current URL in it, if it does, it
+// it was a relative link. otherwise, it's absolute and you can skip.
 export function resolveImgSrc(articleUrl, imgSrc) {
   const url = new URL(imgSrc, articleUrl);
-  return url.href ? url.href : "";
+  return url.href ? url.href : imgSrc;
+}
+
+/**
+ * https://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-a-url
+ * @param {string} string
+ */
+export function isValidHttpUrl(string) {
+  let url;
+
+  try {
+    url = new URL(string);
+  } catch (_) {
+    return false;
+  }
+
+  return url.protocol === "http:" || url.protocol === "https:";
+}
+
+/**
+ * https://ourcodeworld.com/articles/read/189/how-to-create-a-file-and-generate-a-download-with-javascript-in-the-browser-without-a-server
+ * @param {string} file
+ * @param {string} contents
+ */
+export function downloadFile({ file, contents }) {
+  var element = document.createElement("a");
+  element.setAttribute(
+    "href",
+    "data:text/plain;charset=utf-8," + encodeURIComponent(contents)
+  );
+  element.setAttribute("download", file);
+
+  element.style.display = "none";
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
+
+/**
+ * https://gist.github.com/codeguy/6684588
+ * @param {string} str
+ */
+export function slugify(str) {
+  str = str.replace(/^\s+|\s+$/g, ""); // trim
+  str = str.toLowerCase();
+
+  // remove accents, swap ñ for n, etc
+  var from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;";
+  var to = "aaaaeeeeiiiioooouuuunc------";
+  for (var i = 0, l = from.length; i < l; i++) {
+    str = str.replace(new RegExp(from.charAt(i), "g"), to.charAt(i));
+  }
+
+  str = str
+    .replace(/[^a-z0-9 -]/g, "") // remove invalid chars
+    .replace(/\s+/g, "-") // collapse whitespace and replace by -
+    .replace(/-+/g, "-"); // collapse dashes
+
+  return str;
 }
