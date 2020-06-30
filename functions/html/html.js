@@ -1,11 +1,9 @@
-const Mercury = require("@postlight/mercury-parser");
-const { resolveImgPathsInHtml } = require("./utils.js");
+const fetch = require("node-fetch");
 
 // Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
 exports.handler = async (event, context) => {
   console.log(event);
   console.log(event.queryStringParameters);
-
   const url = event.queryStringParameters.url;
 
   if (!url) {
@@ -17,15 +15,10 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    let result = await Mercury.parse(url);
-    result.content = resolveImgPathsInHtml({
-      html: result.content,
-      url: result.url,
-    });
-
+    const html = await fetch(url).then((res) => res.text());
     return {
       statusCode: 200,
-      body: JSON.stringify(result),
+      body: html,
       // // more keys you can return:
       // headers: {
       //   "Access-Control-Allow-Origin": "*",

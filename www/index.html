@@ -1,15 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8" />
     <title>Readlists</title>
-    <!-- <link rel="stylesheet" href="./reset.css" /> -->
-    <link rel="stylesheet" href="./index.css" />
+    <!-- This makes the preview yucky <link rel="stylesheet" href="./reset.css" /> -->
+    <link rel="stylesheet" href="/css/index.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body>
+    <header class="app-header wrapper">
+      <h1 class="app-header__title">Readlists</h1>
+      <p class="app-header__description">
+        Collect, curate, and bundle individual web pages into ebooks. Think
+        mixtapes, but for online content.
+        <a href="./about.html" class="link">Learn more.</a>
+      </p>
+    </header>
     <readlists-app>
       <img
-        src="./loading.gif"
+        src="/assets/loading.gif"
         width="36"
         height="36"
         style="margin: 0 auto; display: block; width: 36px; align-self: center;"
@@ -17,7 +26,7 @@
       <noscript>JavaScript is required.</noscript>
     </readlists-app>
 
-    <script src="https://unpkg.com/dropbox@4.0.30/dist/Dropbox-sdk.js"></script>
-    <script type="module" src="./readlists-app.js"></script>
+    <script src="https://unpkg.com/@postlight/mercury-parser@2.2.0/dist/mercury.web.js"></script>
+    <script type="module" src="/js/index.js"></script>
   </body>
 </html>
