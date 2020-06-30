@@ -1,5 +1,8 @@
 # Readlists
 
+- Develop locally `netlify dev`
+- Prod build `npm run build`
+
 ## ToDos
 
 - [ ] Reorder articles
