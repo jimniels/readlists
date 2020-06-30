@@ -15,7 +15,13 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const html = await fetch(url).then((res) => res.text());
+    const html = await fetch(url).then((res) => {
+      if (res.ok) {
+        return res.text();
+      }
+      throw new Error("Failed to fetch page because response was not ok.");
+    });
+    console.log("Succesfully fetched url:", url);
     return {
       statusCode: 200,
       body: html,
@@ -27,6 +33,7 @@ exports.handler = async (event, context) => {
       // isBase64Encoded: true,
     };
   } catch (err) {
+    console.error("Failed to fetch url:", url);
     return { statusCode: 500, body: err.toString() };
   }
 };
