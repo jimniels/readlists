@@ -271,7 +271,10 @@ export async function validateReadlist(
       return null;
     }
 
-    if (typeof article.word_count === "number") {
+    if (
+      typeof article.word_count === "number" ||
+      typeof article.word_count === "string"
+    ) {
       readlist.articles[i].word_count = stripHtml(article.word_count);
     } else {
       log("expected `readlist.article.word_count` to be a number.");
