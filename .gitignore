@@ -1,4 +1,4 @@
 node_modules/
-data/
+functions-dist/
 *.token
 .DS_STORE

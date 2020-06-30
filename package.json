@@ -2,14 +2,17 @@
   "name": "readlists",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "type": "module",
+  "main": "",
   "scripts": {
+    "build": "zip-it-and-ship-it ./functions ./functions-dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "http-server": "^0.12.1"
+  "devDependencies": {
+    "epub-gen": "^0.1.0",
+    "node-fetch": "^2.6.0",
+    "http-server": "^0.12.1",
+    "@netlify/zip-it-and-ship-it": "^1.3.2"
   }
 }
