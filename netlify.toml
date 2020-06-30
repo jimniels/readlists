@@ -1,6 +1,6 @@
 # sample netlify.toml
 [build]
-  functions = "functions"
+  functions = "functions/"
   publish = "www"
 
 # note: each of these fields are OPTIONAL
