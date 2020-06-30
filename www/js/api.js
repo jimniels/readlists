@@ -1,5 +1,5 @@
 import { store } from "./redux.js";
-import { resolveImgSrc } from "./utils.js";
+import { resolveImgSrc, validateReadlist, isValidHttpUrl } from "./utils.js";
 
 // @TODO test with relative URL images somewhere
 export function fetchArticle(url) {
@@ -39,27 +39,28 @@ export function fetchEpub(readlist) {
   let book = {
     title: readlist.title,
     // author: "@TODO", // username?
-    content: [],
+    content: readlist.articles.map((article, i) => ({
+      title: article.title,
+      data: article.content,
+    })),
     // array of objects with title and data
   };
-  return Promise.all(
-    readlist.articles.map((article) =>
-      getArticleHTML({ readlistId: readlist.id, readlistArticleId: article.id })
-    )
-  ).then((articles) => {
-    book.content = readlist.articles.map((article, i) => ({
-      title: article.title,
-      data: articles[i],
-    }));
 
-    return fetch(`/api/epub/`, {
-      method: "POST",
-      body: JSON.stringify(book),
-    }).then((res) => {
-      if (!res.ok) {
-        throw new Error("Failed to turn into an ebook");
-      }
-      return res.blob();
-    });
+  return fetch(`/api/epub/`, {
+    method: "POST",
+    body: JSON.stringify(book),
+  }).then((res) => {
+    if (!res.ok) {
+      throw new Error("Failed to turn into an ebook");
+    }
+    return res.blob();
   });
+}
+
+export function fetchReadlist(url) {
+  return fetch(url)
+    .then((res) => res.json())
+    .then((dangerousReadlist) =>
+      validateReadlist(dangerousReadlist, { verbose: true })
+    );
 }

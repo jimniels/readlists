@@ -1,19 +1,14 @@
 import { store } from "./redux.js";
-import { eventHandler, html } from "./utils.js";
+import { fetchReadlist } from "./api.js";
+import {
+  eventHandler,
+  html,
+  isValidHttpUrl,
+  validateReadlist,
+} from "./utils.js";
 
 class ReadlistsApp extends HTMLElement {
   connectedCallback() {
-    // @TODO check and see if there's anything in the URL bar to pre-load one
-    let readlist = localStorage.getItem("readlist");
-
-    if (readlist) {
-      store.dispatch({
-        type: "IMPORT_READLIST",
-        readlist: JSON.parse(readlist),
-      });
-    }
-    this.render(store.getState());
-
     store.subscribe(() => {
       const state = store.getState();
       switch (state.lastAction.type) {
@@ -27,10 +22,74 @@ class ReadlistsApp extends HTMLElement {
           break;
       }
     });
+
+    // Load up initial readlist from a URL, from localstate, or just nothing.
+    // const urlParams = new URLSearchParams(window.location.search);
+    // if (urlParams.get("url")) {
+    //   importReadlistFromURL(urlParams.get("url"))
+    //     .catch(() => {
+    //       // @TODO this is broken
+    //       this.render(store.getState());
+    //     })
+    //     .then(() => {
+    //       window.history.replaceState({}, "", window.location.origin);
+    //     });
+    // } else
+    if (localStorage.getItem("readlist")) {
+      try {
+        const readlist = JSON.parse(localStorage.getItem("readlist"));
+        store.dispatch({
+          type: "IMPORT_READLIST",
+          readlist,
+        });
+      } catch (e) {
+        console.error("Failed to load Readlist data in localstorage.", e);
+        store.dispatch({
+          type: "DELETE_READLIST",
+          readlist,
+        });
+      }
+    } else {
+      this.render(store.getState());
+
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("url")) {
+        this.querySelector("[name='readlist-url']").value = urlParams.get(
+          "url"
+        );
+      }
+    }
+
+    // @TODO check and see if there's anything in the URL bar to pre-load one
+
+    // this.render(store.getState());
   }
 
   handleCreateNewReadlist() {
     store.dispatch({ type: "CREATE_READLIST" });
+  }
+
+  handleImportFromUrl(e) {
+    console.warn("FIRED");
+    e.preventDefault();
+    const $input = e.target.elements[0];
+    const $btn = e.target.elements[1];
+    const url = $input.value;
+
+    // if (!isValidHttpUrl(url)) {
+    //   store.dispatch({
+    //     type: "SET_ERROR",
+    //     error: "Invalid Readlist URL. Must be an http or https url.",
+    //   });
+    //   return;
+    // }
+
+    $input.setAttribute("loading", true);
+    $btn.classList.add("loading");
+    importReadlistFromURL(url).then(() => {
+      $input.removeAttribute("disabled");
+      $btn.classList.remove("loading");
+    });
   }
 
   render(state) {
@@ -55,18 +114,28 @@ class ReadlistsApp extends HTMLElement {
                   "handleCreateNewReadlist"
                 )}"
               >
-                Create New Readlist
+                Create Readlist
               </button>
-              <!--
+
+              <span>or</span>
+
               <form
                 class="login__form"
-                onsubmit="${eventHandler("readlists-app", "handleLogIn")}"
+                onsubmit="${eventHandler(
+                  "readlists-app",
+                  "handleImportFromUrl"
+                )}"
               >
-                <input type="text" name="user" placeholder="User ID" />
-                <button id="login" class="button button--block" type="submit">
-                  Log In
+                <input
+                  type="text"
+                  name="readlist-url"
+                  placeholder="https://domain.com/readlist.json"
+                />
+                <button id="login" class="button" type="submit">
+                  Import from URL
                 </button>
               </form>
+              <!--
               <button class="button">Choose a Readlist...</button>
               <label for="exampleInput" class="button">
                 Choose a Readlist...
@@ -140,3 +209,39 @@ draggable="true"
               ondrop="window.drop(event); this.classList.remove('login--highlight');"
 
 */
+
+function importReadlistFromURL(url) {
+  if (!isValidHttpUrl(url)) {
+    store.dispatch({
+      type: "SET_ERROR",
+      error: "Failed to validate the remote Readlist. URL is incorrect.",
+    });
+    return Promise.reject();
+  }
+
+  return fetch(url)
+    .then((res) => res.json())
+    .then((dangerousReadlist) =>
+      validateReadlist(dangerousReadlist, { verbose: true })
+    )
+    .then((readlist) => {
+      if (!readlist) {
+        store.dispatch({
+          type: "SET_ERROR",
+          error:
+            "Failed to validate the remote Readlist. Check console for more details.",
+        });
+        return;
+      }
+
+      store.dispatch({ type: "IMPORT_READLIST", readlist });
+    })
+    .catch((e) => {
+      console.error(e);
+      store.dispatch({
+        type: "SET_ERROR",
+        // @TODO improve this error message
+        error: "Failed to retrieve the remote Readlist file.",
+      });
+    });
+}

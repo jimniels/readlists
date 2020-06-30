@@ -81,7 +81,6 @@ export class ReadListView extends HTMLElement {
     const { readlist } = store.getState();
 
     const articlesCount = readlist.articles.length;
-    console.log(articlesCount);
     let msg = "Please confirm that you want to delete this Readlist";
     // @TODO message about saving
     if (articlesCount > 0) {
@@ -220,7 +219,7 @@ export class ReadListView extends HTMLElement {
         a.style.display = "none";
         a.href = url;
         // the filename you want
-        a.download = "file.epub"; // @TODO slugify-the-title-2018-08-11T01:03z.readlist
+        a.download = `${slugify(readlist.title)}.${readlist.dateModified}.epub`; // @TODO slugify-the-title-2018-08-11T01:03z.readlist
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);

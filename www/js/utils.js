@@ -187,3 +187,220 @@ export function slugify(str) {
 
   return str;
 }
+
+/**
+ *
+ * @param {Readlist}
+ * @param {Object} opts - options to the fun
+ * @returns {Readlist|null} if it passes all the checks, you get back
+ * a nice, sanitized version of the Readlist. Otherwise, `null`.
+ */
+export async function validateReadlist(
+  readlist = {},
+  opts = { verbose: false }
+) {
+  const log = (str) => {
+    if (opts.verbose) {
+      console.error(`Readlist validation failed: ${str}.`);
+    }
+  };
+
+  if (typeof readlist.title === "string") {
+    readlist.title = stripHtml(readlist.title);
+  } else {
+    log("expected `title` to be a string");
+    return null;
+  }
+
+  if (typeof readlist.description === "string") {
+    readlist.description = stripHtml(readlist.description);
+  } else {
+    log("expected `description` to be a string");
+    return null;
+  }
+
+  if (
+    !(
+      typeof readlist.dateCreated === "string" &&
+      isIsoDate(readlist.dateCreated)
+    )
+  ) {
+    log("expected `dateCreated` to be an ISO8601 string");
+    return null;
+  }
+
+  if (
+    !(
+      typeof readlist.dateModified === "string" &&
+      isIsoDate(readlist.dateModified)
+    )
+  ) {
+    log("expected `dateModified` to be an ISO8601 string");
+    return null;
+  }
+
+  if (!Array.isArray(readlist.articles)) {
+    log("expected `readlist.articles` to be an array");
+    return null;
+  }
+
+  for (let i = 0; i < readlist.articles.length; i++) {
+    const article = readlist.articles[i];
+
+    if (!(typeof article.url === "string" && isValidHttpUrl(article.url))) {
+      log("expected `readlist.article.url` to be an HTTP(S) URL string");
+      return null;
+    }
+
+    if (
+      typeof article.domain === "string" &&
+      article.url.includes(article.domain)
+    ) {
+      article.domain = stripHtml(article.domain);
+    } else {
+      log(
+        "expected `readlist.article.domain` to be a string and contained in the `readlist.article.url` value"
+      );
+      return null;
+    }
+
+    if (typeof article.title === "string") {
+      readlist.articles[i].title = stripHtml(article.title);
+    } else {
+      log("expected `readlist.article.title` to be a string.");
+      return null;
+    }
+
+    if (typeof article.word_count === "number") {
+      readlist.articles[i].word_count = stripHtml(article.word_count);
+    } else {
+      log("expected `readlist.article.word_count` to be a number.");
+      return null;
+    }
+
+    if (typeof article.excerpt === "string") {
+      readlist.articles[i].excerpt = stripHtml(article.excerpt);
+    } else {
+      log("expected `readlist.article.excerpt` to be a string.");
+      return null;
+    }
+
+    if (article.author !== null) {
+      if (typeof article.author === "string") {
+        readlist.articles[i].author = stripHtml(article.author);
+      } else {
+        log("expected `readlist.article.author` to be a string.");
+        return null;
+      }
+    }
+
+    if (typeof article.content === "string") {
+      readlist.articles[i].content = await Mercury.parse(article.url, {
+        html: article.content,
+      }).then((res) => res.content);
+    } else {
+      log("expected `readlist.article.content` to be a string.");
+      return null;
+    }
+
+    // Others? Do full check of mercury type
+  }
+
+  return readlist;
+
+  // try {
+  //   // Basic type checking first
+  //   const types = {
+  //     title: (x) => typeof x === "string",
+  //     description: (x) => typeof x === "string",
+  //     dateModified: (x) => typeof x === "string" && isIsoDate(x),
+  //     dateCreated: (x) => typeof x === "string" && isIsoDate(x),
+  //     articles: (x) => Array.isArray(x),
+  //     "articles.url": (url) => typeof url === "string" && ,
+  //     "articles.domain": (domain) => typeof domain === "string",
+  //     "articles.title": "string",
+  //     "articles.word_count": "number",
+  //     "articles.excerpt": "string",
+  //     "articles.author": "string",
+  //     "articles.content": "string",
+  //   };
+  //   Object.keys(types).forEach((key) => {
+  //     const expectedType = types[key];
+  //     let actualType = key.includes("articles.")
+  //       ? typeof readlist.articles[key]
+  //       : typeof readlist[key];
+
+  //     if (expectedType !== actualType) {
+  //       throw new Error(
+  //         `expected "${key}" to be of type "${expected}", got "${actualType}".`
+  //       );
+  //     }
+  //   });
+
+  //   if (!Array.isArray(readlist.articles)) {
+  //     throw new Error(
+  //       `"articles" was "${typeof readlist.articles}", expected an array.`
+  //     );
+  //   }
+
+  //   if (readlist.dateCreated)
+  //     if (!isIsoDate(readlist.dateModified)) {
+  //       throw new Error("dateModified");
+  //     }
+
+  //   if (!isIsoDate(readlist.dateCreated))
+  //     const articleTypes = {
+  //       domain: "string",
+  //       url: "string",
+  //       title: "string",
+  //       word_count: "number",
+  //       excerpt: "string",
+  //       author: "string",
+  //       content: "string",
+  //     };
+  //   readlist.articles.forEach((article) => {
+  //     Object.keys(articleTypes).forEach((key) => {
+  //       if (!(article[key] && typeof article[key] === articleTypes[key])) {
+  //         throw new Error(
+  //           `"article.${key}" is not of type "${readlistTypes[key]}".`
+  //         );
+  //       }
+  //     });
+  //   });
+
+  //   return true;
+  // } catch (e) {
+  //   console.error("Readlist validation failed.", e);
+  //   return false;
+  // }
+}
+
+function stripHtml(html) {
+  if (typeof window !== "undefined") {
+    var doc = new DOMParser().parseFromString(html, "text/html");
+    return doc.body.textContent || "";
+  } else {
+    return html;
+  }
+}
+
+function isValidUrl(string) {
+  try {
+    new URL(string);
+  } catch (_) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Check if a string is ISO8601 format, specifically: `YYYY-MM-DDTHH:MN:SS.MSSZ`
+ * https://stackoverflow.com/questions/52869695/check-if-a-date-string-is-in-iso-and-utc-format
+ * @param {string} str
+ */
+function isIsoDate(str) {
+  if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str)) return false;
+  var d = new Date(str);
+  return d.toISOString() === str;
+}

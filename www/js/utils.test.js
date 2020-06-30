@@ -1,4 +1,4 @@
-import { isUrlAbsolute, resolveImgSrc } from "./utils.js";
+import { isUrlAbsolute, resolveImgSrc, validateReadlist } from "./utils.js";
 import chai from "chai";
 
 chai.expect(isUrlAbsolute("https://google.com")).to.equal(true);
@@ -39,3 +39,61 @@ chai
     )
   )
   .to.equal("https://blog.jim-nielsen.com/path/to/image.png");
+
+const BASE_READLIST = {
+  title: "",
+  description: "",
+  dateCreated: "2020-06-29T19:29:23.439Z",
+  dateModified: "2020-06-29T19:29:23.439Z",
+  articles: [],
+};
+const BASE_ARTICLE = {
+  title: "Musings on the Documentary “For Everyone”",
+  author: null,
+  date_published: null,
+  dek: null,
+  lead_image_url: "https://cdn.jim-nielsen.com/shared/twitter-card.jpg",
+  next_page_url: null,
+  url:
+    "https://blog.jim-nielsen.com/2020/musings-on-the-documentary-for-everyone/",
+  domain: "blog.jim-nielsen.com",
+  excerpt:
+    "I recently watched the documentary “For Everyone”, which tells the story about Tim Berners Lee and the creation of the World Wide Web. There were a number of nuggets in this documentary, and I would&hellip;",
+  word_count: 411,
+  direction: "ltr",
+  total_pages: 1,
+  rendered_pages: 1,
+  content: "<p>Some HTML here.</p>",
+};
+
+{
+  let readlist = { ...BASE_READLIST };
+  chai.expect(validateReadlist(readlist)).to.deep.equal(readlist);
+
+  delete readlist.title;
+  chai.expect(validateReadlist(readlist)).to.equal(null);
+}
+
+{
+  const readlist = { ...BASE_READLIST, dateCreated: "some-random-string" };
+  chai.expect(validateReadlist(readlist)).to.equal(null);
+}
+
+{
+  let readlist = {
+    ...BASE_READLIST,
+    articles: [{ ...BASE_ARTICLE }],
+  };
+  chai.expect(validateReadlist(readlist)).to.deep.equal(readlist);
+
+  delete readlist.articles[0].title;
+  chai.expect(validateReadlist(readlist)).to.equal(null);
+}
+
+{
+  let readlist = {
+    ...BASE_READLIST,
+    articles: [{ ...BASE_ARTICLE, domain: "some-random-domain.com" }],
+  };
+  chai.expect(validateReadlist(readlist)).to.equal(null);
+}

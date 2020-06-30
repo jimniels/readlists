@@ -640,6 +640,16 @@ readlists-nav footer a {
 .login__form {
   display: flex;
   margin: var(--spacer) 0;
+  width: 100%;
+  align-items: center;
+}
+.login__form input {
+  flex-grow: 1;
+  border: 1px solid var(--color-border);
+  padding: 4px 8px;
+}
+.login__form .button {
+  margin-left: calc(var(--spacer) / 2);
 }
 /* .login__form:before,
 .login__form:after {
