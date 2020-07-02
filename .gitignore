@@ -1,4 +1,5 @@
 node_modules/
 functions-dist/
+www/js/components/*.js
 *.token
 .DS_STORE
