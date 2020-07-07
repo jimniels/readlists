@@ -1,12 +1,43 @@
-import React, { useState } from "https://unpkg.com/es-react/react.js";
+import React, {
+  useState,
+} from "https://unpkg.com/es-react@16.13.1/dev/react.js";
+import ReaddlistArticleInput from "./ReadlistArticleInput.js";
+import ReadlistArticles from "./ReadlistArticles.js";
+import Textarea from "./Textarea.js";
+import { downloadFile, slugify } from "../utils.js";
 
-export default function Readlist({ appState: { readlist }, setAppState }) {
-  const handleSaveReadlist = () => {};
-  const handleExportEpub = () => {};
-  const handleDeleteActiveReadlist = () => {
-    setAppState({ readlist: null });
+export default function Readlist({ readlist, setReadlist, setError }) {
+  const handleSaveReadlist = () => {
+    downloadFile({
+      file: `${slugify(readlist.title)}.${readlist.dateModified}.json`,
+      contents: JSON.stringify(readlist),
+    });
   };
-  const handleUpdatePartOfReadlist = () => {};
+
+  const handleExportEpub = () => {};
+  const handleDeleteReadlist = () => {
+    const articlesCount = readlist.articles.length;
+    let msg = "Please confirm that you want to delete this Readlist";
+    // @TODO message about saving
+    if (articlesCount > 0) {
+      msg +=
+        ` and its ${articlesCount} article` + (articlesCount === 1 ? "" : "s");
+    }
+    msg += ".";
+
+    if (window.confirm(msg)) {
+      setReadlist(undefined);
+    }
+  };
+  const handleUpdatePartOfReadlist = (key, value) => {
+    setReadlist((prevReadlist) => ({
+      ...prevReadlist,
+      [key]: value,
+      dateModified: new Date().toISOString(),
+    }));
+  };
+
+  const handleCreateReadlistArticle = () => {};
 
   if (!readlist) {
     return null;
@@ -26,48 +57,53 @@ export default function Readlist({ appState: { readlist }, setAppState }) {
           <button class="button" disabled>
             Export as .mobi
           </button>
-          <button
-            class="button button--danger"
-            onClick={handleDeleteActiveReadlist}
-          >
+          <button class="button button--danger" onClick={handleDeleteReadlist}>
             Delete
           </button>
         </div>
 
-        <textarea
+        <Textarea
           class="readlist-header__title"
           placeholder="Readlist title..."
-          onblur={handleUpdatePartOfReadlist}
-          data-action-value="title"
-        >
-          {readlist.title}
-        </textarea>
+          onChange={(e) => {
+            handleUpdatePartOfReadlist("title", e.target.value);
+          }}
+          value={readlist.title}
+        />
 
-        <textarea
+        <Textarea
           class="readlist-header__description"
           placeholder="Readlist description..."
-          onblur={handleUpdatePartOfReadlist}
-          data-action-value="description"
-        >
-          {readlist.description}
-        </textarea>
+          onChange={(e) => {
+            handleUpdatePartOfReadlist("description", e.target.value);
+          }}
+          value={readlist.description}
+        />
 
-        <p class="readlist-header__meta">
-          <span>
-            Created
+        <dl class="readlist-header__meta">
+          <dt>Created</dt>
+          <dd>
             <local-time
               month="short"
               day="numeric"
               year="numeric"
-              datetime="${readlist.dateCreated}"
+              datetime={readlist.dateCreated}
             ></local-time>
-          </span>{" "}
-          ·{" "}
-          <span>
-            Last modified <time-ago datetime={readlist.dateModified}></time-ago>
-          </span>
-        </p>
+          </dd>
+          <dt>Last modified</dt>
+          <dd>
+            <time-ago datetime={readlist.dateModified}></time-ago>
+          </dd>
+        </dl>
       </header>
+
+      <ReadlistArticles readlist={readlist} setReadlist={setReadlist} />
+
+      <ReaddlistArticleInput
+        readlist={readlist}
+        setReadlist={setReadlist}
+        setError={setError}
+      />
     </div>
   );
 }

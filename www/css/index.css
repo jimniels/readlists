@@ -6,8 +6,8 @@
   --color-bg-secondary: hsl(215, 20%, 95%);
   --color-danger: red;
   --color-text: hsl(215, 20%, 10%);
-  --color-text-light: hsl(215, 20%, 50%);
-  --color-border: hsla(0, 0%, 90%);
+  --color-text-light: hsl(215, 25%, 50%);
+  --color-border: hsl(215, 10%, 90%);
 
   --border-radius: 8px;
   --spacer: 15px;
@@ -42,12 +42,18 @@ html {
   box-sizing: inherit;
 }
 
+.dragging {
+  position: relative;
+}
+.dragging:hover {
+  cursor: copy;
+}
 .dragging:after {
   content: "Drag Readlist JSON File Here...";
   display: flex;
   align-items: center;
   justify-content: center;
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
@@ -111,7 +117,8 @@ textarea {
 
 #learn-more {
   max-width: 700px;
-  margin: 0 auto;
+  margin: 0 auto calc(var(--spacer) * 2);
+  background: var(--color-border);
   border-top: 1px solid #ccc;
   color: var(--color-text);
   border: 1px solid var(--color-border);
@@ -124,6 +131,7 @@ textarea {
 */
 
 .button {
+  font-family: inherit;
   font-size: var(--font-size-sm);
   border: none;
   background: var(--color-bg-primary);
@@ -151,6 +159,20 @@ textarea {
 }
 .button[disabled] {
   color: var(--color-text-light);
+  cursor: not-allowed;
+}
+.button--is-loading {
+  position: relative;
+}
+.button--is-loading:after {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  content: "";
+  background: rgba(255, 255, 255, 1) url(/assets/loading.gif) no-repeat 50%;
+  left: 0;
+  background-size: contain;
 }
 
 readlist-nav ul,
@@ -198,20 +220,6 @@ readlists-app[loading] readlists-nav:before {
   pointer-events: none;
   opacity: 0.75;
 } */
-
-button.loading {
-  position: relative;
-}
-button.loading:after {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  content: "";
-  background: rgba(255, 255, 255, 1) url(/assets/loading.gif) no-repeat 50%;
-  left: 0;
-  background-size: contain;
-}
 
 #article-form {
   display: flex;
@@ -563,6 +571,21 @@ readlists-nav footer a {
   margin-bottom: var(--spacer);
 }
 
+.readlist-header__meta dt,
+.readlist-header__meta dd {
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+.readlist-header__meta dt {
+  margin-right: 4px;
+}
+
+.readlist-header__meta dd:not(:last-child):after {
+  content: "·";
+  margin: 0 var(--spacer);
+}
+
 /**
  * Login
  */
@@ -574,13 +597,18 @@ readlists-nav footer a {
   min-height: 300px;
   border-radius: calc(var(--border-radius) + 15px);
   border: 3px dashed var(--color-border);
+  transition: 0.3s ease all;
+  display: none;
 }
+.login--visible {
+  display: flex;
+}
+
 .login--highlight {
   border-color: red;
 }
 .login__form {
   display: flex;
-  margin: var(--spacer) 0;
   width: 100%;
   align-items: center;
 }
@@ -591,6 +619,10 @@ readlists-nav footer a {
 }
 .login__form .button {
   margin-left: calc(var(--spacer) / 2);
+}
+.login__or {
+  margin: var(--spacer) 0;
+  color: var(--color-text-light);
 }
 /* .login__form:before,
 .login__form:after {
@@ -631,7 +663,7 @@ readlists-nav footer a {
 }
 
 .readlist {
-  padding: var(--spacer);
+  padding: calc(var(--spacer) * 2);
   margin-bottom: calc(var(--spacer) * 2);
   box-shadow: 0 3px 8px hsla(0, 0%, 0%, 0.1), 0 10px 22px hsla(0, 0%, 0%, 0.025);
   background: var(--color-bg-primary);

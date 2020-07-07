@@ -1,31 +1,11 @@
-import React, { useEffect } from "https://unpkg.com/es-react/react.js";
+import React, {
+  useEffect,
+} from "https://unpkg.com/es-react@16.13.1/dev/react.js";
 import Style from "./Style.js";
 
-const TIMER = 5; // seconds
+const TIMER = 5; // in seconds
 
-export default function Error({ appState: { error }, setAppState }) {
-  const classes = ["error", error ? "error--visible" : ""].join(" ");
-
-  useEffect(() => {
-    if (error) {
-      const id = setTimeout(() => setAppState({ error: "" }), TIMER * 1000);
-      return () => clearTimeout(id);
-    }
-  }, [error]);
-
-  return (
-    <>
-      <Style css={getStyles()} />
-      <div class={classes}>
-        <p>{error ? error : ""}</p>
-        <button onClick={() => setAppState({ error: "" })}>×</button>
-      </div>
-    </>
-  );
-}
-
-function getStyles() {
-  return /*css*/ `
+const styles = /*css*/ `
 .error {
   position: fixed;
   top: 0;
@@ -94,4 +74,24 @@ function getStyles() {
   margin: 0;
 }
 `;
+
+export default function Error({ error, setError }) {
+  const classes = ["error", error ? "error--visible" : ""].join(" ");
+
+  useEffect(() => {
+    if (error) {
+      const id = setTimeout(() => setError(""), TIMER * 1000);
+      return () => clearTimeout(id);
+    }
+  }, [error]);
+
+  return (
+    <>
+      <Style>{styles}</Style>
+      <div class={classes}>
+        <p>{error ? error : ""}</p>
+        <button onClick={() => setError("")}>×</button>
+      </div>
+    </>
+  );
 }

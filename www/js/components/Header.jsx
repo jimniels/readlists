@@ -1,4 +1,6 @@
-import React, { useState } from "https://unpkg.com/es-react/react.js";
+import React, {
+  useState,
+} from "https://unpkg.com/es-react@16.13.1/dev/react.js";
 
 export default function Header() {
   const [learnMoreIsVisible, setLearnMoreIsVisible] = useState(false);
@@ -18,7 +20,7 @@ export default function Header() {
               setLearnMoreIsVisible(!learnMoreIsVisible);
             }}
           >
-            Learn {learnMoreIsVisible ? "less" : "more"}.
+            {learnMoreIsVisible ? "Less" : "More"}.
           </a>
         </p>
       </header>
