@@ -110,6 +110,7 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
         class="button button--primary"
         onClick={handleCreateNewReadlist}
         disabled={isLoading}
+        type="button"
       >
         Create New Readlist
       </button>

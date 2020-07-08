@@ -75,8 +75,15 @@ export default function ReadlistArticles({ readlist, setReadlist }) {
             </button>
             <button
               class="button button--danger"
-              onClick={handleDeleteReadlistArticle}
-              value={article.url}
+              onClick={() => {
+                setReadlist((prevReadlist) => ({
+                  ...prevReadlist,
+                  dateModified: new Date().toISOString(),
+                  articles: prevReadlist.articles.filter(
+                    (prevArticle) => prevArticle.url !== article.url
+                  ),
+                }));
+              }}
             >
               Delete
             </button>
