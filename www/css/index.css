@@ -6,8 +6,8 @@
   --color-bg-secondary: hsl(215, 20%, 95%);
   --color-danger: red;
   --color-text: hsl(215, 20%, 10%);
-  --color-text-light: hsl(215, 20%, 50%);
-  --color-border: hsla(0, 0%, 90%);
+  --color-text-light: hsl(215, 25%, 50%);
+  --color-border: hsl(215, 10%, 90%);
 
   --border-radius: 8px;
   --spacer: 15px;
@@ -27,6 +27,7 @@
     --color-bg-primary: hsl(0, 0%, 15%);
     --color-bg-secondary: hsl(0, 0%, 10%);
     --color-text: hsl(255, 0%, 100%);
+    --color-text-light: hsl(215, 15%, 45%);
     --color-border: hsl(0, 0%, 25%);
     --color-accent: hsl(215, 100%, 51%);
     --color-accent-hsl: 215, 100%, 51%;
@@ -42,12 +43,18 @@ html {
   box-sizing: inherit;
 }
 
+.dragging {
+  position: relative;
+}
+.dragging:hover {
+  cursor: copy;
+}
 .dragging:after {
   content: "Drag Readlist JSON File Here...";
   display: flex;
   align-items: center;
   justify-content: center;
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
@@ -89,11 +96,6 @@ img {
   height: auto;
 }
 
-readlists-app,
-readlist-view {
-  display: block;
-}
-
 select {
   font-size: var(--font-size-base);
 }
@@ -114,11 +116,23 @@ textarea {
   font: inherit;
 }
 
+#learn-more {
+  max-width: 700px;
+  margin: 0 auto calc(var(--spacer) * 2);
+  background: var(--color-border);
+  border-top: 1px solid #ccc;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  padding: calc(var(--spacer) * 2);
+  border-radius: var(--border-radius);
+}
+
 /*
   Buttons
 */
 
 .button {
+  font-family: inherit;
   font-size: var(--font-size-sm);
   border: none;
   background: var(--color-bg-primary);
@@ -146,6 +160,20 @@ textarea {
 }
 .button[disabled] {
   color: var(--color-text-light);
+  cursor: not-allowed;
+}
+.button--is-loading {
+  position: relative;
+}
+.button--is-loading:after {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  content: "";
+  background: rgba(255, 255, 255, 1) url(/assets/loading.gif) no-repeat 50%;
+  left: 0;
+  background-size: contain;
 }
 
 readlist-nav ul,
@@ -193,82 +221,6 @@ readlists-app[loading] readlists-nav:before {
   pointer-events: none;
   opacity: 0.75;
 } */
-
-button.loading {
-  position: relative;
-}
-button.loading:after {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  content: "";
-  background: rgba(255, 255, 255, 1) url(/assets/loading.gif) no-repeat 50%;
-  left: 0;
-  background-size: contain;
-}
-
-.error {
-  position: fixed;
-  top: 0;
-  width: 500px;
-  left: 50%;
-  margin-left: -250px;
-  background: red;
-  color: white;
-  padding: 15px;
-  transition: 0.3s ease transform;
-  display: flex;
-  justify-content: space-between;
-  z-index: 10;
-
-  transform: translateY(-100%);
-}
-
-.error:after {
-  content: "\00D7";
-  margin-left: 15px;
-}
-.error:after:hover {
-  background-color: rgba(0, 0, 0, 0.2);
-  margin-left: 15px;
-  width: 1rem;
-  height: 1rem;
-  display: flex;
-  align-content: center;
-  align-items: center;
-  display: flex;
-  padding: 0.25rem;
-  border-radius: 5px;
-  vertical-align: middle;
-  line-height: 0.85;
-}
-
-.error--visible {
-  transform: translateY(0);
-}
-.error--visible:before {
-  content: "";
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: rgba(0, 0, 0, 0.25);
-  bottom: 0px;
-  animation-duration: 5s;
-  animation-name: timer;
-  animation-timing-function: linear;
-}
-
-@keyframes timer {
-  from {
-    width: 100%;
-  }
-
-  to {
-    width: 0%;
-  }
-}
 
 #article-form {
   display: flex;
@@ -346,9 +298,11 @@ button.loading:after {
   align-items: center;
   color: var(--color-text-light);
 }
-
-.article__meta__author {
+.article__meta__author,
+.article__meta__domain {
+  margin: 0;
 }
+
 .article__meta__author:before {
   content: "\00b7";
   margin: 0 calc(var(--spacer) / 2);
@@ -363,6 +317,7 @@ button.loading:after {
 }
 .article__excerpt {
   margin-bottom: calc(var(--spacer) / 2);
+  margin-top: 0;
 }
 
 .article__actions {
@@ -390,50 +345,6 @@ readlists-nav {
 
 readlists-nav {
   background: var(--color-bg-primary);
-}
-
-readlist-view {
-}
-readlist-article {
-  background: rgba(0, 0, 0, 0.65);
-  overflow: scroll;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-readlist-article > div {
-  background: var(--color-bg-primary);
-  max-width: 730px;
-  margin: calc(var(--spacer) * 2) auto;
-  padding: calc(var(--spacer) * 2);
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  position: relative;
-  transition: 0.4s ease transform;
-  transform: translateY(0);
-  transform-origin: 50% 0;
-}
-readlist-article[hidden] > div {
-  transform: translateY(100%);
-}
-
-readlist-article {
-  z-index: 10;
-}
-
-readlist-article {
-  display: block;
-  opacity: 1;
-  visibility: visible;
-  transition: 0.3s ease all;
-}
-
-readlist-article[hidden] {
-  opacity: 0;
-  visibility: hidden;
 }
 
 /**
@@ -622,6 +533,21 @@ readlists-nav footer a {
   margin-bottom: var(--spacer);
 }
 
+.readlist-header__meta dt,
+.readlist-header__meta dd {
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+.readlist-header__meta dt {
+  margin-right: 4px;
+}
+
+.readlist-header__meta dd:not(:last-child):after {
+  content: "·";
+  margin: 0 var(--spacer);
+}
+
 /**
  * Login
  */
@@ -633,13 +559,18 @@ readlists-nav footer a {
   min-height: 300px;
   border-radius: calc(var(--border-radius) + 15px);
   border: 3px dashed var(--color-border);
+  transition: 0.3s ease all;
+  display: none;
 }
+.login--visible {
+  display: flex;
+}
+
 .login--highlight {
   border-color: red;
 }
 .login__form {
   display: flex;
-  margin: var(--spacer) 0;
   width: 100%;
   align-items: center;
 }
@@ -650,6 +581,10 @@ readlists-nav footer a {
 }
 .login__form .button {
   margin-left: calc(var(--spacer) / 2);
+}
+.login__or {
+  margin: var(--spacer) 0;
+  color: var(--color-text-light);
 }
 /* .login__form:before,
 .login__form:after {
@@ -689,10 +624,53 @@ readlists-nav footer a {
   margin: 0;
 }
 
-readlist-view {
+.readlist {
+  padding: calc(var(--spacer) * 2);
   margin-bottom: calc(var(--spacer) * 2);
   box-shadow: 0 3px 8px hsla(0, 0%, 0%, 0.1), 0 10px 22px hsla(0, 0%, 0%, 0.025);
   background: var(--color-bg-primary);
   display: block;
   border-radius: calc(var(--border-radius) + 15px);
+}
+
+.article-preview {
+  background: rgba(0, 0, 0, 0.65);
+  overflow: scroll;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.article-preview > div {
+  background: var(--color-bg-primary);
+  max-width: 730px;
+  margin: calc(var(--spacer) * 2) auto;
+  padding: calc(var(--spacer) * 2);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  position: relative;
+  transition: 0.4s ease transform;
+  transform: translateY(0);
+  transform-origin: 50% 0;
+}
+.article-preview[hidden] > div {
+  transform: translateY(100%);
+}
+
+.article-preview {
+  z-index: 10;
+}
+
+.article-preview {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+  transition: 0.3s ease all;
+}
+
+.article-preview[hidden] {
+  opacity: 0;
+  visibility: hidden;
 }
