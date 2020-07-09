@@ -4,8 +4,10 @@
   "description": "",
   "main": "",
   "scripts": {
-    "build": "zip-it-and-ship-it ./functions ./functions-dist",
-    "start": "netlify dev & babel www/js/components --out-dir www/js/components --watch --presets @babel/preset-react --ignore '**/*.js'",
+    "build": "npm run transpile && rm -rf ./www/js/components/*.jsx && zip-it-and-ship-it ./functions ./functions-dist",
+    "cleanup": "rm -rf ./www/js/components/*.js",
+    "transpile": "babel www/js/components --out-dir www/js/components --presets @babel/preset-react --ignore '**/*.js'",
+    "start": "netlify dev & npm run transpile -- --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
