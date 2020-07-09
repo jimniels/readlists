@@ -8,8 +8,8 @@ import { readlistArticlePropTypes } from "../prop-types.js";
 
 ReadlistArticleInput.propTypes = {
   readlist: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    description: PropTypes.string,
     dateModified: PropTypes.string.isRequired,
     dateCreated: PropTypes.string.isRequired,
     articles: PropTypes.arrayOf(readlistArticlePropTypes).isRequired,
@@ -67,7 +67,7 @@ export default function ReadlistArticleInput({
         console.error(err);
         setError("Could not retrieve and parse the specified URL.");
       })
-      .then(() => {
+      .finally(() => {
         setIsLoading(false);
       });
   };

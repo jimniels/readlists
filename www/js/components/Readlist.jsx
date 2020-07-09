@@ -7,7 +7,12 @@ import Textarea from "./Textarea.js";
 import { downloadFile, slugify } from "../utils.js";
 import { fetchEpub } from "../api.js";
 
-export default function Readlist({ readlist, setReadlist, setError }) {
+export default function Readlist({
+  readlist,
+  setReadlist,
+  setError,
+  setArticlePreviewUrl,
+}) {
   const [isLoadingEpub, setIsLoadingEpub] = useState(false);
   const handleSaveReadlist = () => {
     downloadFile({
@@ -35,7 +40,7 @@ export default function Readlist({ readlist, setReadlist, setError }) {
       .catch((e) => {
         setError("There was a problem expoorting your epub.");
       })
-      .then(() => {
+      .finally(() => {
         setIsLoadingEpub(false);
       });
   };
@@ -125,7 +130,11 @@ export default function Readlist({ readlist, setReadlist, setError }) {
         </dl>
       </header>
 
-      <ReadlistArticles readlist={readlist} setReadlist={setReadlist} />
+      <ReadlistArticles
+        readlist={readlist}
+        setReadlist={setReadlist}
+        setArticlePreviewUrl={setArticlePreviewUrl}
+      />
 
       <ReaddlistArticleInput
         readlist={readlist}

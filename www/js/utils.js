@@ -3,76 +3,6 @@ export function formatDate(date) {
 }
 
 /**
- * Take a given node and a method for that node and give back the global
- * event handler that will call that method.
- *
- * eventHandler('readlist-nav', 'handleButtonClick') calls the `handleButtonClick`
- * method for the `readlist-nav` element, which is a parent element somewhere
- * in the DOM of the given event.target.
- *
- * @param {string} node
- * @param {string} method
- * @returns {string}
- */
-export function eventHandler(node, method) {
-  return `window.handleAppEvent(event, '${node}', '${method}')`;
-}
-// so we can run this file in node too
-if (typeof window !== "undefined") {
-  window.handleAppEvent = function (event, elName, elFnName) {
-    event.composedPath().forEach((node) => {
-      if (
-        node.tagName &&
-        node.tagName.toLowerCase() === elName &&
-        node[elFnName]
-      ) {
-        if (__DEV__) {
-          console.warn(`Firing event handler: <${elName}>.${elFnName}`);
-        }
-        node[elFnName](event);
-      }
-    });
-  };
-}
-
-/**
- * Tagged template literal function for coercing certain values to what
- * we would expcted for a more JSX-like syntax.
- *
- * For values that we don't want to coerce, we just skip outputing them
- * Example:
- *   `class="${variable}"`
- * If the value of my variable was one of these types I don't want
- * JavaScript to coerce, then I'd get this:
- *   'class=""'
- */
-export function html(strings, ...values) {
-  let out = "";
-  strings.forEach((string, i) => {
-    const value = values[i];
-
-    // Array - Join to string and output with value
-    if (Array.isArray(value)) {
-      out += string + value.join("");
-    }
-    // String - Output with value
-    else if (typeof value === "string") {
-      out += string + value;
-    }
-    // Number - Coerce to string and output with value
-    // This would happen anyway, but for clarity's sake on what's happening here
-    else if (typeof value === "number") {
-      out += string + String(value);
-    }
-    // object, undefined, null, boolean - Don't output a value.
-    else {
-      out += string;
-    }
-  });
-  return out;
-}
-
-/**
  * Check if a URL is relative to the current path or not
  * https://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
  * @param {string} url
@@ -177,24 +107,20 @@ export async function validateReadlist(
   readlist = {},
   opts = { verbose: false }
 ) {
-  const log = (str) => {
-    if (opts.verbose) {
-      console.error(`Readlist validation failed: ${str}.`);
-    }
+  const reject = (str) => {
+    throw new Error(`Readlist validation failed: ${str}.`);
   };
 
   if (typeof readlist.title === "string") {
     readlist.title = stripHtml(readlist.title);
   } else {
-    log("expected `title` to be a string");
-    return null;
+    reject("expected `title` to be a string");
   }
 
   if (typeof readlist.description === "string") {
     readlist.description = stripHtml(readlist.description);
   } else {
-    log("expected `description` to be a string");
-    return null;
+    reject("expected `description` to be a string");
   }
 
   if (
@@ -203,8 +129,7 @@ export async function validateReadlist(
       isIsoDate(readlist.dateCreated)
     )
   ) {
-    log("expected `dateCreated` to be an ISO8601 string");
-    return null;
+    reject("expected `dateCreated` to be an ISO8601 string");
   }
 
   if (
@@ -213,79 +138,78 @@ export async function validateReadlist(
       isIsoDate(readlist.dateModified)
     )
   ) {
-    log("expected `dateModified` to be an ISO8601 string");
-    return null;
+    reject("expected `dateModified` to be an ISO8601 string");
   }
 
   if (!Array.isArray(readlist.articles)) {
-    log("expected `readlist.articles` to be an array");
-    return null;
+    reject("expected `readlist.articles` to be an array");
   }
 
-  for (let i = 0; i < readlist.articles.length; i++) {
-    const article = readlist.articles[i];
-
-    if (!(typeof article.url === "string" && isValidHttpUrl(article.url))) {
-      log("expected `readlist.article.url` to be an HTTP(S) URL string");
-      return null;
-    }
-
-    if (
-      typeof article.domain === "string" &&
-      article.url.includes(article.domain)
-    ) {
-      article.domain = stripHtml(article.domain);
-    } else {
-      log(
-        "expected `readlist.article.domain` to be a string and contained in the `readlist.article.url` value"
-      );
-      return null;
-    }
-
-    if (typeof article.title === "string") {
-      readlist.articles[i].title = stripHtml(article.title);
-    } else {
-      log("expected `readlist.article.title` to be a string.");
-      return null;
-    }
-
-    if (
-      typeof article.word_count === "number" ||
-      typeof article.word_count === "string"
-    ) {
-      readlist.articles[i].word_count = stripHtml(article.word_count);
-    } else {
-      log("expected `readlist.article.word_count` to be a number.");
-      return null;
-    }
-
-    if (typeof article.excerpt === "string") {
-      readlist.articles[i].excerpt = stripHtml(article.excerpt);
-    } else {
-      log("expected `readlist.article.excerpt` to be a string.");
-      return null;
-    }
-
-    if (article.author !== null) {
-      if (typeof article.author === "string") {
-        readlist.articles[i].author = stripHtml(article.author);
-      } else {
-        log("expected `readlist.article.author` to be a string.");
-        return null;
+  await Promise.all(
+    readlist.articles.map(async (article, i) => {
+      if (!(typeof article.url === "string" && isValidHttpUrl(article.url))) {
+        reject("expected `readlist.article.url` to be an HTTP(S) URL string");
       }
-    }
 
-    if (typeof article.content === "string") {
-      readlist.articles[i].content = await Mercury.parse(article.url, {
-        html: article.content,
-      }).then((res) => res.content);
-    } else {
-      log("expected `readlist.article.content` to be a string.");
-      return null;
-    }
+      if (
+        typeof article.domain === "string" &&
+        article.url.includes(article.domain)
+      ) {
+        article.domain = stripHtml(article.domain);
+      } else {
+        reject(
+          "expected `readlist.article.domain` to be a string and contained in the `readlist.article.url` value"
+        );
+      }
 
-    // Others? Do full check of mercury type
-  }
+      if (typeof article.title === "string") {
+        readlist.articles[i].title = stripHtml(article.title);
+      } else {
+        reject("expected `readlist.article.title` to be a string.");
+      }
+
+      if (
+        typeof article.word_count === "number" ||
+        typeof article.word_count === "string"
+      ) {
+        readlist.articles[i].word_count = stripHtml(article.word_count);
+      } else {
+        reject("expected `readlist.article.word_count` to be a number.");
+      }
+
+      if (typeof article.excerpt === "string") {
+        readlist.articles[i].excerpt = stripHtml(article.excerpt);
+      } else {
+        reject("expected `readlist.article.excerpt` to be a string.");
+      }
+
+      if (article.author !== null) {
+        if (typeof article.author === "string") {
+          readlist.articles[i].author = stripHtml(article.author);
+        } else {
+          reject("expected `readlist.article.author` to be a string.");
+        }
+      }
+
+      if (article.content !== null) {
+        if (typeof article.content === "string") {
+          try {
+            readlist.articles[i].content = await Mercury.parse(article.url, {
+              html: article.content,
+            }).then((res) => res.content);
+          } catch (e) {
+            reject(`failed to parse content of article ${article.url}.`);
+          }
+        } else {
+          reject(
+            `expected \`readlist.article.content\` to be a string for article ${article.url}.`
+          );
+        }
+      }
+
+      // Others? Do full check of mercury type
+    })
+  );
 
   return readlist;
 
@@ -384,4 +308,13 @@ function isIsoDate(str) {
   if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str)) return false;
   var d = new Date(str);
   return d.toISOString() === str;
+}
+
+export function devLog(array) {
+  if (typeof window !== "undefined" && window.__DEV__) {
+    console.log("(__DEV__) " + array.join("\n    "));
+    // console.group();
+    // array.forEach((i) => console.log(i));
+    // console.groupEnd();
+  }
 }

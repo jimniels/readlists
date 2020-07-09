@@ -27,6 +27,7 @@
     --color-bg-primary: hsl(0, 0%, 15%);
     --color-bg-secondary: hsl(0, 0%, 10%);
     --color-text: hsl(255, 0%, 100%);
+    --color-text-light: hsl(215, 15%, 45%);
     --color-border: hsl(0, 0%, 25%);
     --color-accent: hsl(215, 100%, 51%);
     --color-accent-hsl: 215, 100%, 51%;
@@ -297,9 +298,11 @@ readlists-app[loading] readlists-nav:before {
   align-items: center;
   color: var(--color-text-light);
 }
-
-.article__meta__author {
+.article__meta__author,
+.article__meta__domain {
+  margin: 0;
 }
+
 .article__meta__author:before {
   content: "\00b7";
   margin: 0 calc(var(--spacer) / 2);
@@ -314,6 +317,7 @@ readlists-app[loading] readlists-nav:before {
 }
 .article__excerpt {
   margin-bottom: calc(var(--spacer) / 2);
+  margin-top: 0;
 }
 
 .article__actions {
@@ -341,48 +345,6 @@ readlists-nav {
 
 readlists-nav {
   background: var(--color-bg-primary);
-}
-
-readlist-article {
-  background: rgba(0, 0, 0, 0.65);
-  overflow: scroll;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-readlist-article > div {
-  background: var(--color-bg-primary);
-  max-width: 730px;
-  margin: calc(var(--spacer) * 2) auto;
-  padding: calc(var(--spacer) * 2);
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  position: relative;
-  transition: 0.4s ease transform;
-  transform: translateY(0);
-  transform-origin: 50% 0;
-}
-readlist-article[hidden] > div {
-  transform: translateY(100%);
-}
-
-readlist-article {
-  z-index: 10;
-}
-
-readlist-article {
-  display: block;
-  opacity: 1;
-  visibility: visible;
-  transition: 0.3s ease all;
-}
-
-readlist-article[hidden] {
-  opacity: 0;
-  visibility: hidden;
 }
 
 /**
@@ -669,4 +631,46 @@ readlists-nav footer a {
   background: var(--color-bg-primary);
   display: block;
   border-radius: calc(var(--border-radius) + 15px);
+}
+
+.article-preview {
+  background: rgba(0, 0, 0, 0.65);
+  overflow: scroll;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.article-preview > div {
+  background: var(--color-bg-primary);
+  max-width: 730px;
+  margin: calc(var(--spacer) * 2) auto;
+  padding: calc(var(--spacer) * 2);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  position: relative;
+  transition: 0.4s ease transform;
+  transform: translateY(0);
+  transform-origin: 50% 0;
+}
+.article-preview[hidden] > div {
+  transform: translateY(100%);
+}
+
+.article-preview {
+  z-index: 10;
+}
+
+.article-preview {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+  transition: 0.3s ease all;
+}
+
+.article-preview[hidden] {
+  opacity: 0;
+  visibility: hidden;
 }

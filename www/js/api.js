@@ -1,5 +1,10 @@
 import { store } from "./redux.js";
-import { resolveImgSrc, validateReadlist, isValidHttpUrl } from "./utils.js";
+import {
+  devLog,
+  resolveImgSrc,
+  validateReadlist,
+  isValidHttpUrl,
+} from "./utils.js";
 
 // @TODO test with relative URL images somewhere
 export function fetchArticle(url) {
@@ -16,9 +21,11 @@ export function fetchArticle(url) {
         if (img.src.includes(location.hostname)) {
           const oldSrc = img.getAttribute("src");
           const newSrc = resolveImgSrc(mercuryArticle.url, oldSrc);
-          if (__DEV__) {
-            console.log(["Changed url:", oldSrc, newSrc].join("\n  "));
-          }
+          devLog([
+            "Changed image src path in new article",
+            `From: ${oldSrc}`,
+            `To: ${newSrc}`,
+          ]);
           img.setAttribute("src", newSrc);
           modified = true;
         }
@@ -55,12 +62,4 @@ export function fetchEpub(readlist) {
     }
     return res.blob();
   });
-}
-
-export function fetchReadlist(url) {
-  return fetch(url)
-    .then((res) => res.json())
-    .then((dangerousReadlist) =>
-      validateReadlist(dangerousReadlist, { verbose: true })
-    );
 }

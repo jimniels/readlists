@@ -1,6 +1,15 @@
 import pt from "https://unpkg.com/es-react@16.13.1/dev/prop-types.js";
 
 /**
+ * @typedef Readlist
+ * @param {string} title
+ * @param {description} description
+ * @param {string} dateCreated - ISO8601 date
+ * @param {string} dateModified - ISO8601 date
+ * @param {Array.<MercuryArticle>}
+ */
+
+/**
  * FYI: If mercury can't find a field, it returns null.
  * @typedef MercuryArticle
  * @param {string} author

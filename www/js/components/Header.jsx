@@ -11,7 +11,7 @@ export default function Header() {
         <h1 class="app-header__title">Readlists</h1>
         <p class="app-header__description">
           Collect, curate, and bundle individual web pages into ebooks. Think
-          mixtapes, but for online content.
+          mixtapes, but for online content.{" "}
           <a
             href="./about.html"
             class="link"

@@ -29,24 +29,23 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
       return;
     }
 
+    setIsLoading(true);
     fetch(remoteReadlistUrl)
       .then((res) => res.json())
       .then((dangerousReadlist) =>
         validateReadlist(dangerousReadlist, { verbose: true })
       )
       .then((readlist) => {
-        if (!readlist) {
-          setError(
-            "Failed to validate the remote Readlist. Check console for more details."
-          );
-          return;
-        }
-
         setReadlist(readlist);
       })
       .catch((e) => {
         console.error(e);
-        setError("Failed to retrieve the remote Readlist file.");
+        setError(
+          "Failed to retrieve, parse, and validate the remote Readlist file. Check the console for more details."
+        );
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -86,23 +85,22 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
         let reader = new FileReader();
         reader.readAsText(file);
         reader.onloadend = () => {
-          const json = JSON.parse(reader.result);
-          // @TODO validate, then set initially
-          validateReadlist(json)
-            .then((readlist) => {
-              console.log("fired", readlist);
-              if (readlist) {
+          try {
+            const json = JSON.parse(reader.result);
+            validateReadlist(json, { verbose: true })
+              .then((readlist) => {
                 setReadlist(readlist);
-              } else {
-                throw new Error("Readlist validation failed");
-              }
-            })
-            .catch((e) => {
-              console.error(e);
-              setError(
-                "Could not validate JSON file. Ensure it matches the correct data schema."
-              );
-            });
+              })
+              .catch((e) => {
+                console.error(e);
+                setError(
+                  "Could not validate JSON file. Ensure it matches the correct data schema."
+                );
+              });
+          } catch (e) {
+            console.error(e);
+            setError("Failed to parse the JSON file.");
+          }
         };
       }}
     >
@@ -126,23 +124,46 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
             setRemoteReadlistUrl(e.target.value);
           }}
         />
-        <button id="login" class="button" type="submit" disabled={isLoading}>
+        <button
+          id="login"
+          class={`button ${isLoading ? "button--is-loading" : ""}`}
+          type="submit"
+          disabled={isLoading}
+        >
           Import Remote Readlist
         </button>
       </div>
 
       <span class="login__or">or</span>
 
-      <label for="exampleInput" class="button">
+      <label for="exampleInput" class="button" disabled={isLoading}>
         Select Local Readlist...
         <input
           type="file"
           id="exampleInput"
           onChange={(e) => {
-            console.log(e.target.files[0]);
-            // parse it
-            // then validateReadlist()
-            // @TODO
+            const file = e.target.files[0];
+            if (!file) {
+              return;
+            }
+
+            // @TODO abstract into a promise?
+            var reader = new FileReader();
+            reader.readAsText(file, "UTF-8");
+            reader.onload = function (evt) {
+              const json = JSON.parse(evt.target.result);
+              const readlist = validateReadlist(json)
+                .then((readlist) => {
+                  setReadlist(readlist);
+                })
+                .catch((e) => {
+                  console.error(e);
+                  setError("Invalid Readlist JSON file.");
+                });
+            };
+            reader.onerror = function (evt) {
+              console.error("error reading local file");
+            };
           }}
           style={{ display: "none" }}
           accept=".json"

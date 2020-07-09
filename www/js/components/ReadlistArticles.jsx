@@ -3,27 +3,14 @@ import React, {
   useRef,
 } from "https://unpkg.com/es-react@16.13.1/dev/react.js";
 import Textarea from "./Textarea.js";
+import { devLog } from "../utils.js";
 
-export default function ReadlistArticles({ readlist, setReadlist }) {
+export default function ReadlistArticles({
+  readlist,
+  setReadlist,
+  setArticlePreviewUrl,
+}) {
   const indexes = [...Array(readlist.articles.length).keys()];
-
-  const handleChangeArticleOrder = () => {};
-  const handleUpdateReadlistArticle = (e) => {
-    setReadlist((prevReadlist) => ({
-      ...prevReadlist,
-      dateModified: new Date().toISOString(),
-      articles: prevReadlist.articles.map((article) =>
-        article.url == e.target.dataset.url
-          ? {
-              ...article,
-              title: e.target.value,
-            }
-          : article
-      ),
-    }));
-  };
-  const handleSelectReadlistArticle = () => {};
-  const handleDeleteReadlistArticle = () => {};
 
   return (
     <ul class="articles">
@@ -41,10 +28,16 @@ export default function ReadlistArticles({ readlist, setReadlist }) {
           </div>
           <div class="article__main">
             <select
-              onChange={handleChangeArticleOrder}
-              data-readlist-article-url={article.url}
-              data-current-index={articleIndex}
               value={articleIndex}
+              onChange={(e) => {
+                e.target.blur();
+                handleArticleOrdering({
+                  articleUrl: article.url,
+                  currentIndex: articleIndex,
+                  newIndex: Number(e.target.value),
+                  setReadlist,
+                });
+              }}
             >
               {indexes.map((index) => (
                 <option key={index} value={index}>
@@ -56,16 +49,27 @@ export default function ReadlistArticles({ readlist, setReadlist }) {
               rows="1"
               class="article__title"
               placeholder="Article title..."
-              onChange={handleUpdateReadlistArticle}
+              onChange={(e) => {
+                handleUpdateReadlistArticle({
+                  articleUrl: article.url,
+                  articleTitle: e.target.value,
+                  setReadlist,
+                });
+              }}
               data-url={article.url}
               value={article.title}
             ></Textarea>
           </div>
-          <p class="article__excerpt">{article.excerpt}</p>
+          {article.excerpt && <p class="article__excerpt">{article.excerpt}</p>}
           <div class="article__actions actions">
             <button
               class="button"
-              onClick={handleSelectReadlistArticle}
+              onClick={(e) => {
+                handleSelectReadlistArticle({
+                  setArticlePreviewUrl,
+                  articleUrl: article.url,
+                });
+              }}
               value={article.url}
             >
               Preview
@@ -75,14 +79,8 @@ export default function ReadlistArticles({ readlist, setReadlist }) {
             </button>
             <button
               class="button button--danger"
-              onClick={() => {
-                setReadlist((prevReadlist) => ({
-                  ...prevReadlist,
-                  dateModified: new Date().toISOString(),
-                  articles: prevReadlist.articles.filter(
-                    (prevArticle) => prevArticle.url !== article.url
-                  ),
-                }));
+              onClick={(e) => {
+                handleDeleteReadlist({ setReadlist, articleUrl: article.url });
               }}
             >
               Delete
@@ -92,4 +90,86 @@ export default function ReadlistArticles({ readlist, setReadlist }) {
       ))}
     </ul>
   );
+}
+
+/**
+ * @param {string} articleUrl
+ * @param {string} articleTitle
+ * @param {function} setReadlist
+ */
+function handleUpdateReadlistArticle({
+  articleUrl,
+  articleTitle,
+  setReadlist,
+}) {
+  setReadlist((prevReadlist) => ({
+    ...prevReadlist,
+    dateModified: new Date().toISOString(),
+    articles: prevReadlist.articles.map((article) =>
+      article.url == articleUrl
+        ? {
+            ...article,
+            title: articleTitle,
+          }
+        : article
+    ),
+  }));
+}
+
+/**
+ * @param {string} articleUrl
+ * @param {function} setArticlePreviewUrl
+ */
+function handleSelectReadlistArticle({ setArticlePreviewUrl, articleUrl }) {
+  setArticlePreviewUrl(articleUrl);
+}
+
+/**
+ * @param {string} articleUrl
+ * @param {function} setReadlist
+ */
+function handleDeleteReadlist({ setReadlist, articleUrl }) {
+  setReadlist((prevReadlist) => ({
+    ...prevReadlist,
+    dateModified: new Date().toISOString(),
+    articles: prevReadlist.articles.filter(
+      (prevArticle) => prevArticle.url !== articleUrl
+    ),
+  }));
+}
+
+/**
+ * @param {string} articleUrl
+ * @param {number} currentIndex
+ * @param {number} newIndex
+ * @param {function} setReadlist
+ */
+function handleArticleOrdering({
+  articleUrl,
+  currentIndex,
+  newIndex,
+  setReadlist,
+}) {
+  devLog([
+    "Change readlist article order",
+    `From: ${currentIndex}`,
+    `To: ${newIndex}`,
+    `For: ${articleUrl}`,
+  ]);
+
+  setReadlist((prevReadlist) => {
+    let newReadlist = {
+      ...prevReadlist,
+      articles: prevReadlist.articles.map((article) => ({
+        ...article,
+      })),
+    };
+    newReadlist.articles.splice(
+      newIndex,
+      0,
+      newReadlist.articles.splice(currentIndex, 1)[0]
+    );
+
+    return newReadlist;
+  });
 }
