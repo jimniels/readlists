@@ -98,19 +98,19 @@ export default function Readlist({
         <Textarea
           class="readlist-header__title"
           placeholder="Readlist title..."
-          onChange={(e) => {
+          onBlur={(e) => {
             handleUpdatePartOfReadlist("title", e.target.value);
           }}
-          value={readlist.title}
+          defaultValue={readlist.title}
         />
 
         <Textarea
           class="readlist-header__description"
           placeholder="Readlist description..."
-          onChange={(e) => {
+          onBlur={(e) => {
             handleUpdatePartOfReadlist("description", e.target.value);
           }}
-          value={readlist.description}
+          defaultValue={readlist.description}
         />
 
         <dl class="readlist-header__meta">
