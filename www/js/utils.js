@@ -145,71 +145,71 @@ export async function validateReadlist(
     reject("expected `readlist.articles` to be an array");
   }
 
-  await Promise.all(
-    readlist.articles.map(async (article, i) => {
-      if (!(typeof article.url === "string" && isValidHttpUrl(article.url))) {
-        reject("expected `readlist.article.url` to be an HTTP(S) URL string");
-      }
+  for (const [i, article] of readlist.articles.entries()) {
+    if (!(typeof article.url === "string" && isValidHttpUrl(article.url))) {
+      reject("expected `readlist.article.url` to be an HTTP(S) URL string");
+    }
 
-      if (
-        typeof article.domain === "string" &&
-        article.url.includes(article.domain)
-      ) {
-        article.domain = stripHtml(article.domain);
+    if (
+      typeof article.domain === "string" &&
+      article.url.includes(article.domain)
+    ) {
+      article.domain = stripHtml(article.domain);
+    } else {
+      reject(
+        "expected `readlist.article.domain` to be a string and contained in the `readlist.article.url` value"
+      );
+    }
+
+    if (typeof article.title === "string") {
+      readlist.articles[i].title = stripHtml(article.title);
+    } else {
+      reject("expected `readlist.article.title` to be a string.");
+    }
+
+    if (
+      typeof article.word_count === "number" ||
+      typeof article.word_count === "string"
+    ) {
+      readlist.articles[i].word_count = stripHtml(article.word_count);
+    } else {
+      reject("expected `readlist.article.word_count` to be a number.");
+    }
+
+    if (typeof article.excerpt === "string") {
+      readlist.articles[i].excerpt = stripHtml(article.excerpt);
+    } else {
+      reject("expected `readlist.article.excerpt` to be a string.");
+    }
+
+    if (article.author !== null) {
+      if (typeof article.author === "string") {
+        readlist.articles[i].author = stripHtml(article.author);
+      } else {
+        reject("expected `readlist.article.author` to be a string.");
+      }
+    }
+
+    if (article.content !== null) {
+      if (typeof article.content === "string") {
+        try {
+          // Note: Mercury doesn't let you do parallel async stuff, like sticking
+          // this inside a Promise.all()
+          readlist.articles[i].content = await Mercury.parse(article.url, {
+            html: article.content,
+          }).then((res) => res.content);
+        } catch (e) {
+          reject(`failed to parse content of article ${article.url}.`);
+        }
       } else {
         reject(
-          "expected `readlist.article.domain` to be a string and contained in the `readlist.article.url` value"
+          `expected \`readlist.article.content\` to be a string for article ${article.url}.`
         );
       }
+    }
 
-      if (typeof article.title === "string") {
-        readlist.articles[i].title = stripHtml(article.title);
-      } else {
-        reject("expected `readlist.article.title` to be a string.");
-      }
-
-      if (
-        typeof article.word_count === "number" ||
-        typeof article.word_count === "string"
-      ) {
-        readlist.articles[i].word_count = stripHtml(article.word_count);
-      } else {
-        reject("expected `readlist.article.word_count` to be a number.");
-      }
-
-      if (typeof article.excerpt === "string") {
-        readlist.articles[i].excerpt = stripHtml(article.excerpt);
-      } else {
-        reject("expected `readlist.article.excerpt` to be a string.");
-      }
-
-      if (article.author !== null) {
-        if (typeof article.author === "string") {
-          readlist.articles[i].author = stripHtml(article.author);
-        } else {
-          reject("expected `readlist.article.author` to be a string.");
-        }
-      }
-
-      if (article.content !== null) {
-        if (typeof article.content === "string") {
-          try {
-            readlist.articles[i].content = await Mercury.parse(article.url, {
-              html: article.content,
-            }).then((res) => res.content);
-          } catch (e) {
-            reject(`failed to parse content of article ${article.url}.`);
-          }
-        } else {
-          reject(
-            `expected \`readlist.article.content\` to be a string for article ${article.url}.`
-          );
-        }
-      }
-
-      // Others? Do full check of mercury type
-    })
-  );
+    // Others? Do full check of mercury type
+  }
 
   return readlist;
 
