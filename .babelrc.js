@@ -12,18 +12,19 @@ const config = {
     [
       "search-and-replace",
       {
-        rules: isDev
-          ? []
-          : [
-              {
+        rules: [
+          isDev
+            ? {}
+            : {
                 search: /es-react@16.13.1\/dev/,
                 replace: "es-react@16.13.1",
               },
-              {
-                search: "__VERSION__",
-                replace: `${version}@${sha}`,
-              },
-            ],
+
+          {
+            search: "__VERSION__",
+            replace: `${version}@${sha}`,
+          },
+        ],
       },
     ],
   ],
