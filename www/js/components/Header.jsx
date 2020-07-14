@@ -1,6 +1,7 @@
 import React, {
   useState,
 } from "https://unpkg.com/es-react@16.13.1/dev/react.js";
+import version from "../version.js";
 
 export default function Header() {
   const [learnMoreIsVisible, setLearnMoreIsVisible] = useState(false);
@@ -49,8 +50,12 @@ export default function Header() {
             yourself. Capiche?
           </p>
           <p>I really should explain more about what this thing is here.</p>
+
+          <hr />
           <p>
-            Made by <a href="https://www.jim-nielsen.com">Jim Nielsen</a>.
+            Made by <a href="https://www.jim-nielsen.com">Jim Nielsen</a> (
+            <a href="https://twitter.com/jimniels">@jimniels</a> on twitter).
+            Readlists version <code>{version}</code>
           </p>
         </div>
       )}
