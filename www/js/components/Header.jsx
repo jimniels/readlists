@@ -29,26 +29,20 @@ export default function Header() {
           <p>
             What’s a Readlist? Collect, curate, and bundle individual web pages
             into ebooks. Think mixtapes, but for online content.
-            <a href="/" class="link">
-              Try it out.
-            </a>
           </p>
           <p>
-            Readlists are saved locally to your browser (using
+            Readlists are saved locally to your browser (using{" "}
             <code>localStorage</code>). You can save the data of a Readlist to a
             JSON file, host it at a URL, and then allow others to import it
-            themselves. You are responsible for saving them, not the site. You
-            make the video games, Readlists is simply the console that plays
-            them out.
+            themselves. It falls to you to save and distribute (the URLs for)
+            your Readlists. Yeah it’s more work for you, but hey, on the flip
+            side the data is all yours. Do whatever you want with it.
           </p>
           <p>
-            In other words, you are responsible for saving/storing/keeping track
-            of your own Readlists. You can import them into this tool via a URL
-            or by drag n' dropping them. But when you're done, you're
-            responsible to save the readlist as a JSON file and keep track of it
-            yourself. Capiche?
+            I really should explain more about what this thing is here and the
+            data structure for a Readlist. If you really want to know, create
+            one and inspect it.
           </p>
-          <p>I really should explain more about what this thing is here.</p>
 
           <hr />
           <p>
