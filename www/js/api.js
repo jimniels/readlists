@@ -47,7 +47,8 @@ export function fetchEpub(readlist) {
     // author: "@TODO", // username?
     content: readlist.articles.map((article, i) => ({
       title: article.title,
-      data: article.content,
+      data:
+        `<p><a href="${article.url}">${article.url}</a></p>` + article.content,
     })),
     // array of objects with title and data
   };
