@@ -5,9 +5,9 @@ import { execSync } from "child_process";
 const isDev = process.env.NODE_ENV !== "production";
 
 const sha = execSync("git rev-parse HEAD").toString().trim().slice(0, 7);
-// const version = execSync("git describe --tags").toString().trim();
-const version = JSON.parse(fs.readFileSync("./package.json").toString())
-  .version;
+const version = execSync("git describe --tags --abbrev=0").toString().trim();
+// const version = JSON.parse(fs.readFileSync("./package.json").toString())
+//   .version;
 
 const config = {
   presets: ["@babel/react"],
