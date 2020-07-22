@@ -116,17 +116,6 @@ textarea {
   font: inherit;
 }
 
-#learn-more {
-  max-width: 700px;
-  margin: 0 auto calc(var(--spacer) * 2);
-  background: var(--color-border);
-  border-top: 1px solid #ccc;
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-  padding: calc(var(--spacer) * 2);
-  border-radius: var(--border-radius);
-}
-
 /*
   Buttons
 */
@@ -142,8 +131,14 @@ textarea {
   color: var(--color-accent);
   padding: 3px 10px;
 }
-.button:hover:not([disabled]) {
-  text-decoration: underline;
+.button--circle {
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
+  font-size: 16px;
 }
 .button--danger {
   color: var(--color-danger);
@@ -174,6 +169,27 @@ textarea {
   background: rgba(255, 255, 255, 1) url(/assets/loading.gif) no-repeat 50%;
   left: 0;
   background-size: contain;
+}
+
+.button:hover:not(:disabled),
+textarea:hover,
+input:hover,
+select:hover {
+  box-shadow: 0 0 0 2px hsla(var(--color-accent-hsl), 0.5);
+}
+
+.button:active:not(:disabled),
+textarea:active,
+input:active,
+select:active,
+a:active,
+.button:focus:not(:disabled),
+textarea:focus,
+input:focus,
+select:focus,
+.button--is-active {
+  box-shadow: 0 0 0 3px hsla(var(--color-accent-hsl), 0.8);
+  outline: none;
 }
 
 readlist-nav ul,
@@ -531,6 +547,7 @@ readlists-nav footer a {
 .readlist-header__meta {
   color: var(--color-text-light);
   margin-bottom: var(--spacer);
+  margin-top: 0;
 }
 
 .readlist-header__meta dt,
@@ -597,31 +614,6 @@ readlists-nav footer a {
   padding: 30px;
   margin-left: auto;
   margin-right: auto;
-}
-
-/**
- * App Header
- */
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.app-header__title {
-  font-size: var(--font-size-xxl);
-  font-weight: 900;
-  margin: 0;
-}
-.app-header__title a {
-  color: inherit;
-  text-decoration: none;
-}
-.app-header__description {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-light);
-  text-align: right;
-  max-width: 400px;
-  margin: 0;
 }
 
 .readlist {

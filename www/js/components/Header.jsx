@@ -1,34 +1,38 @@
 import React, {
   useState,
 } from "https://unpkg.com/es-react@16.13.1/dev/react.js";
+import Style from "./Style.js";
 
 export default function Header() {
   const [learnMoreIsVisible, setLearnMoreIsVisible] = useState(false);
 
   return (
     <>
-      <header class="app-header wrapper">
-        <h1 class="app-header__title">Readlists</h1>
-        <p class="app-header__description">
-          Collect, curate, and bundle individual web pages into ebooks. Think
-          mixtapes, but for online content.{" "}
-          <a
-            href="./about.html"
-            class="link"
-            onClick={(e) => {
-              e.preventDefault();
-              setLearnMoreIsVisible(!learnMoreIsVisible);
-            }}
-          >
-            {learnMoreIsVisible ? "Less" : "More"}.
-          </a>
-        </p>
+      <header class="Header wrapper">
+        <div>
+          <h1 class="Header__title">Readlists</h1>
+          <p class="Header__description">
+            Collect, curate, and bundle individual web pages into an ebook.
+          </p>
+        </div>
+        <button
+          class={`button button--circle ${
+            learnMoreIsVisible ? "button--is-active button--primary" : ""
+          }`}
+          onClick={(e) => {
+            setLearnMoreIsVisible(!learnMoreIsVisible);
+          }}
+          title={`${learnMoreIsVisible ? "Hide" : "Show"} more info`}
+        >
+          ?
+        </button>
       </header>
       {learnMoreIsVisible && (
-        <div id="learn-more">
+        <div class="Header__learn-more">
           <p>
-            What’s a Readlist? Collect, curate, and bundle individual web pages
-            into ebooks. Think mixtapes, but for online content.
+            What’s a Readlist? It’s like a readable mixtape. You can collect
+            information across the web and package it up into a nice little
+            ebook for reading on your favorite reading device.
           </p>
           <p>
             Readlists are saved locally to your browser (using{" "}
@@ -52,6 +56,41 @@ export default function Header() {
           </p>
         </div>
       )}
+      <Style>{getStyles()}</Style>
     </>
   );
+}
+
+function getStyles() {
+  return /*css*/ `
+  .Header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .Header__title {
+    font-size: var(--font-size-xxl);
+    font-weight: 900;
+    margin: 0;
+  }
+  .Header__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .Header__description {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+    margin: 0;
+  }
+  .Header__learn-more {
+    max-width: 700px;
+    margin: 0 auto calc(var(--spacer) * 2);
+    background: var(--color-border);
+    border-top: 1px solid #ccc;
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    padding: calc(var(--spacer) * 2);
+    border-radius: var(--border-radius);
+  }
+  `;
 }
