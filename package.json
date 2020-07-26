@@ -6,7 +6,7 @@
   "main": "",
   "scripts": {
     "prebuild": "rm -rf build && rm -rf build-functions",
-    "build": "cp -R www build && npm run build:transpile && zip-it-and-ship-it functions build-functions",
+    "build": "cp -R www build && npm run build:transpile && node scripts/build.js && zip-it-and-ship-it functions build-functions",
     "build:transpile": "babel build/js --out-dir build/js && rm -rf build/js/components/*.jsx",
     "prestart": "rm -rf www/js/components/*.js",
     "start": "netlify dev & babel www/js/components --out-dir www/js/components --watch --ignore '**/*.js'",
@@ -19,7 +19,6 @@
     "@babel/core": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
     "@netlify/zip-it-and-ship-it": "^1.3.2",
-    "babel-plugin-search-and-replace": "^1.0.1",
     "epub-gen": "^0.1.0",
     "http-server": "^0.12.1",
     "node-fetch": "^2.6.0"
