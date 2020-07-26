@@ -72,6 +72,19 @@ export default function Readlist({
     return null;
   }
 
+  const dateModified = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    minute: "numeric",
+    hour: "numeric",
+  }).format(new Date(readlist.dateModified));
+  const dateCreated = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(readlist.dateCreated));
+
   return (
     <div class="readlist wrapper">
       <header class="readlist-header">
@@ -115,18 +128,9 @@ export default function Readlist({
 
         <dl class="readlist-header__meta">
           <dt>Created</dt>
-          <dd>
-            <local-time
-              month="short"
-              day="numeric"
-              year="numeric"
-              datetime={readlist.dateCreated}
-            ></local-time>
-          </dd>
+          <dd>{dateCreated}</dd>
           <dt>Last modified</dt>
-          <dd>
-            <time-ago datetime={readlist.dateModified}></time-ago>
-          </dd>
+          <dd>{dateModified}</dd>
         </dl>
       </header>
 
