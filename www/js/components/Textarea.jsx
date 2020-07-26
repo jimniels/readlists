@@ -1,8 +1,5 @@
-import React, {
-  useEffect,
-  useRef,
-} from "https://unpkg.com/es-react@16.13.1/dev/react.js";
-import autosize from "https://unpkg.com/autosize@4.0.2/src/autosize.js";
+import React, { useEffect, useRef } from "react";
+import autosize from "autosize";
 
 export default function Textarea(props) {
   const { children, ...rest } = props;

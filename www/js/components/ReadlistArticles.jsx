@@ -1,7 +1,4 @@
-import React, {
-  useState,
-  useRef,
-} from "https://unpkg.com/es-react@16.13.1/dev/react.js";
+import React, { useState, useRef } from "react";
 import Textarea from "./Textarea.js";
 import { devLog } from "../utils.js";
 

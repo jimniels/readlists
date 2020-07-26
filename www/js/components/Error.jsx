@@ -1,6 +1,4 @@
-import React, {
-  useEffect,
-} from "https://unpkg.com/es-react@16.13.1/dev/react.js";
+import React, { useEffect } from "react";
 import Style from "./Style.js";
 
 const TIMER = 5; // in seconds
