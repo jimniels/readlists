@@ -23,17 +23,17 @@ export default function Readlist({
     // @TODO rename to downloadEpub and put all this in the API part?
     setIsLoadingEpub(true);
     fetchEpub(readlist)
-      .then((blob) => {
+      .then(({ link }) => {
         // https://stackoverflow.com/questions/4545311/download-a-file-by-jquery-ajax
-        const url = window.URL.createObjectURL(blob);
+        // const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.style.display = "none";
-        a.href = url;
+        a.href = link;
         // the filename you want
         a.download = `${slugify(readlist.title)}.${readlist.dateModified}.epub`; // @TODO slugify-the-title-2018-08-11T01:03z.readlist
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
+        // window.URL.revokeObjectURL(url);
       })
       .catch((e) => {
         setError("There was a problem expoorting your epub.");

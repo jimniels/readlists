@@ -1,4 +1,6 @@
+const fetch = require("node-fetch");
 const Epub = require("epub-gen");
+const FormData = require("form-data");
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
@@ -13,19 +15,25 @@ exports.handler = async (event, context) => {
     const book = JSON.parse(event.body);
 
     await new Epub({ ...book, tempDir: os.tmpdir() }, FILE).promise;
-    const fileBase64 = fs.readFileSync(FILE, {
-      encoding: "base64",
-    });
+    // const fileBase64 = fs.readFileSync(FILE, {
+    //   encoding: "base64",
+    // });
+
+    const body = new FormData();
+    body.append("file", fs.createReadStream(FILE));
+    const json = await fetch("https://file.io", {
+      method: "POST",
+      body,
+    }).then((res) => res.json());
 
     return {
       statusCode: 200,
-      body: fileBase64,
-      // // more keys you can return:
+      body: JSON.stringify(json),
+      // more keys you can return:
       headers: {
-        "Content-Type": "application/epub+zip",
-        "Content-Disposition": `attachment; filename="my-readlist.epub`,
+        "Content-Type": "application/json",
       },
-      isBase64Encoded: true,
+      // isBase64Encoded: true,
     };
   } catch (err) {
     console.log(err);

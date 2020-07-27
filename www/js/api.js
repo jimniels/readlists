@@ -56,10 +56,11 @@ export function fetchEpub(readlist) {
   return fetch(`/api/epub/`, {
     method: "POST",
     body: JSON.stringify(book),
-  }).then((res) => {
-    if (!res.ok) {
-      throw new Error("Failed to turn into an ebook");
-    }
-    return res.blob();
-  });
+  }).then((res) => res.json());
+  // .then((res) => {
+  //   if (!res.ok) {
+  //     throw new Error("Failed to turn into an ebook");
+  //   }
+  //   return res.blob();
+  // });
 }
