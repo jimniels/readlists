@@ -1,5 +1,7 @@
 const Epub = require("epub-gen");
 const fs = require("fs");
+const path = require("path");
+const os = require("os");
 
 // Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
 exports.handler = async (event, context) => {
@@ -7,12 +9,13 @@ exports.handler = async (event, context) => {
   try {
     const book = JSON.parse(event.body);
 
-    await new Epub(book, "./readlist.epub").promise.catch((e) => {
-      console.log(e);
-    });
-    const fileBase64 = fs.readFileSync("./readlist.epub", {
-      encoding: "base64",
-    });
+    await new Epub({ ...book, tempDir: os.tmpdir() }, "readlist.epub").promise;
+    const fileBase64 = fs.readFileSync(
+      path.join(os.tmpdir(), "readlist.epub"),
+      {
+        encoding: "base64",
+      }
+    );
 
     return {
       statusCode: 200,
