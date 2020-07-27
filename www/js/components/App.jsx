@@ -1,7 +1,4 @@
-import React, {
-  useState,
-} from "https://unpkg.com/es-react@16.13.1/dev/react.js";
-import ReactDOM from "https://unpkg.com/es-react@16.13.1/dev/react-dom.js";
+import React, { useState } from "react";
 import Header from "./Header.js";
 import ZeroState from "./ZeroState.js";
 import Readlist from "./Readlist.js";

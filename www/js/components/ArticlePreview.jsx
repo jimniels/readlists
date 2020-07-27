@@ -1,8 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-} from "https://unpkg.com/es-react@16.13.1/dev/react.js";
+import React, { useState, useRef, useEffect } from "react";
 
 let prevArticle = {};
 

@@ -1,6 +1,4 @@
-import React, {
-  useState,
-} from "https://unpkg.com/es-react@16.13.1/dev/react.js";
+import React, { useState } from "react";
 import { isValidHttpUrl, validateReadlist } from "../utils.js";
 
 export default function ZeroState({ readlist, setReadlist, setError }) {

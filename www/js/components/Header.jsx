@@ -1,6 +1,4 @@
-import React, {
-  useState,
-} from "https://unpkg.com/es-react@16.13.1/dev/react.js";
+import React, { useState } from "react";
 import Style from "./Style.js";
 
 export default function Header() {
@@ -52,7 +50,7 @@ export default function Header() {
           <p>
             Made by <a href="https://www.jim-nielsen.com">Jim Nielsen</a> (
             <a href="https://twitter.com/jimniels">@jimniels</a> on twitter).
-            Readlists version <code>__VERSION__</code>
+            Readlists version <code>{window.VERSION}</code>
           </p>
         </div>
       )}

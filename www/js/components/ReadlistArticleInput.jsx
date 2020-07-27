@@ -1,7 +1,5 @@
-import React, {
-  useState,
-} from "https://unpkg.com/es-react@16.13.1/dev/react.js";
-import PropTypes from "https://unpkg.com/es-react@16.13.1/dev/prop-types.js";
+import React, { useState } from "react";
+import PropTypes from "prop-types";
 import { isValidHttpUrl } from "../utils.js";
 import { fetchArticle } from "../api.js";
 import { readlistArticlePropTypes } from "../prop-types.js";

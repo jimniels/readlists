@@ -1,4 +1,4 @@
-import pt from "https://unpkg.com/es-react@16.13.1/dev/prop-types.js";
+import pt from "prop-types";
 
 /**
  * @typedef Readlist

@@ -28,7 +28,24 @@
       <noscript>JavaScript is required.</noscript>
     </div>
 
+    <script
+      defer
+      src="https://unpkg.com/es-module-shims@0.4.7/dist/es-module-shims.min.js"
+    ></script>
+    <script type="importmap-shim">
+      {
+        "imports": {
+          "react": "https://unpkg.com/es-react@16.13.1/dev/react.js",
+          "react-dom": "https://unpkg.com/es-react@16.13.1/dev/react-dom.js",
+          "prop-types": "https://unpkg.com/es-react@16.13.1/dev/prop-types.js",
+          "autosize": "https://unpkg.com/autosize@4.0.2/src/autosize.js"
+        }
+      }
+    </script>
     <script src="https://unpkg.com/@postlight/mercury-parser@2.2.0/dist/mercury.web.js"></script>
-    <script type="module" src="/js/index.js"></script>
+    <script>
+      window.VERSION = "__VERSION__";
+    </script>
+    <script type="module-shim" src="/js/index.js"></script>
   </body>
 </html>
