@@ -1,16 +1,18 @@
 const Epub = require("epub-gen");
 const fs = require("fs");
 
+const FILE = "/tmp/readlist.epub";
+
 // Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
 exports.handler = async (event, context) => {
   // https://stackoverflow.com/questions/53297978/amazon-lambda-return-docx-file-node-js
   try {
     const book = JSON.parse(event.body);
 
-    await new Epub(book, "./readlist.epub").promise.catch((e) => {
+    await new Epub(book, FILE).promise.catch((e) => {
       console.log(e);
     });
-    const fileBase64 = fs.readFileSync("./readlist.epub", {
+    const fileBase64 = fs.readFileSync(FILE, {
       encoding: "base64",
     });
 
