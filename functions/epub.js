@@ -12,7 +12,7 @@ exports.handler = async (event, context) => {
   try {
     const book = JSON.parse(event.body);
 
-    await new Epub(book, FILE).promise;
+    await new Epub({ ...book, tempDir: os.tmpdir() }, FILE).promise;
     const fileBase64 = fs.readFileSync(FILE, {
       encoding: "base64",
     });
