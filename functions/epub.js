@@ -3,21 +3,19 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const FILE = path.join(os.tmpdir(), "readlist.epub");
-console.log(FILE);
-
 // Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
 exports.handler = async (event, context) => {
   // https://stackoverflow.com/questions/53297978/amazon-lambda-return-docx-file-node-js
   try {
     const book = JSON.parse(event.body);
 
-    await new Epub(book, FILE).promise.catch((e) => {
-      console.log(e);
-    });
-    const fileBase64 = fs.readFileSync(FILE, {
-      encoding: "base64",
-    });
+    await new Epub({ ...book, tempDir: os.tmpdir() }, "readlist.epub").promise;
+    const fileBase64 = fs.readFileSync(
+      path.join(os.tmpdir(), "readlist.epub"),
+      {
+        encoding: "base64",
+      }
+    );
 
     return {
       statusCode: 200,
