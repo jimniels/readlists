@@ -10,8 +10,10 @@ const sha = execSync("git rev-parse HEAD").toString().trim().slice(0, 7);
 const version = execSync("git describe --tags --abbrev=0").toString().trim();
 
 let index = fs.readFileSync(INDEX_PATH).toString();
-
-index = index.replace("__DEV__", `${version}@${sha}`);
-index = index.replace("es-react@16.13.1/dev", "es-react@16.13.1");
+index = index.replace("__VERSION__", `${version}@${sha}`);
+// use the production versions of this dep by stripping the `/dev` path
+// find `es-react@____/dev` and replace with `es-react@____`
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
+index = index.replace(/(es-react@.*)\/dev/g, "$1");
 
 fs.writeFileSync(INDEX_PATH, index);
