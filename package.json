@@ -5,7 +5,7 @@
   "type": "module",
   "main": "",
   "scripts": {
-    "prebuild": "rm -rf build && rm -rf build-functions",
+    "prebuild": "git fetch --tags && rm -rf build && rm -rf build-functions",
     "build": "cp -R www build && npm run build:transpile && node scripts/build.js && zip-it-and-ship-it functions build-functions",
     "build:transpile": "babel build/js --out-dir build/js && rm -rf build/js/components/*.jsx",
     "prestart": "rm -rf www/js/components/*.js",
