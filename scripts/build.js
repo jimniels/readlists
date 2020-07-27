@@ -12,6 +12,8 @@ execSync("git fetch --tags");
 const sha = execSync("git rev-parse HEAD").toString().trim().slice(0, 7);
 const version = execSync("git describe --tags --abbrev=0").toString().trim();
 
+console.log(`${version}@${sha}`);
+
 let index = fs.readFileSync(INDEX_PATH).toString();
 index = index.replace("__VERSION__", `${version}@${sha}`);
 // use the production versions of this dep by stripping the `/dev` path
