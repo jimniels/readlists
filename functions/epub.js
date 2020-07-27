@@ -1,7 +1,10 @@
 const Epub = require("epub-gen");
 const fs = require("fs");
+const path = require("path");
+const os = require("os");
 
-const FILE = "/tmp/readlist.epub";
+const FILE = path.join(os.tmpdir(), "readlist.epub");
+console.log(FILE);
 
 // Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
 exports.handler = async (event, context) => {
