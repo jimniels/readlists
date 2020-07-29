@@ -14,7 +14,7 @@ export default function Readlist({
   const [isLoadingEpub, setIsLoadingEpub] = useState(false);
   const handleSaveReadlist = () => {
     downloadFile({
-      file: `${slugify(readlist.title)}.${readlist.dateModified}.json`,
+      file: `${slugify(readlist.title)}.json`,
       contents: JSON.stringify(readlist),
     });
   };
@@ -30,13 +30,14 @@ export default function Readlist({
         a.style.display = "none";
         a.href = link;
         // the filename you want
-        a.download = `${slugify(readlist.title)}.${readlist.dateModified}.epub`; // @TODO slugify-the-title-2018-08-11T01:03z.readlist
+        a.download = `${readlist.title}.epub`;
         document.body.appendChild(a);
         a.click();
         // window.URL.revokeObjectURL(url);
       })
       .catch((e) => {
-        setError("There was a problem expoorting your epub.");
+        console.error(e);
+        setError("There was a problem exporting your epub.");
       })
       .finally(() => {
         setIsLoadingEpub(false);
