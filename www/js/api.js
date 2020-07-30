@@ -57,7 +57,7 @@ export function downloadEpub(readlist) {
       a.style.display = "none";
       a.href = downloadLink;
       a.download = `${slugify(readlist.title)}.epub`;
-      a.target = "_blank";
+      // a.target = "_blank";
       document.body.appendChild(a);
       a.click();
       a.remove();

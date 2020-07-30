@@ -17,11 +17,11 @@ exports.handler = async (event, context) => {
     // @TODO verify that readlist data is right
     if (
       !(
-        readlist.title &&
-        readlist.description &&
-        readlist.articles &&
+        readlist.hasOwnProperty("title") &&
+        readlist.hasOwnProperty("description") &&
         readlist.dateCreated &&
         readlist.dateModified &&
+        readlist.articles &&
         Array.isArray(readlist.articles)
       )
     ) {
