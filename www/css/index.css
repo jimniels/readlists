@@ -50,34 +50,6 @@ html {
   box-sizing: inherit;
 }
 
-.dragging {
-  position: relative;
-}
-.dragging:hover {
-  cursor: copy;
-}
-.dragging:after {
-  content: "Drag Readlist JSON File Here...";
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: hsla(var(--color-bg-primary-hsl), 0.95);
-  border: 4px dashed var(--color-accent);
-  font-size: var(--font-size-xlg);
-}
-
-@supports (backdrop-filter: blur(10px)) {
-  .dragging:after {
-    backdrop-filter: blur(10px);
-    background: hsla(var(--color-bg-primary-hsl), 0.75);
-  }
-}
-
 body,
 html {
   min-height: 100vh;

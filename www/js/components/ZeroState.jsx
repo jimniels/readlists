@@ -51,56 +51,7 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
   return (
     <>
       <div class="wrapper" style={{ padding: 0 }}>
-        <form
-          onSubmit={handleImportFromUrl}
-          class="ZeroState"
-          onDragOver={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
-            if (readlist) {
-              return false;
-            }
-            // Style the drag-and-drop as a "copy file" operation.
-            e.dataTransfer.dropEffect = "copy";
-            e.target.classList.add("dragging");
-          }}
-          onDragLeave={(e) => {
-            e.target.classList.remove("dragging");
-          }}
-          onDrop={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
-            if (readlist) {
-              return false;
-            }
-
-            e.target.classList.remove("dragging");
-
-            const file = event.dataTransfer.files[0];
-            let reader = new FileReader();
-            reader.readAsText(file);
-            reader.onloadend = () => {
-              try {
-                const json = JSON.parse(reader.result);
-                validateReadlist(json, { verbose: true })
-                  .then((readlist) => {
-                    setReadlist(readlist);
-                  })
-                  .catch((e) => {
-                    console.error(e);
-                    setError(
-                      "Could not validate JSON file. Ensure it matches the correct data schema."
-                    );
-                  });
-              } catch (e) {
-                console.error(e);
-                setError("Failed to parse the JSON file.");
-              }
-            };
-          }}
-        >
+        <form onSubmit={handleImportFromUrl} class="ZeroState">
           <div class="ZeroState__container">
             <button
               class="button button--primary"
@@ -112,7 +63,55 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
             </button>
           </div>
 
-          <div class="ZeroState__container">
+          <div
+            class="ZeroState__container"
+            onDragOver={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+
+              if (readlist) {
+                return false;
+              }
+              // Style the drag-and-drop as a "copy file" operation.
+              e.dataTransfer.dropEffect = "copy";
+              e.target.classList.add("dragging");
+            }}
+            onDragLeave={(e) => {
+              e.target.classList.remove("dragging");
+            }}
+            onDrop={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+
+              if (readlist) {
+                return false;
+              }
+
+              e.target.classList.remove("dragging");
+
+              const file = event.dataTransfer.files[0];
+              let reader = new FileReader();
+              reader.readAsText(file);
+              reader.onloadend = () => {
+                try {
+                  const json = JSON.parse(reader.result);
+                  validateReadlist(json, { verbose: true })
+                    .then((readlist) => {
+                      setReadlist(readlist);
+                    })
+                    .catch((e) => {
+                      console.error(e);
+                      setError(
+                        "Could not validate JSON file. Ensure it matches the correct data schema."
+                      );
+                    });
+                } catch (e) {
+                  console.error(e);
+                  setError("Failed to parse the JSON file.");
+                }
+              };
+            }}
+          >
             <label for="exampleInput" class="button" disabled={isLoading}>
               Import Local Readlist...
               <input
@@ -212,22 +211,45 @@ function getStyles() {
 .ZeroState__container:nth-child(2) {
   border: 3px dashed hsla(var(--color-text-light-hsl), .25);
 }
-.login__form {
-  display: flex;
-  width: 100%;
-  align-items: center;
-}
-.login__form input {
-  flex-grow: 1;
+.ZeroState input[type="text"] {
+  width: 90%;
+  margin-bottom: calc(var(--spacer) / 2);
   border: 1px solid var(--color-border);
-  padding: 4px 8px;
-}
-.login__form .button {
-  margin-left: calc(var(--spacer) / 2);
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacer) / 4) calc(var(--spacer) / 2);
 }
 .ZeroState-small-text {
   font-size: var(--font-size-sm);
   color: var(--color-text-light);
+}
+
+/* @TODO clean this up */
+.dragging {
+  position: relative;
+}
+.dragging:hover {
+  cursor: copy;
+}
+.dragging:after {
+  content: "Drag Readlist JSON File Here...";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: hsla(var(--color-bg-primary-hsl), 0.95);
+  border: 4px dashed var(--color-accent);
+  font-size: var(--font-size-xlg);
+}
+
+@supports (backdrop-filter: blur(10px)) {
+  .dragging:after {
+    backdrop-filter: blur(10px);
+    background: hsla(var(--color-bg-primary-hsl), 0.75);
+  }
 }
   `;
 }
