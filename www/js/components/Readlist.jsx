@@ -82,11 +82,11 @@ export default function Readlist({
           <button
             class={`button ${isLoadingEpub ? "button--is-loading" : ""}`}
             onClick={handleExportEpub}
-            disabled={isLoadingEpub}
+            disabled={isLoadingEpub || readlist.articles.length === 0}
           >
             Export as .epub
           </button>
-          <button class="button" disabled>
+          <button class="button" disabled title="Feature Not Yet Supported">
             Export as .mobi
           </button>
           <button class="button button--danger" onClick={handleDeleteReadlist}>
