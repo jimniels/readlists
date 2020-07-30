@@ -3,7 +3,7 @@ import ReaddlistArticleInput from "./ReadlistArticleInput.js";
 import ReadlistArticles from "./ReadlistArticles.js";
 import Textarea from "./Textarea.js";
 import { downloadFile, slugify } from "../utils.js";
-import { fetchEpub } from "../api.js";
+import { downloadEpub } from "../api.js";
 
 export default function Readlist({
   readlist,
@@ -14,29 +14,17 @@ export default function Readlist({
   const [isLoadingEpub, setIsLoadingEpub] = useState(false);
   const handleSaveReadlist = () => {
     downloadFile({
-      file: `${slugify(readlist.title)}.${readlist.dateModified}.json`,
+      file: `${slugify(readlist.title)}.json`,
       contents: JSON.stringify(readlist),
     });
   };
 
   const handleExportEpub = (e) => {
-    // @TODO rename to downloadEpub and put all this in the API part?
     setIsLoadingEpub(true);
-    fetchEpub(readlist)
-      .then((blob) => {
-        // https://stackoverflow.com/questions/4545311/download-a-file-by-jquery-ajax
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.style.display = "none";
-        a.href = url;
-        // the filename you want
-        a.download = `${slugify(readlist.title)}.${readlist.dateModified}.epub`; // @TODO slugify-the-title-2018-08-11T01:03z.readlist
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-      })
+    downloadEpub(readlist)
       .catch((e) => {
-        setError("There was a problem expoorting your epub.");
+        console.error(e);
+        setError("There was a problem exporting your epub.");
       })
       .finally(() => {
         setIsLoadingEpub(false);

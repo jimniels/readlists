@@ -3,6 +3,7 @@ import {
   resolveImgSrc,
   validateReadlist,
   isValidHttpUrl,
+  slugify,
 } from "./utils.js";
 
 // @TODO test with relative URL images somewhere
@@ -40,26 +41,25 @@ export function fetchArticle(url) {
     });
 }
 
-export function fetchEpub(readlist) {
+/**
+ * Take a readlist, upload it, get back the download link and download the file
+ * @param {Readlist} readlist
+ */
+export function downloadEpub(readlist) {
   // @TODO verify that the readlist actually has articles
-  let book = {
-    title: readlist.title,
-    // author: "@TODO", // username?
-    content: readlist.articles.map((article, i) => ({
-      title: article.title,
-      data:
-        `<p><a href="${article.url}">${article.url}</a></p>` + article.content,
-    })),
-    // array of objects with title and data
-  };
-
   return fetch(`/api/epub/`, {
     method: "POST",
-    body: JSON.stringify(book),
-  }).then((res) => {
-    if (!res.ok) {
-      throw new Error("Failed to turn into an ebook");
-    }
-    return res.blob();
-  });
+    body: JSON.stringify(readlist),
+  })
+    .then((res) => res.text())
+    .then((downloadLink) => {
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = downloadLink;
+      a.download = `${slugify(readlist.title)}.epub`;
+      // a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
 }
