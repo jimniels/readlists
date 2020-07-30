@@ -48,7 +48,9 @@ exports.handler = async (event, context) => {
     // Upload the ebook
     const body = new FormData();
     body.append("file", fs.createReadStream(FILE));
-    const fileIORes = await fetch("https://file.io", {
+    // example response:
+    // {"success":true,"key":"2ojE41","link":"https://file.io/2ojE41","expiry":"14 days"}
+    const { link } = await fetch("https://file.io", {
       method: "POST",
       body,
     }).then((res) => res.json());
@@ -56,10 +58,10 @@ exports.handler = async (event, context) => {
     // Return link to ebook
     return {
       statusCode: 200,
-      body: JSON.stringify(fileIORes),
+      body: link,
       // more keys you can return:
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "plain/text",
       },
       // isBase64Encoded: true,
     };
@@ -68,6 +70,9 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 500,
       body: `Failed to generated Readlist epub. Error:\n` + err,
+      headers: {
+        "Content-Type": "plain/text",
+      },
     };
   }
 };

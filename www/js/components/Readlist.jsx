@@ -3,7 +3,7 @@ import ReaddlistArticleInput from "./ReadlistArticleInput.js";
 import ReadlistArticles from "./ReadlistArticles.js";
 import Textarea from "./Textarea.js";
 import { downloadFile, slugify } from "../utils.js";
-import { fetchEpub } from "../api.js";
+import { downloadEpub } from "../api.js";
 
 export default function Readlist({
   readlist,
@@ -20,21 +20,8 @@ export default function Readlist({
   };
 
   const handleExportEpub = (e) => {
-    // @TODO rename to downloadEpub and put all this in the API part?
     setIsLoadingEpub(true);
-    fetchEpub(readlist)
-      .then(({ link }) => {
-        // https://stackoverflow.com/questions/4545311/download-a-file-by-jquery-ajax
-        // const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.style.display = "none";
-        a.href = link;
-        // the filename you want
-        a.download = `${slugify(readlist.title)}.epub`;
-        document.body.appendChild(a);
-        a.click();
-        // window.URL.revokeObjectURL(url);
-      })
+    downloadEpub(readlist)
       .catch((e) => {
         console.error(e);
         setError("There was a problem exporting your epub.");
