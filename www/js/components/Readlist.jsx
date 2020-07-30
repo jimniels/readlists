@@ -30,7 +30,7 @@ export default function Readlist({
         a.style.display = "none";
         a.href = link;
         // the filename you want
-        a.download = `${readlist.title}.epub`;
+        a.download = `${slugify(readlist.title)}.epub`;
         document.body.appendChild(a);
         a.click();
         // window.URL.revokeObjectURL(url);
