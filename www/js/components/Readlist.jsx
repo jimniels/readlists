@@ -36,11 +36,17 @@ export default function Readlist({
       <html>
         <head>
           <meta charset="UTF-8">
+          <title>Readlist: ${readlist.title}</title>
         </head>
         <body>
           <h1>${readlist.title}</h1>
           <hr />
-          ${readlist.articles.map((article) => article.content).join("")}
+          ${readlist.articles
+            .map(
+              (article) => `<h1>${article.title}</h1>${article.content}<hr />`
+            )
+            .join("")}
+          <footer>Generated as a <a href="https://readlists.jim-nielsen.com">Readlist</a></footer>
         </body>
       </html>
     `;
