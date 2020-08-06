@@ -46,7 +46,6 @@ export function fetchArticle(url) {
  * @param {Readlist} readlist
  */
 export function downloadEpub(readlist) {
-  // @TODO verify that the readlist actually has articles
   return fetch(`/api/epub/`, {
     method: "POST",
     body: JSON.stringify(readlist),
