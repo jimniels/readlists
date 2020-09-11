@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { isValidHttpUrl } from "../utils.js";
+import { createMercuryArticle, isValidHttpUrl } from "../utils.js";
 import { fetchArticle } from "../api.js";
 import { readlistArticlePropTypes } from "../prop-types.js";
 
@@ -22,11 +22,39 @@ export default function ReadlistArticleInput({
   setReadlist,
   setError,
 }) {
-  const [articleUrl, setArticleUrl] = useState("");
+  const [articleInput, setArticleInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCreateReadlistArticle = (e) => {
     e.preventDefault();
+
+    // In case the HTML has "|" in it
+    const [articleUrl, ...articleHtmls] = articleInput.split("|");
+    const articleHtml = articleHtmls.join("");
+
+    // @TODO validate everything that's happening here
+    // Check if it's a readlist URL
+    if (articleHtml) {
+      setIsLoading(true);
+      createMercuryArticle(articleUrl, articleHtml)
+        .then((mercuryArticle) => {
+          setReadlist((prevReadlist) => ({
+            ...prevReadlist,
+            dateModified: new Date().toISOString(),
+            articles: prevReadlist.articles.concat(mercuryArticle),
+          }));
+          setArticleInput("");
+        })
+        .catch((err) => {
+          console.error(err);
+          setError("Failed to parse article.");
+        })
+        .then(() => {
+          setIsLoading(false);
+        });
+
+      return;
+    }
 
     // Check if the input is a valid URL first
     if (!isValidHttpUrl(articleUrl)) {
@@ -59,7 +87,7 @@ export default function ReadlistArticleInput({
           dateModified: new Date().toISOString(),
           articles: prevReadlist.articles.concat(mercuryArticle),
         }));
-        setArticleUrl("");
+        setArticleInput("");
       })
       .catch((err) => {
         console.error(err);
@@ -80,7 +108,7 @@ export default function ReadlistArticleInput({
           <button
             class={`button ${isLoading ? "button--is-loading" : ""}`}
             type="submit"
-            disabled={!articleUrl}
+            disabled={!articleInput}
           >
             Add
           </button>
@@ -89,9 +117,10 @@ export default function ReadlistArticleInput({
           onClick={(e) => e.target.select()}
           name="article-url"
           type="text"
-          value={articleUrl}
+          value={articleInput}
           onChange={(e) => {
-            setArticleUrl(e.target.value);
+            setArticleInput(e.target.value);
+            console.log(e.target.value.slice(-50));
           }}
           placeholder="http://your-article-url.com/goes/here"
         />
