@@ -24,37 +24,15 @@ export default function ReadlistArticleInput({
 }) {
   const [articleInput, setArticleInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [hasArticleHtml, setHasArticleHtml] = useState(false);
+  const [articleHtml, setArticleHtml] = useState("");
+  
+  const disabled = hasArticleHtml ? !(articleInput && articleHtml) : !articleInput;
 
   const handleCreateReadlistArticle = (e) => {
     e.preventDefault();
-
-    // In case the HTML has "|" in it
-    const [articleUrl, ...articleHtmls] = articleInput.split("|");
-    const articleHtml = articleHtmls.join("");
-
-    // @TODO validate everything that's happening here
-    // Check if it's a readlist URL
-    if (articleHtml) {
-      setIsLoading(true);
-      createMercuryArticle(articleUrl, articleHtml)
-        .then((mercuryArticle) => {
-          setReadlist((prevReadlist) => ({
-            ...prevReadlist,
-            dateModified: new Date().toISOString(),
-            articles: prevReadlist.articles.concat(mercuryArticle),
-          }));
-          setArticleInput("");
-        })
-        .catch((err) => {
-          console.error(err);
-          setError("Failed to parse article.");
-        })
-        .then(() => {
-          setIsLoading(false);
-        });
-
-      return;
-    }
+    
+    const articleUrl = articleInput;
 
     // Check if the input is a valid URL first
     if (!isValidHttpUrl(articleUrl)) {
@@ -77,8 +55,33 @@ export default function ReadlistArticleInput({
       );
       return;
     }
+    
+    // See if there's custom HTML
+    // @TODO validate everything that's happening here
+    if (hasArticleHtml) {
+      setIsLoading(true);
+      createMercuryArticle(articleUrl, articleHtml)
+        .then((mercuryArticle) => {
+          setReadlist((prevReadlist) => ({
+            ...prevReadlist,
+            dateModified: new Date().toISOString(),
+            articles: prevReadlist.articles.concat(mercuryArticle),
+          }));
+          setArticleInput("");
+          setArticleHtml("");
+        })
+        .catch((err) => {
+          console.error(err);
+          setError("Failed to parse the provided HTML.");
+        })
+        .then(() => {
+          setIsLoading(false);
+        });
 
-    // Go get it
+      return;
+    }
+
+    // No custom HTML? Go get it
     setIsLoading(true);
     fetchArticle(articleUrl)
       .then((mercuryArticle) => {
@@ -104,15 +107,12 @@ export default function ReadlistArticleInput({
       onSubmit={handleCreateReadlistArticle}
     >
       <div class="article__main">
-        <div>
-          <button
-            class={`button ${isLoading ? "button--is-loading" : ""}`}
-            type="submit"
-            disabled={!articleInput}
-          >
-            Add
-          </button>
-        </div>
+        <select disabled={true}>
+          <option value={readlist.articles.length}>
+            {readlist.articles.length + 1}
+          </option>
+        </select>
+
         <input
           onClick={(e) => e.target.select()}
           name="article-url"
@@ -124,6 +124,30 @@ export default function ReadlistArticleInput({
           }}
           placeholder="http://your-article-url.com/goes/here"
         />
+      </div>
+      <div class="article__new">        
+        {hasArticleHtml &&
+          <textarea
+            rows="5"
+            value={articleHtml}
+            onChange={(e) => {setArticleHtml(e.target.value)}}
+            placeholder="<!DOCTYPE html><html><head><title>Title of Webpage</title>..."
+          />
+        }
+        <label title="Provide the article’s HTML yourself. Useful for things like webpages behind authentication.">
+          <input
+            type="checkbox"
+            value={hasArticleHtml}
+            onChange={() => setHasArticleHtml(!hasArticleHtml)}/> Custom HTML
+        </label>
+      
+        <button
+          class={`button ${isLoading ? "button--is-loading" : ""}`}
+          type="submit"
+          disabled={disabled}
+        >
+          Add
+        </button>
       </div>
     </form>
   );
