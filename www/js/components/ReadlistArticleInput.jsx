@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { isValidHttpUrl } from "../utils.js";
+import { createMercuryArticle, isValidHttpUrl } from "../utils.js";
 import { fetchArticle } from "../api.js";
 import { readlistArticlePropTypes } from "../prop-types.js";
 
@@ -22,11 +22,17 @@ export default function ReadlistArticleInput({
   setReadlist,
   setError,
 }) {
-  const [articleUrl, setArticleUrl] = useState("");
+  const [articleInput, setArticleInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [hasArticleHtml, setHasArticleHtml] = useState(false);
+  const [articleHtml, setArticleHtml] = useState("");
+  
+  const disabled = hasArticleHtml ? !(articleInput && articleHtml) : !articleInput;
 
   const handleCreateReadlistArticle = (e) => {
     e.preventDefault();
+    
+    const articleUrl = articleInput;
 
     // Check if the input is a valid URL first
     if (!isValidHttpUrl(articleUrl)) {
@@ -49,8 +55,33 @@ export default function ReadlistArticleInput({
       );
       return;
     }
+    
+    // See if there's custom HTML
+    // @TODO validate everything that's happening here
+    if (hasArticleHtml) {
+      setIsLoading(true);
+      createMercuryArticle(articleUrl, articleHtml)
+        .then((mercuryArticle) => {
+          setReadlist((prevReadlist) => ({
+            ...prevReadlist,
+            dateModified: new Date().toISOString(),
+            articles: prevReadlist.articles.concat(mercuryArticle),
+          }));
+          setArticleInput("");
+          setArticleHtml("");
+        })
+        .catch((err) => {
+          console.error(err);
+          setError("Failed to parse the provided HTML.");
+        })
+        .then(() => {
+          setIsLoading(false);
+        });
 
-    // Go get it
+      return;
+    }
+
+    // No custom HTML? Go get it
     setIsLoading(true);
     fetchArticle(articleUrl)
       .then((mercuryArticle) => {
@@ -59,7 +90,7 @@ export default function ReadlistArticleInput({
           dateModified: new Date().toISOString(),
           articles: prevReadlist.articles.concat(mercuryArticle),
         }));
-        setArticleUrl("");
+        setArticleInput("");
       })
       .catch((err) => {
         console.error(err);
@@ -76,25 +107,47 @@ export default function ReadlistArticleInput({
       onSubmit={handleCreateReadlistArticle}
     >
       <div class="article__main">
-        <div>
-          <button
-            class={`button ${isLoading ? "button--is-loading" : ""}`}
-            type="submit"
-            disabled={!articleUrl}
-          >
-            Add
-          </button>
-        </div>
+        <select disabled={true}>
+          <option value={readlist.articles.length}>
+            {readlist.articles.length + 1}
+          </option>
+        </select>
+
         <input
           onClick={(e) => e.target.select()}
           name="article-url"
           type="text"
-          value={articleUrl}
+          value={articleInput}
           onChange={(e) => {
-            setArticleUrl(e.target.value);
+            setArticleInput(e.target.value);
+            console.log(e.target.value.slice(-50));
           }}
           placeholder="http://your-article-url.com/goes/here"
         />
+      </div>
+      <div class="article__new">        
+        {hasArticleHtml &&
+          <textarea
+            rows="5"
+            value={articleHtml}
+            onChange={(e) => {setArticleHtml(e.target.value)}}
+            placeholder="<!DOCTYPE html><html><head><title>Title of Webpage</title>..."
+          />
+        }
+        <label title="Provide the article’s HTML yourself. Useful for things like webpages behind authentication.">
+          <input
+            type="checkbox"
+            value={hasArticleHtml}
+            onChange={() => setHasArticleHtml(!hasArticleHtml)}/> Custom HTML
+        </label>
+      
+        <button
+          class={`button ${isLoading ? "button--is-loading" : ""}`}
+          type="submit"
+          disabled={disabled}
+        >
+          Add
+        </button>
       </div>
     </form>
   );

@@ -314,3 +314,42 @@ export function devLog(array) {
     // console.groupEnd();
   }
 }
+
+/**
+ * Take a URL and it's HTML contents and parse it with mercury to 1)
+ * sanitzie the HTML, and 2) absolutize image links.
+ * @param {string} url
+ * @param {string} html
+ * @returns {MercuryArticle}
+ */
+export function createMercuryArticle(url, html) {
+  return window.Mercury.parse(url, { html }).then((mercuryArticle) => {
+    console.log(mercuryArticle);
+    let dom = new DOMParser().parseFromString(
+      mercuryArticle.content,
+      "text/html"
+    );
+    let modified = false;
+    Array.from(dom.querySelectorAll("img")).forEach((img) => {
+      if (img.src.includes(location.hostname)) {
+        const oldSrc = img.getAttribute("src");
+        const newSrc = resolveImgSrc(mercuryArticle.url, oldSrc);
+        devLog([
+          "Changed image src path in new article",
+          `From: ${oldSrc}`,
+          `To: ${newSrc}`,
+        ]);
+        img.setAttribute("src", newSrc);
+        modified = true;
+      }
+    });
+    if (modified) {
+      mercuryArticle = {
+        ...mercuryArticle,
+        content: dom.body.innerHTML,
+      };
+    }
+
+    return mercuryArticle;
+  });
+}

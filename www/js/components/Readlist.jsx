@@ -31,6 +31,30 @@ export default function Readlist({
       });
   };
 
+  const handleExportHtml = (e) => {
+    let data = `
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Readlist: ${readlist.title}</title>
+        </head>
+        <body>
+          <h1>${readlist.title}</h1>
+          <hr />
+          ${readlist.articles
+            .map(
+              (article) => `<h1>${article.title}</h1>${article.content}<hr />`
+            )
+            .join("")}
+          <footer>Generated as a <a href="https://readlists.jim-nielsen.com">Readlist</a></footer>
+        </body>
+      </html>
+    `;
+    const blob = new Blob([data], { type: "text/html" });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, "_blank");
+  };
+
   const handleDeleteReadlist = () => {
     const articlesCount = readlist.articles.length;
     let msg = "Please confirm that you want to delete this Readlist";
@@ -84,10 +108,13 @@ export default function Readlist({
             onClick={handleExportEpub}
             disabled={isLoadingEpub || readlist.articles.length === 0}
           >
-            Export as .epub
+            Export to .epub
+          </button>
+          <button class="button" onClick={handleExportHtml}>
+            Export to .html
           </button>
           <button class="button" disabled title="Feature Not Yet Supported">
-            Export as .mobi
+            Export to .mobi
           </button>
           <button class="button button--danger" onClick={handleDeleteReadlist}>
             Delete
