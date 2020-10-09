@@ -118,6 +118,7 @@ textarea {
   padding-left: 0;
   padding-right: 0;
   font-size: 16px;
+  line-height: 1;
 }
 .button--danger {
   color: var(--color-danger);
