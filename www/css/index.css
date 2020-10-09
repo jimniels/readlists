@@ -150,10 +150,17 @@ textarea {
   background-size: contain;
 }
 
+.button:disabled:hover,
+textarea:disabled:hover,
+input:disabled:hover,
+select:disabled:hover {
+  cursor: not-allowed;
+}
+
 .button:hover:not(:disabled),
-textarea:hover,
-input:hover,
-select:hover {
+textarea:hover:not(:disabled),
+input:hover:not(:disabled),
+select:hover:not(:disabled) {
   box-shadow: 0 0 0 2px hsla(var(--color-accent-hsl), 0.5);
 }
 

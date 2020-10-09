@@ -216,22 +216,24 @@ function getStyles() {
   margin-bottom: calc(var(--spacer) / 2);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
-  padding: calc(var(--spacer) / 4) calc(var(--spacer) / 2);
+  padding: calc(var(--spacer) / 2);
 }
 .ZeroState-small-text {
   font-size: var(--font-size-sm);
   color: var(--color-text-light);
+  margin-top: calc(var(--spacer) / 4);
 }
 
 /* @TODO clean this up */
 .dragging {
   position: relative;
+  border: none !important;
 }
 .dragging:hover {
   cursor: copy;
 }
 .dragging:after {
-  content: "Drag Readlist JSON File Here...";
+  content: "Drop Readlist JSON File Here...";
   display: flex;
   align-items: center;
   justify-content: center;
@@ -242,7 +244,8 @@ function getStyles() {
   bottom: 0;
   background: hsla(var(--color-bg-primary-hsl), 0.95);
   border: 4px dashed var(--color-accent);
-  font-size: var(--font-size-xlg);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-lg);
 }
 
 @supports (backdrop-filter: blur(10px)) {

@@ -95,6 +95,8 @@ export default function Readlist({
     day: "numeric",
   }).format(new Date(readlist.dateCreated));
 
+  const disabledButtons = isLoadingEpub || readlist.articles.length === 0;
+
   return (
     <div class="readlist wrapper">
       <header class="readlist-header">
@@ -106,11 +108,15 @@ export default function Readlist({
           <button
             class={`button ${isLoadingEpub ? "button--is-loading" : ""}`}
             onClick={handleExportEpub}
-            disabled={isLoadingEpub || readlist.articles.length === 0}
+            disabled={disabledButtons}
           >
             Export to .epub
           </button>
-          <button class="button" onClick={handleExportHtml}>
+          <button
+            class="button"
+            onClick={handleExportHtml}
+            disabled={disabledButtons}
+          >
             Export to .html
           </button>
           <button class="button" disabled title="Feature Not Yet Supported">
