@@ -4,10 +4,13 @@
   --color-bg-primary: hsl(255, 0%, 100%);
   --color-bg-primary-hsl: 255, 0%, 100%;
   --color-bg-secondary: hsl(215, 20%, 95%);
+  --color-bg-secondary-hsl: 215, 20%, 95%;
   --color-danger: red;
   --color-text: hsl(215, 20%, 10%);
   --color-text-light: hsl(215, 25%, 50%);
+  --color-text-light-hsl: 215, 25%, 50%;
   --color-border: hsl(215, 10%, 90%);
+  --color-border-hsl: 215, 10%, 90%;
 
   --border-radius: 8px;
   --spacer: 15px;
@@ -25,10 +28,14 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --color-bg-primary: hsl(0, 0%, 15%);
+    --color-bg-primary-hsl: 0, 0%, 15%;
     --color-bg-secondary: hsl(0, 0%, 10%);
+    --color-bg-secondary-hsl: 0, 0%, 10%;
     --color-text: hsl(255, 0%, 100%);
     --color-text-light: hsl(215, 15%, 45%);
+    --color-text-light-hsl: 215, 15%, 45%;
     --color-border: hsl(0, 0%, 25%);
+    --color-border-hsl: 0, 0%, 25%;
     --color-accent: hsl(215, 100%, 51%);
     --color-accent-hsl: 215, 100%, 51%;
   }
@@ -41,34 +48,6 @@ html {
 *:before,
 *:after {
   box-sizing: inherit;
-}
-
-.dragging {
-  position: relative;
-}
-.dragging:hover {
-  cursor: copy;
-}
-.dragging:after {
-  content: "Drag Readlist JSON File Here...";
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: hsla(var(--color-bg-primary-hsl), 0.95);
-  border: 4px dashed var(--color-accent);
-  font-size: var(--font-size-xlg);
-}
-
-@supports (backdrop-filter: blur(10px)) {
-  .dragging:after {
-    backdrop-filter: blur(10px);
-    background: hsla(var(--color-bg-primary-hsl), 0.75);
-  }
 }
 
 body,
@@ -139,6 +118,7 @@ textarea {
   padding-left: 0;
   padding-right: 0;
   font-size: 16px;
+  line-height: 1;
 }
 .button--danger {
   color: var(--color-danger);
@@ -171,10 +151,17 @@ textarea {
   background-size: contain;
 }
 
+.button:disabled:hover,
+textarea:disabled:hover,
+input:disabled:hover,
+select:disabled:hover {
+  cursor: not-allowed;
+}
+
 .button:hover:not(:disabled),
-textarea:hover,
-input:hover,
-select:hover {
+textarea:hover:not(:disabled),
+input:hover:not(:disabled),
+select:hover:not(:disabled) {
   box-shadow: 0 0 0 2px hsla(var(--color-accent-hsl), 0.5);
 }
 
@@ -577,50 +564,6 @@ readlists-nav footer a {
   content: "·";
   margin: 0 var(--spacer);
 }
-
-/**
- * Login
- */
-.login {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 300px;
-  border-radius: calc(var(--border-radius) + 15px);
-  border: 3px dashed var(--color-border);
-  transition: 0.3s ease all;
-  display: none;
-}
-.login--visible {
-  display: flex;
-}
-
-.login--highlight {
-  border-color: red;
-}
-.login__form {
-  display: flex;
-  width: 100%;
-  align-items: center;
-}
-.login__form input {
-  flex-grow: 1;
-  border: 1px solid var(--color-border);
-  padding: 4px 8px;
-}
-.login__form .button {
-  margin-left: calc(var(--spacer) / 2);
-}
-.login__or {
-  margin: var(--spacer) 0;
-  color: var(--color-text-light);
-}
-/* .login__form:before,
-.login__form:after {
-  content: "- OR -";
-  display: block;
-} */
 
 .wrapper {
   width: 700px;

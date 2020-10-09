@@ -46,14 +46,14 @@ export default function ReadlistArticles({
               rows="1"
               class="article__title"
               placeholder="Article title..."
-              onBlur={(e) => {
+              onChange={(e) => {
                 handleUpdateReadlistArticle({
                   articleUrl: article.url,
                   articleTitle: e.target.value,
                   setReadlist,
                 });
               }}
-              defaultValue={article.title}
+              value={article.title}
             ></Textarea>
           </div>
           {article.excerpt && <p class="article__excerpt">{article.excerpt}</p>}

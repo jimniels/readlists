@@ -82,7 +82,7 @@ function getStyles() {
   }
   .Header__learn-more {
     max-width: 700px;
-    margin: 0 auto calc(var(--spacer) * 2);
+    margin: 0 auto var(--spacer);
     background: var(--color-border);
     border-top: 1px solid #ccc;
     color: var(--color-text);

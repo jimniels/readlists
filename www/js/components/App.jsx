@@ -20,11 +20,13 @@ export default function App({ initialReadlist }) {
     <>
       <Header />
 
-      <ZeroState
-        readlist={readlist}
-        setReadlist={setReadlist}
-        setError={setError}
-      />
+      {!readlist && (
+        <ZeroState
+          readlist={readlist}
+          setReadlist={setReadlist}
+          setError={setError}
+        />
+      )}
 
       <Readlist
         readlist={readlist}
