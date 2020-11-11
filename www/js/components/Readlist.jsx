@@ -4,6 +4,7 @@ import ReadlistArticles from "./ReadlistArticles.js";
 import Textarea from "./Textarea.js";
 import { downloadFile, slugify } from "../utils.js";
 import { downloadEpub } from "../api.js";
+import epub from "../epub.js";
 
 export default function Readlist({
   readlist,
@@ -21,14 +22,18 @@ export default function Readlist({
 
   const handleExportEpub = (e) => {
     setIsLoadingEpub(true);
-    downloadEpub(readlist)
-      .catch((e) => {
-        console.error(e);
-        setError("There was a problem exporting your epub.");
-      })
-      .finally(() => {
-        setIsLoadingEpub(false);
-      });
+    epub(readlist).then(() => {
+      console.log("saved!");
+      setIsLoadingEpub(false);
+    });
+    // downloadEpub(readlist)
+    //   .catch((e) => {
+    //     console.error(e);
+    //     setError("There was a problem exporting your epub.");
+    //   })
+    //   .finally(() => {
+    //     setIsLoadingEpub(false);
+    //   });
   };
 
   const handleExportHtml = (e) => {
