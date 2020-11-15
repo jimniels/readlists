@@ -1,7 +1,7 @@
-export default function content(readlist) {
+export default function content(epub) {
   const author = "anonymous";
   const publisher = "anonymous";
-  const { description, title } = readlist;
+  const { description, title, chapters, images } = epub;
   const modified = new Date().toISOString().split(".")[0] + "Z";
 
   var date = new Date();
@@ -45,30 +45,35 @@ export default function content(readlist) {
         <% if(locals.cover) { %>
         <item id="image_cover" href="cover.<%= _coverExtension %>" media-type="<%= _coverMediaType %>" />
         <% } %>
-        
-        
-        <% images.forEach(function(image, index){ %>
-        <item id="image_<%= index %>" href="images/<%= image.id %>.<%= image.extension %>" media-type="<%= image.mediaType %>" />
-        <% }) %>
-        -->
 
-      ${readlist.articles
+        <% images.forEach(function(image, index){ %>
+          
+          <item id="image_<%= index %>" href="images/<%= image.id %>.<%= image.extension %>" media-type="<%= image.mediaType %>" />
+          <% }) %>
+        -->
+        
+        
+      ${chapters
         .map(
-          (article, index) =>
+          (chapter) =>
             `<item
-              id="chapter-${article.epubId}"
-              href="${article.epubId}.xhtml"
+              id="chapter-${chapter.id}"
+              href="${chapter.id}.xhtml"
               media-type="application/xhtml+xml"
-            />`
+            />` +
+            chapter.images
+              .map(
+                ([id, mimeType]) =>
+                  `<item id="chapter-image-${id}" href="images/${id}" media-type="${mimeType}" />`
+              )
+              .join("\n")
         )
         .join("\n")}
         
     </manifest>
     <spine>
-      ${readlist.articles
-        .map(
-          (article, index) => `<itemref idref="chapter-${article.epubId}" />`
-        )
+      ${chapters
+        .map((chapter) => `<itemref idref="chapter-${chapter.id}" />`)
         .join("\n")}
     </spine>
     <guide>

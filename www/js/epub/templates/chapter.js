@@ -1,13 +1,5 @@
-export default function chapter(article) {
-  const { title, url, content } = article;
-  const html = new DOMParser().parseFromString(
-    "<div>" + content + "</div>",
-    "text/html"
-  );
-  const xhtml = new XMLSerializer().serializeToString(
-    // @TODO remove xmlns
-    html.querySelector("body > div")
-  );
+export default function chapter(chapter) {
+  const { title, url, content } = chapter;
   return `<?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE html>
     <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en">
@@ -19,7 +11,7 @@ export default function chapter(article) {
     <body>
       <h1>${title}</h1>
       <p><a href="${url}">${url}</a></p>
-      ${xhtml}
+      ${content}
     </body>
     </html>
   `;

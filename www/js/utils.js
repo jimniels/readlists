@@ -343,6 +343,10 @@ export function createMercuryArticle(url, html) {
         modified = true;
       }
     });
+    // Change relative links to absolute ones
+    // Array.from(dom.querySelectorAll("a")).forEach((a) => {
+    //   if (a.src.includes(location.hostname))
+    // });
     if (modified) {
       mercuryArticle = {
         ...mercuryArticle,

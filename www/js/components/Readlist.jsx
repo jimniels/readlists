@@ -21,6 +21,7 @@ export default function Readlist({
 
   const handleExportEpub = (e) => {
     setIsLoadingEpub(true);
+    console.log("fired");
     exportToEpub(readlist)
       .catch((e) => {
         console.error(e);
