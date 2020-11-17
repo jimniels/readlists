@@ -357,3 +357,77 @@ export function createMercuryArticle(url, html) {
     return mercuryArticle;
   });
 }
+
+/**
+ * https://stackoverflow.com/a/27979933/1339693
+ */
+export function escapeXml(unsafe) {
+  return unsafe.replace(/[<>&'"]/g, function (c) {
+    switch (c) {
+      case "<":
+        return "&lt;";
+      case ">":
+        return "&gt;";
+      case "&":
+        return "&amp;";
+      case "'":
+        return "&apos;";
+      case '"':
+        return "&quot;";
+    }
+  });
+}
+
+/**
+ * Given an image's mimetype, return the extension. If there's no extension
+ * https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
+ * @param {string} mimeType
+ * @param {string} fileUrl
+ * @returns {string}
+ */
+export function getImgExt({ mimeType, fileUrl }) {
+  switch (mimeType) {
+    case "image/apng":
+      return "apng";
+    case "image/bmp":
+      return "bmp";
+    case "image/gif":
+      return "gif";
+    case "image/x-icon":
+      return "ico";
+    case "image/jpeg":
+      return "jpg";
+    case "image/png":
+      return "png";
+    case "image/svg+xml":
+      return "svg";
+    case "image/tiff":
+      return "tiff";
+    case "image/webp":
+      return "webp";
+    default:
+      // Pull it from the filename if we can't get it
+      // https://stackoverflow.com/questions/6997262/how-to-pull-url-file-extension-out-of-url-string-using-javascript
+      const ext = fileUrl.split(/[#?]/)[0].split(".").pop().trim();
+      return ext;
+  }
+}
+
+/**
+ * Import a UMD file using a promise
+ * @param {string} url
+ */
+export function importUMD(url) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.onload = () => {
+      resolve();
+    };
+    script.onerror = (err) => {
+      reject(err);
+    };
+    script.src = url;
+
+    document.head.appendChild(script);
+  });
+}

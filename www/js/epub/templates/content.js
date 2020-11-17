@@ -1,14 +1,10 @@
+import { escapeXml } from "../../utils.js";
+
 export default function content(epub) {
   const author = "anonymous";
   const publisher = "anonymous";
   const { description, title, chapters, images } = epub;
   const modified = new Date().toISOString().split(".")[0] + "Z";
-
-  var date = new Date();
-  var year = date.getFullYear();
-  var month = date.getMonth() + 1;
-  var day = date.getDate();
-  var stringDate = "" + year + "-" + month + "-" + day;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <package
@@ -23,9 +19,13 @@ export default function content(epub) {
       <meta refines="#BookId" property="identifier-type" scheme="onix:codelist5">22</meta>
       <meta property="dcterms:identifier" id="meta-identifier">BookId</meta>
     
-    <dc:title>${title}</dc:title>
+    <dc:title>${escapeXml(title)}</dc:title>
     <dc:language>en</dc:language>
-    ${description ? `<dc:description>${description}</dc:description>` : ""}
+    ${
+      description
+        ? `<dc:description>${escapeXml(description)}</dc:description>`
+        : ""
+    }
     <dc:creator id="creator">${author}</dc:creator>
     <dc:publisher>${publisher}</dc:publisher>
     
@@ -34,24 +34,8 @@ export default function content(epub) {
   </metadata>
 
     <manifest>
-      <item id="toc" href="toc.xhtml" media-type="application/xhtml+xml" properties="nav"/>
-        <!--
-        <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
-        <item id="toc" href="toc.xhtml" media-type="application/xhtml+xml" properties="nav"/>
-        <item id="css" href="style.css" media-type="text/css" />
-        -->
-
-        <!--
-        <% if(locals.cover) { %>
-        <item id="image_cover" href="cover.<%= _coverExtension %>" media-type="<%= _coverMediaType %>" />
-        <% } %>
-
-        <% images.forEach(function(image, index){ %>
-          
-          <item id="image_<%= index %>" href="images/<%= image.id %>.<%= image.extension %>" media-type="<%= image.mediaType %>" />
-          <% }) %>
-        -->
-        
+      <item id="toc" href="toc.xhtml" media-type="application/xhtml+xml" properties="nav"/>        
+      <item id="chapter-image-placeholder" href="images/img-placeholder.jpg" media-type="image/jpeg" />
         
       ${chapters
         .map(
@@ -69,7 +53,6 @@ export default function content(epub) {
               .join("\n")
         )
         .join("\n")}
-        
     </manifest>
     <spine>
       ${chapters

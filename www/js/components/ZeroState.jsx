@@ -35,6 +35,7 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
         validateReadlist(dangerousReadlist, { verbose: true })
       )
       .then((readlist) => {
+        setIsLoading(false);
         setReadlist(readlist);
       })
       .catch((e) => {
@@ -42,8 +43,6 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
         setError(
           "Failed to retrieve, parse, and validate the remote Readlist file. Check the console for more details."
         );
-      })
-      .finally(() => {
         setIsLoading(false);
       });
   };

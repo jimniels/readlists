@@ -3,7 +3,6 @@ import ReaddlistArticleInput from "./ReadlistArticleInput.js";
 import ReadlistArticles from "./ReadlistArticles.js";
 import Textarea from "./Textarea.js";
 import { downloadFile, slugify } from "../utils.js";
-import exportToEpub from "../epub/index.js";
 
 export default function Readlist({
   readlist,
@@ -21,8 +20,12 @@ export default function Readlist({
 
   const handleExportEpub = (e) => {
     setIsLoadingEpub(true);
-    console.log("fired");
-    exportToEpub(readlist)
+
+    import("../epub/index.js")
+      .then((module) => {
+        const exportToEpub = module.default;
+        return exportToEpub(readlist);
+      })
       .catch((e) => {
         console.error(e);
         setError("There was a problem exporting your epub.");
