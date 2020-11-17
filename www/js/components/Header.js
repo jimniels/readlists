@@ -3,7 +3,7 @@ const { useState } = React;
 
 export default function Header() {
   const [learnMoreIsVisible, setLearnMoreIsVisible] = useState(false);
-  const btnClass = [
+  const btnClasses = [
     "button",
     "button--circle",
     learnMoreIsVisible ? "button--primary button--is-active" : "",

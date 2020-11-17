@@ -9,6 +9,6 @@ if (localStorage.getItem("readlist")) {
 }
 
 ReactDOM.render(
-  html`<${App} initialReadlist=${initialReadlist} />`,
+  React.createElement(App, { initialReadlist }),
   document.getElementById("root")
 );
