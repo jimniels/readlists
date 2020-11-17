@@ -7,7 +7,7 @@ export default function Header() {
     "button",
     "button--circle",
     learnMoreIsVisible ? "button--primary button--is-active" : "",
-  ].join("");
+  ].join(" ");
 
   return html`
     <header class="Header wrapper">
