@@ -88,7 +88,7 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
 
             e.target.classList.remove("dragging");
 
-            const file = event.dataTransfer.files[0];
+            const file = e.dataTransfer.files[0];
             let reader = new FileReader();
             reader.readAsText(file);
             reader.onloadend = () => {
@@ -170,7 +170,72 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
         </div>
       </form>
       <style>
-        ${getStyles()}
+        .ZeroState {
+          display: flex;
+          flex-wrap: wrap;
+          display: grid;
+          grid-template-columns: 33% calc(67% - var(--spacer));
+          grid-template-rows: 100px 100px;
+          grid-gap: var(--spacer);
+        }
+        .ZeroState__container {
+          border-radius: var(--border-radius);
+          background: var(--color-border);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+        }
+        .ZeroState__container:last-child {
+          grid-column-start: 1;
+          grid-column-end: 3;
+        }
+        .ZeroState__container:nth-child(2) {
+          border: 3px dashed hsla(var(--color-text-light-hsl), 0.25);
+        }
+        .ZeroState input[type="text"] {
+          width: 90%;
+          margin-bottom: calc(var(--spacer) / 2);
+          border: 1px solid var(--color-border);
+          border-radius: var(--border-radius);
+          padding: calc(var(--spacer) / 2);
+        }
+        .ZeroState-small-text {
+          font-size: var(--font-size-sm);
+          color: var(--color-text-light);
+          margin-top: calc(var(--spacer) / 4);
+        }
+
+        /* @TODO clean this up */
+        .dragging {
+          position: relative;
+          border: none !important;
+        }
+        .dragging:hover {
+          cursor: copy;
+        }
+        .dragging:after {
+          content: "Drop Readlist JSON File Here...";
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: hsla(var(--color-bg-primary-hsl), 0.95);
+          border: 4px dashed var(--color-accent);
+          border-radius: var(--border-radius);
+          font-size: var(--font-size-lg);
+        }
+
+        @supports (backdrop-filter: blur(10px)) {
+          .dragging:after {
+            backdrop-filter: blur(10px);
+            background: hsla(var(--color-bg-primary-hsl), 0.75);
+          }
+        }
       </style>
     </div>
   `;
@@ -184,75 +249,4 @@ function getRemoteReadlistUrl() {
   const urlParams = new URLSearchParams(window.location.search);
   const readlistUrl = urlParams.get("url");
   return isValidHttpUrl(readlistUrl) ? readlistUrl : "";
-}
-
-function getStyles() {
-  return /*css*/ `
-.ZeroState {
-  display: flex;
-  flex-wrap: wrap;
-  display: grid;
-  grid-template-columns: 33% calc(67% - var(--spacer));
-  grid-template-rows: 100px 100px;
-  grid-gap: var(--spacer);
-}
-.ZeroState__container {
-  border-radius: var(--border-radius);
-  background: var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-.ZeroState__container:last-child {
-  grid-column-start: 1;
-    grid-column-end: 3;
-}
-.ZeroState__container:nth-child(2) {
-  border: 3px dashed hsla(var(--color-text-light-hsl), .25);
-}
-.ZeroState input[type="text"] {
-  width: 90%;
-  margin-bottom: calc(var(--spacer) / 2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius);
-  padding: calc(var(--spacer) / 2);
-}
-.ZeroState-small-text {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-light);
-  margin-top: calc(var(--spacer) / 4);
-}
-
-/* @TODO clean this up */
-.dragging {
-  position: relative;
-  border: none !important;
-}
-.dragging:hover {
-  cursor: copy;
-}
-.dragging:after {
-  content: "Drop Readlist JSON File Here...";
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: hsla(var(--color-bg-primary-hsl), 0.95);
-  border: 4px dashed var(--color-accent);
-  border-radius: var(--border-radius);
-  font-size: var(--font-size-lg);
-}
-
-@supports (backdrop-filter: blur(10px)) {
-  .dragging:after {
-    backdrop-filter: blur(10px);
-    background: hsla(var(--color-bg-primary-hsl), 0.75);
-  }
-}
-  `;
 }
