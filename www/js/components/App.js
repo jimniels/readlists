@@ -1,9 +1,9 @@
 import { React, html } from "../deps.js";
 import Header from "./Header.js";
 import ZeroState from "./ZeroState.js";
-// import Readlist from "./Readlist.js";
-// import ArticlePreview from "./ArticlePreview.js";
-// import Error from "./Error.js";
+import Readlist from "./Readlist.js";
+import ArticlePreview from "./ArticlePreview.js";
+import Error from "./Error.js";
 import { devLog } from "../utils.js";
 const { useState, useEffect } = React;
 
@@ -28,24 +28,20 @@ export default function App({ initialReadlist }) {
         setError=${setError}
       />
     `}
-    <!--
 
-      
+    <${Readlist}
+      readlist=${readlist}
+      setReadlist=${setReadlist}
+      setError=${setError}
+      setArticlePreviewUrl=${setArticlePreviewUrl}
+    />
 
-      <Readlist
-        readlist={readlist}
-        setReadlist={setReadlist}
-        setError={setError}
-        setArticlePreviewUrl={setArticlePreviewUrl}
-      />
+    <${ArticlePreview}
+      readlist=${readlist}
+      articlePreviewUrl=${articlePreviewUrl}
+      setArticlePreviewUrl=${setArticlePreviewUrl}
+    />
 
-      <ArticlePreview
-        readlist={readlist}
-        articlePreviewUrl={articlePreviewUrl}
-        setArticlePreviewUrl={setArticlePreviewUrl}
-      />
-
-      <Error error={error} setError={setError} />
-    -->
+    <${Error} error=${error} setError=${setError} />
   `;
 }

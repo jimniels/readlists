@@ -1,4 +1,4 @@
-import pt from "prop-types";
+import { PropTypes as pt } from "./deps.js";
 
 /**
  * @typedef Readlist

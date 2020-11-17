@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import { html, React } from "../deps.js";
+const { useState, useRef, useEffect } = React;
 
 let prevArticle = {};
 
@@ -29,31 +30,29 @@ export default function ArticlePreview({
   // }, []);
 
   const { url, date_published, title, author, content } = prevArticle;
-  return (
+  return html`
     <div
-      ref={div}
+      ref=${div}
       class="article-preview"
-      hidden={!articlePreviewUrl}
-      onClick={(e) => {
+      hidden=${!articlePreviewUrl}
+      onClick=${(e) => {
         div.current.scrollTop = 0;
         setArticlePreviewUrl("");
       }}
     >
       <div>
         <header>
-          <h1>{title}</h1>
+          <h1>${title}</h1>
           <p>
-            <a href={url} class="link" target="__blank">
-              {url}
-            </a>
+            <a href=${url} class="link" target="__blank"> ${url} </a>
           </p>
         </header>
 
         <div
           class="article-preview__content"
-          dangerouslySetInnerHTML={{ __html: content }}
+          dangerouslySetInnerHTML=${{ __html: content }}
         />
       </div>
     </div>
-  );
+  `;
 }

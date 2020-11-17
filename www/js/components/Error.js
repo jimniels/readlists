@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import Style from "./Style.js";
+import { React, html } from "../deps.js";
+const { useEffect } = React;
 
 const TIMER = 5; // in seconds
 
@@ -83,13 +83,13 @@ export default function Error({ error, setError }) {
     }
   }, [error]);
 
-  return (
-    <>
-      <Style>{styles}</Style>
-      <div class={classes}>
-        <p>{error ? error : ""}</p>
-        <button onClick={() => setError("")}>×</button>
-      </div>
-    </>
-  );
+  return html`
+    <style>
+      ${styles}
+    </style>
+    <div class=${classes}>
+      <p>${error ? error : ""}</p>
+      <button onClick=${() => setError("")}>×</button>
+    </div>
+  `;
 }
