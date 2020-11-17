@@ -1,9 +1,13 @@
 import { React, html } from "../deps.js";
-// import Style from "./Style.js";
 const { useState } = React;
 
 export default function Header() {
   const [learnMoreIsVisible, setLearnMoreIsVisible] = useState(false);
+  const btnClass = [
+    "button",
+    "button--circle",
+    learnMoreIsVisible ? "button--primary button--is-active" : "",
+  ].join("");
 
   return html`
     <header class="Header wrapper">
@@ -14,9 +18,7 @@ export default function Header() {
         </p>
       </div>
       <button
-        class="button button--circle ${learnMoreIsVisible
-          ? "button--is-active button--primary"
-          : ""}"
+        class=${btnClasses}
         onClick=${(e) => {
           setLearnMoreIsVisible(!learnMoreIsVisible);
         }}
@@ -29,7 +31,7 @@ export default function Header() {
     html`
       <div class="Header__learn-more">
         <p>
-          What’s a Readlist? It’s like a readable mixtape. You can collect
+          What’s a Readlist? It’s like a readable mixtape. You collect
           information across the web and package it up into a nice little ebook
           for reading on your favorite reading device.
         </p>
@@ -51,46 +53,40 @@ export default function Header() {
         <p>
           Made by <a href="https://www.jim-nielsen.com">Jim Nielsen</a> (
           <a href="https://twitter.com/jimniels">@jimniels</a> on twitter).
-          Readlists version <code>{window.VERSION}</code>
+          Readlists version <code>${window.VERSION}</code>
         </p>
       </div>
     `}
     <style>
-      ${getStyles()}
+      .Header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .Header__title {
+        font-size: var(--font-size-xxl);
+        font-weight: 900;
+        margin: 0;
+      }
+      .Header__title a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .Header__description {
+        font-size: var(--font-size-sm);
+        color: var(--color-text-light);
+        margin: 0;
+      }
+      .Header__learn-more {
+        max-width: 700px;
+        margin: 0 auto var(--spacer);
+        background: var(--color-border);
+        border-top: 1px solid #ccc;
+        color: var(--color-text);
+        border: 1px solid var(--color-border);
+        padding: calc(var(--spacer) * 2);
+        border-radius: var(--border-radius);
+      }
     </style>
   `;
-}
-
-function getStyles() {
-  return /*css*/ `
-   .Header {
-     display: flex;
-     align-items: center;
-     justify-content: space-between;
-   }
-   .Header__title {
-     font-size: var(--font-size-xxl);
-     font-weight: 900;
-     margin: 0;
-   }
-   .Header__title a {
-     color: inherit;
-     text-decoration: none;
-   }
-   .Header__description {
-     font-size: var(--font-size-sm);
-     color: var(--color-text-light);
-     margin: 0;
-   }
-   .Header__learn-more {
-     max-width: 700px;
-     margin: 0 auto var(--spacer);
-     background: var(--color-border);
-     border-top: 1px solid #ccc;
-     color: var(--color-text);
-     border: 1px solid var(--color-border);
-     padding: calc(var(--spacer) * 2);
-     border-radius: var(--border-radius);
-   }
-   `;
 }
