@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import ReaddlistArticleInput from "./ReadlistArticleInput.js";
+import { html, React } from "../deps.js";
+import ReadlistArticleInput from "./ReadlistArticleInput.js";
 import ReadlistArticles from "./ReadlistArticles.js";
 import Textarea from "./Textarea.js";
 import { downloadFile, slugify } from "../utils.js";
 import { downloadEpub } from "../api.js";
+const { useState } = React;
 
 export default function Readlist({
   readlist,
@@ -97,73 +98,73 @@ export default function Readlist({
 
   const disabledButtons = isLoadingEpub || readlist.articles.length === 0;
 
-  return (
+  return html`
     <div class="readlist wrapper">
       <header class="readlist-header">
-        {/* @TODO redo CSS classes here */}
+        <!-- @TODO redo CSS classes here -->
         <div class="readlist-header__actions actions">
-          <button class="button button--primary" onClick={handleSaveReadlist}>
+          <button class="button button--primary" onClick=${handleSaveReadlist}>
             Save Readlist
           </button>
           <button
-            class={`button ${isLoadingEpub ? "button--is-loading" : ""}`}
-            onClick={handleExportEpub}
-            disabled={disabledButtons}
+            class="button ${isLoadingEpub ? "button--is-loading" : ""}"
+            onClick=${handleExportEpub}
+            disabled=${disabledButtons}
           >
             Export to .epub
           </button>
           <button
             class="button"
-            onClick={handleExportHtml}
-            disabled={disabledButtons}
+            onClick=${handleExportHtml}
+            disabled=${disabledButtons}
           >
             Export to .html
           </button>
           <button class="button" disabled title="Feature Not Yet Supported">
             Export to .mobi
           </button>
-          <button class="button button--danger" onClick={handleDeleteReadlist}>
+          <button class="button button--danger" onClick=${handleDeleteReadlist}>
             Delete
           </button>
         </div>
 
-        <Textarea
+        <${Textarea}
           class="readlist-header__title"
           placeholder="Readlist title..."
-          onBlur={(e) => {
+          onBlur=${(e) => {
             handleUpdatePartOfReadlist("title", e.target.value);
           }}
-          defaultValue={readlist.title}
+          defaultValue=${readlist.title}
         />
 
-        <Textarea
+        <${Textarea}
           class="readlist-header__description"
           placeholder="Readlist description..."
-          onBlur={(e) => {
+          onBlur=${(e) => {
             handleUpdatePartOfReadlist("description", e.target.value);
           }}
-          defaultValue={readlist.description}
+          defaultValue=${readlist.description}
         />
 
         <dl class="readlist-header__meta">
           <dt>Created</dt>
-          <dd>{dateCreated}</dd>
+          <dd>${dateCreated}</dd>
           <dt>Last modified</dt>
-          <dd>{dateModified}</dd>
+          <dd>${dateModified}</dd>
         </dl>
       </header>
 
-      <ReadlistArticles
-        readlist={readlist}
-        setReadlist={setReadlist}
-        setArticlePreviewUrl={setArticlePreviewUrl}
+      <${ReadlistArticles}
+        readlist=${readlist}
+        setReadlist=${setReadlist}
+        setArticlePreviewUrl=${setArticlePreviewUrl}
       />
 
-      <ReaddlistArticleInput
-        readlist={readlist}
-        setReadlist={setReadlist}
-        setError={setError}
+      <${ReadlistArticleInput}
+        readlist=${readlist}
+        setReadlist=${setReadlist}
+        setError=${setError}
       />
     </div>
-  );
+  `;
 }

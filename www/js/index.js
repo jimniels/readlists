@@ -1,7 +1,6 @@
 window.__DEV__ = window.location.hostname === "localhost";
 
-import React from "react";
-import ReactDOM from "react-dom";
+import { React, ReactDOM, html } from "./deps.js";
 import App from "./components/App.js";
 
 let initialReadlist = undefined;

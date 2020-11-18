@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import autosize from "autosize";
+import { autosize, html, React } from "../deps.js";
+const { useEffect, useRef } = React;
 
 export default function Textarea(props) {
   const { children, ...rest } = props;
@@ -8,13 +8,13 @@ export default function Textarea(props) {
     autosize(ref.current);
   }, []);
 
-  return (
+  return html`
     <textarea
-      {...rest}
-      ref={ref}
-      onKeyDown={(e) => {
+      ...${rest}
+      ref=${ref}
+      onKeyDown=${(e) => {
         autosize(e.target);
       }}
     ></textarea>
-  );
+  `;
 }
