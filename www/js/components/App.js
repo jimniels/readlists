@@ -18,16 +18,19 @@ export default function App({ initialReadlist }) {
   }, [readlist]);
 
   return html`
+  <${React.Fragment}>
     <${Header} />
 
-    ${!readlist &&
-    html`
-      <${ZeroState}
-        readlist=${readlist}
-        setReadlist=${setReadlist}
-        setError=${setError}
-      />
-    `}
+    ${
+      !readlist &&
+      html`
+        <${ZeroState}
+          readlist=${readlist}
+          setReadlist=${setReadlist}
+          setError=${setError}
+        />
+      `
+    }
 
     <${Readlist}
       readlist=${readlist}
@@ -43,5 +46,5 @@ export default function App({ initialReadlist }) {
     />
 
     <${Error} error=${error} setError=${setError} />
-  `;
+  </${React.Fragment}>`;
 }

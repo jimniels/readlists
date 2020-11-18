@@ -14,6 +14,7 @@ export default function Error({ error, setError }) {
   }, [error]);
 
   return html`
+  <${React.Fragment}>
     <div class=${classes}>
       <p>${error ? error : ""}</p>
       <button onClick=${() => setError("")}>×</button>
@@ -87,5 +88,5 @@ export default function Error({ error, setError }) {
         margin: 0;
       }
     </style>
-  `;
+  </${React.Fragment}>`;
 }
