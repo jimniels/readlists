@@ -41,7 +41,7 @@ export default function ReadlistArticles({
                     html`<option key=${index} value=${index}>${index + 1}</option>`
                 )}
               </select>
-              <textarea
+              <${Textarea}
                 rows="1"
                 class="article__title"
                 placeholder="Article title..."
@@ -53,7 +53,7 @@ export default function ReadlistArticles({
                   });
                 }}
                 value=${article.title}
-              ></textarea>
+              />
             </div>
 
             ${article.excerpt &&

@@ -128,7 +128,7 @@ export default function Readlist({
           </button>
         </div>
 
-        <textarea
+        <${Textarea}
           class="readlist-header__title"
           placeholder="Readlist title..."
           onBlur=${(e) => {
@@ -137,7 +137,7 @@ export default function Readlist({
           defaultValue=${readlist.title}
         />
 
-        <textarea
+        <${Textarea}
           class="readlist-header__description"
           placeholder="Readlist description..."
           onBlur=${(e) => {
