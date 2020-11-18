@@ -1,5 +1,4 @@
 node_modules/
 build*/
-www/js/components/*.js
 *.token
 .DS_STORE

@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
+import { html, React, PropTypes } from "../deps.js";
 import { createMercuryArticle, isValidHttpUrl } from "../utils.js";
 import { fetchArticle } from "../api.js";
 import { readlistArticlePropTypes } from "../prop-types.js";
+const { useState } = React;
 
 ReadlistArticleInput.propTypes = {
   readlist: PropTypes.shape({
@@ -26,12 +26,14 @@ export default function ReadlistArticleInput({
   const [isLoading, setIsLoading] = useState(false);
   const [hasArticleHtml, setHasArticleHtml] = useState(false);
   const [articleHtml, setArticleHtml] = useState("");
-  
-  const disabled = hasArticleHtml ? !(articleInput && articleHtml) : !articleInput;
+
+  const disabled = hasArticleHtml
+    ? !(articleInput && articleHtml)
+    : !articleInput;
 
   const handleCreateReadlistArticle = (e) => {
     e.preventDefault();
-    
+
     const articleUrl = articleInput;
 
     // Check if the input is a valid URL first
@@ -55,7 +57,7 @@ export default function ReadlistArticleInput({
       );
       return;
     }
-    
+
     // See if there's custom HTML
     // @TODO validate everything that's happening here
     if (hasArticleHtml) {
@@ -101,54 +103,61 @@ export default function ReadlistArticleInput({
       });
   };
 
-  return (
+  return html`
     <form
       class="article article--create"
-      onSubmit={handleCreateReadlistArticle}
+      onSubmit=${handleCreateReadlistArticle}
     >
       <div class="article__main">
-        <select disabled={true}>
-          <option value={readlist.articles.length}>
-            {readlist.articles.length + 1}
+        <select disabled>
+          <option value=${readlist.articles.length}>
+            ${readlist.articles.length + 1}
           </option>
         </select>
 
         <input
-          onClick={(e) => e.target.select()}
+          onClick=${(e) => e.target.select()}
           name="article-url"
           type="text"
-          value={articleInput}
-          onChange={(e) => {
+          value=${articleInput}
+          onChange=${(e) => {
             setArticleInput(e.target.value);
             console.log(e.target.value.slice(-50));
           }}
           placeholder="http://your-article-url.com/goes/here"
         />
       </div>
-      <div class="article__new">        
-        {hasArticleHtml &&
+      <div class="article__new">
+        ${hasArticleHtml &&
+        html`
           <textarea
             rows="5"
-            value={articleHtml}
-            onChange={(e) => {setArticleHtml(e.target.value)}}
+            value=${articleHtml}
+            onChange=${(e) => {
+              setArticleHtml(e.target.value);
+            }}
             placeholder="<!DOCTYPE html><html><head><title>Title of Webpage</title>..."
-          />
-        }
-        <label title="Provide the article’s HTML yourself. Useful for things like webpages behind authentication.">
+          ></textarea>
+        `}
+        <label
+          title="Provide the article’s HTML yourself. Useful for things like webpages behind authentication."
+        >
           <input
             type="checkbox"
-            value={hasArticleHtml}
-            onChange={() => setHasArticleHtml(!hasArticleHtml)}/> Custom HTML
+            value=${hasArticleHtml}
+            onChange=${() => setHasArticleHtml(!hasArticleHtml)}
+          />
+          Custom HTML
         </label>
-      
+
         <button
-          class={`button ${isLoading ? "button--is-loading" : ""}`}
+          class="button ${isLoading ? "button--is-loading" : ""}"
           type="submit"
-          disabled={disabled}
+          disabled=${disabled}
         >
           Add
         </button>
       </div>
     </form>
-  );
+  `;
 }

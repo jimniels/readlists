@@ -9,7 +9,7 @@ import {
 
 // @TODO test with relative URL images somewhere
 export function fetchArticle(url) {
-  return fetch(`/api/html/?url=${url}`)
+  return fetch(`https://cors-anywhere.herokuapp.com/${url}`)
     .then((res) => res.text())
     .then((html) => createMercuryArticle(url, html));
 }
