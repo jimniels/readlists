@@ -34,9 +34,9 @@ export default function content(epub) {
   </metadata>
 
     <manifest>
-      <item id="toc" href="toc.xhtml" media-type="application/xhtml+xml" properties="nav"/>        
+      <item id="toc" href="toc.xhtml" media-type="application/xhtml+xml" properties="nav" />
       <item id="chapter-image-placeholder" href="images/img-placeholder.jpg" media-type="image/jpeg" />
-        
+      
       ${chapters
         .map(
           (chapter) =>
@@ -55,6 +55,7 @@ export default function content(epub) {
         .join("\n")}
     </manifest>
     <spine>
+      <itemref idref="toc"/>
       ${chapters
         .map((chapter) => `<itemref idref="chapter-${chapter.id}" />`)
         .join("\n")}

@@ -12,6 +12,7 @@ export default function toc(epub) {
       <h1>Table of Contents</h1>
       <nav id="toc" epub:type="toc">
         <ol>
+          <li><a href="toc.xhtml">Table of Contents</a></li>
           ${chapters
             .map(
               (chapter) =>
