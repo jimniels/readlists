@@ -6,7 +6,6 @@ export default function chapter(chapter) {
       <head>
       <meta charset="UTF-8" />
       <title>${title}</title>
-      <!-- <link rel="stylesheet" type="text/css" href="style.css" /> -->
       </head>
     <body>
       <h1>${title}</h1>
