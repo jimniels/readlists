@@ -1,6 +1,5 @@
 import {
   devLog,
-  resolveImgSrc,
   validateReadlist,
   isValidHttpUrl,
   slugify,

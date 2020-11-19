@@ -25,11 +25,15 @@ export function isUrlAbsolute(url) {
   return false; // Anything else must be relative
 }
 
-// instead, just check if img.src contains the current URL in it, if it does, it
-// it was a relative link. otherwise, it's absolute and you can skip.
-export function resolveImgSrc(articleUrl, imgSrc) {
-  const url = new URL(imgSrc, articleUrl);
-  return url.href ? url.href : imgSrc;
+/**
+ * Take a relative path, resolve it within a base path, and return it
+ * @param {string} relativeUrl
+ * @param {string} baseUrl
+ * @return {string}
+ */
+export function resolveUrl(relativeUrl, baseUrl) {
+  const url = new URL(relativeUrl, baseUrl);
+  return url.href ? url.href : relativeUrl;
 }
 
 /**
@@ -308,9 +312,15 @@ function isIsoDate(str) {
 
 export function devLog(array) {
   if (typeof window !== "undefined" && window.__DEV__) {
-    console.log("(__DEV__) " + array.join("\n    "));
+    // console.log("(__DEV__) " + array.join("\n    "));
     // console.group();
-    // array.forEach((i) => console.log(i));
+    array.forEach((item, i) => {
+      if (i === 0) {
+        console.log("__DEV__ ", item);
+      } else {
+        console.log("        ", item);
+      }
+    });
     // console.groupEnd();
   }
 }
@@ -324,25 +334,39 @@ export function devLog(array) {
  */
 export function createMercuryArticle(url, html) {
   return window.Mercury.parse(url, { html }).then((mercuryArticle) => {
-    console.log(mercuryArticle);
     let dom = new DOMParser().parseFromString(
       mercuryArticle.content,
       "text/html"
     );
     let modified = false;
-    Array.from(dom.querySelectorAll("img")).forEach((img) => {
-      if (img.src.includes(location.hostname)) {
-        const oldSrc = img.getAttribute("src");
-        const newSrc = resolveImgSrc(mercuryArticle.url, oldSrc);
+    // Change all relative paths for <img src> and <a href> to absolute ones
+    Array.from(dom.querySelectorAll("img, a")).forEach(($node) => {
+      // the DOM node's property, i.e. $img.src, resolves to an absolute URL
+      // while .getAttribute() gives you what's in the source HTML (possibly
+      // a relative path)
+      const nodeType = $node.tagName.toLowerCase();
+      const resolvedUrl = nodeType === "img" ? $node.src : $node.href;
+
+      // If the resolved URL has the current window location's host in it, that
+      // means it was a relative path, i.e. "../path/to/thing" and therefore
+      // the browser resolved it to the current window. We don't want that.
+      // We want it to resolve to the source from whence it came.
+      if (resolvedUrl.includes(window.location.hostname)) {
+        const relativePath =
+          nodeType === "img"
+            ? $node.getAttribute("src")
+            : $node.getAttribute("href");
+        const newResolvedUrl = resolveUrl(relativePath, mercuryArticle.url);
         devLog([
-          "Changed image src path in new article",
-          `From: ${oldSrc}`,
-          `To: ${newSrc}`,
+          `Changed relative path for <${nodeType}> tag`,
+          `From: ${relativePath}`,
+          `To: ${newResolvedUrl}`,
         ]);
-        img.setAttribute("src", newSrc);
+        $node.setAttribute(nodeType === "img" ? "src" : "href", newResolvedUrl);
         modified = true;
       }
     });
+
     if (modified) {
       mercuryArticle = {
         ...mercuryArticle,
@@ -350,6 +374,82 @@ export function createMercuryArticle(url, html) {
       };
     }
 
+    devLog(["Created a new Mercurcy article", mercuryArticle]);
+
     return mercuryArticle;
+  });
+}
+
+/**
+ * https://stackoverflow.com/a/27979933/1339693
+ */
+export function escapeXml(unsafe) {
+  return unsafe.replace(/[<>&'"]/g, function (c) {
+    switch (c) {
+      case "<":
+        return "&lt;";
+      case ">":
+        return "&gt;";
+      case "&":
+        return "&amp;";
+      case "'":
+        return "&apos;";
+      case '"':
+        return "&quot;";
+    }
+  });
+}
+
+/**
+ * Given an image's mimetype, return the extension. If there's no extension
+ * https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
+ * @param {string} mimeType
+ * @param {string} fileUrl
+ * @returns {string}
+ */
+export function getImgExt({ mimeType, fileUrl }) {
+  switch (mimeType) {
+    case "image/apng":
+      return "apng";
+    case "image/bmp":
+      return "bmp";
+    case "image/gif":
+      return "gif";
+    case "image/x-icon":
+      return "ico";
+    case "image/jpeg":
+      return "jpg";
+    case "image/png":
+      return "png";
+    case "image/svg+xml":
+      return "svg";
+    case "image/tiff":
+      return "tiff";
+    case "image/webp":
+      return "webp";
+    default:
+      // Pull it from the filename if we can't get it
+      // https://stackoverflow.com/questions/6997262/how-to-pull-url-file-extension-out-of-url-string-using-javascript
+      const ext = fileUrl.split(/[#?]/)[0].split(".").pop().trim();
+      return ext;
+  }
+}
+
+/**
+ * Import a UMD file using a promise
+ * @param {string} url
+ */
+export function importUMD(url) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.onload = () => {
+      resolve();
+    };
+    script.onerror = (err) => {
+      reject(err);
+    };
+    script.src = url;
+
+    document.head.appendChild(script);
   });
 }
