@@ -1,6 +1,6 @@
 # Readlists
 
-- Develop locally `netlify dev`
+- Local dev `npm start`
 - Prod build `npm run build`
 
 ## ToDos
