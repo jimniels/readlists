@@ -1,3 +1,39 @@
+/*
+  Broad overview of how client-side epub file generation works.
+  Note: this targets epub3 file support ONLY.
+  
+  Here’s essentially how it works:
+    - Parse each HTML document from a readlist
+    - Fetch all the images referenced in the document, download them, and give
+      each of them a unique ID (uuid)
+    - Turn the readlist HTML into an XHTML documents
+    - Bundle everything into a ZIP file
+
+  Example structure of an epub+zip file:
+  ```
+  mimetype
+  META-INF/
+    container.xml
+  OEBPS/
+    content.opf
+    toc.xhtml
+    000.xhtml
+    001.xhtml
+    002.xhtml
+    ...
+    images/
+      0000-1111-2222-[...].png
+      000a-1111-2222-[...].png
+  ```
+
+  Links:
+
+  - The spec - http://idpf.org/epub/30/spec/epub30-overview.html
+  - Anatomy of an epub file - https://www.edrlab.org/open-standards/anatomy-of-an-epub-3-file/
+  - Node.js server-side epub generator - https://github.com/cyrilis/epub-gen
+  - Notes on zip+epub file https://gist.github.com/cyrilis/8d48eef37fbc108869ac32eb3ef97bca
+    
+*/
 import getContent from "./templates/content.js";
 import getChapter from "./templates/chapter.js";
 import getContainer from "./templates/container.js";
@@ -94,6 +130,7 @@ export default async function exportToEpub(readlist) {
     ),
   };
 
+  // Log some info about the images that got fetched fro the network
   console.log(
     "Fetched %s images total.",
     epub.chapters
@@ -101,20 +138,7 @@ export default async function exportToEpub(readlist) {
       .reduce((a, b) => a + b, 0)
   );
 
-  /*
-    https://www.edrlab.org/open-standards/anatomy-of-an-epub-3-file/
-
-    mimetype
-    META-INF/
-      container.xml
-    OEBPS/
-      content.opf
-      0.xhtml
-      1.xhtml
-      ...
-      images/
-        ...
-  */
+  // Generate the ZIP file
   let zip = new JSZip();
   zip.file("mimetype", "application/epub+zip");
   zip.file("META-INF/container.xml", getContainer());
@@ -128,7 +152,7 @@ export default async function exportToEpub(readlist) {
     });
   });
 
-  // Placeholder image
+  // Include the placeholder image for missing images
   const placeholderImg = await fetch(
     "/assets/img-placeholder.jpg"
   ).then((res) => res.blob());
