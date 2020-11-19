@@ -122,7 +122,6 @@ export default function ReadlistArticleInput({
           value=${articleInput}
           onChange=${(e) => {
             setArticleInput(e.target.value);
-            console.log(e.target.value.slice(-50));
           }}
           placeholder="http://your-article-url.com/goes/here"
         />

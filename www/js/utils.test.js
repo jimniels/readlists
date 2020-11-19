@@ -1,4 +1,4 @@
-import { isUrlAbsolute, resolveImgSrc, validateReadlist } from "./utils.js";
+import { isUrlAbsolute, resolveUrl, validateReadlist } from "./utils.js";
 import chai from "chai";
 
 chai.expect(isUrlAbsolute("https://google.com")).to.equal(true);
@@ -13,9 +13,9 @@ chai.expect(isUrlAbsolute("images/file.png")).to.equal(false);
 
 chai
   .expect(
-    resolveImgSrc(
-      "https://basecamp.com/shapeup/1.1-chapter-02",
-      "/assets/books/shapeup/1.5/payment_form_breadboard-277e13785f0ce02963ecd00ed13178b8fa6d1694097bd240188f2f1126a1683b.png"
+    resolveUrl(
+      "/assets/books/shapeup/1.5/payment_form_breadboard-277e13785f0ce02963ecd00ed13178b8fa6d1694097bd240188f2f1126a1683b.png",
+      "https://basecamp.com/shapeup/1.1-chapter-02"
     )
   )
   .to.equal(
@@ -25,17 +25,17 @@ chai
 // note the difference between having and not having a trailing slash
 chai
   .expect(
-    resolveImgSrc(
-      "https://blog.jim-nielsen.com/nested/article/",
-      "../path/to/image.png"
+    resolveUrl(
+      "../path/to/image.png",
+      "https://blog.jim-nielsen.com/nested/article/"
     )
   )
   .to.equal("https://blog.jim-nielsen.com/nested/path/to/image.png");
 chai
   .expect(
-    resolveImgSrc(
-      "https://blog.jim-nielsen.com/nested/article",
-      "../path/to/image.png"
+    resolveUrl(
+      "../path/to/image.png",
+      "https://blog.jim-nielsen.com/nested/article"
     )
   )
   .to.equal("https://blog.jim-nielsen.com/path/to/image.png");
@@ -66,6 +66,7 @@ const BASE_ARTICLE = {
   content: "<p>Some HTML here.</p>",
 };
 
+/*
 {
   let readlist = { ...BASE_READLIST };
   chai.expect(validateReadlist(readlist)).to.deep.equal(readlist);
@@ -97,3 +98,4 @@ const BASE_ARTICLE = {
   };
   chai.expect(validateReadlist(readlist)).to.equal(null);
 }
+*/
