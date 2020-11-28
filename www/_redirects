@@ -2,11 +2,4 @@
   from = "/cors-proxy/*"
   to = ":splat"
   status = 200
-  force = true
-  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Methods = "*", Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept"}
-
-[[headers]]
-  # Define which paths this specific [[headers]] block will cover.
-  for = "/cors-proxy/*"
-    [headers.values]
-    Access-Control-Allow-Origin = "*"
+  headers = {Access-Control-Allow-Origin = "*"}
