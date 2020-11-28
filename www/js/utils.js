@@ -453,3 +453,11 @@ export function importUMD(url) {
     document.head.appendChild(script);
   });
 }
+
+/**
+ * https://gist.github.com/SimonHoiberg/ad2710c8626c5a74cddd8f6385795cc0
+ * @returns {string}
+ */
+export function getUid() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+};

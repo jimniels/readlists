@@ -38,8 +38,7 @@ import getContent from "./templates/content.js";
 import getChapter from "./templates/chapter.js";
 import getContainer from "./templates/container.js";
 import getToc from "./templates/toc.js";
-import { getImgExt, importUMD, slugify } from "../utils.js";
-import generateUUID from "https://unpkg.com/uuid@8.3.1/dist/esm-browser/v4.js?module";
+import { getImgExt, getUid, importUMD, slugify } from "../utils.js";
 
 export default async function exportToEpub(readlist) {
   // Import our UMD deps (since there's no official ESM build)
@@ -95,7 +94,7 @@ export default async function exportToEpub(readlist) {
             const imgBlob = await res.blob();
             console.log("Fetched", src);
 
-            const uuid = generateUUID();
+            const uid = getUid();
             const ext = getImgExt({ mimeType: imgBlob.type, fileUrl: src });
             const id = `${uuid}.${ext}`;
 
