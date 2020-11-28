@@ -2,4 +2,5 @@
   from = "/cors-proxy/*"
   to = ":splat"
   status = 200
-  headers = {Access-Control-Allow-Origin = "*"}
+  force = true
+  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Methods = "*", Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept"}
