@@ -1,5 +1,4 @@
-// @TODO
-export const CORS_PROXY = true /* window.IS_DEV*/
+export const CORS_PROXY = window.IS_DEV
   ? "https://cors-anywhere.herokuapp.com"
   : "/cors-proxy";
 
