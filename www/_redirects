@@ -1,5 +1,5 @@
 [[redirects]]
   from = "/cors-proxy/*"
-  to = ":splat"
+  to = "https://google.com/:splat"
   status = 200
   headers = {Access-Control-Allow-Origin = "*"}
