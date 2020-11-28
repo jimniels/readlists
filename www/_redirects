@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "/cors-proxy/*"
+  to = ":splat"
+  status = 200
+  headers = {Access-Control-Allow-Origin = "*"}

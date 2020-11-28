@@ -2,8 +2,6 @@ export const CORS_PROXY = window.IS_DEV
   ? "https://cors-anywhere.herokuapp.com"
   : "/cors-proxy";
 
-console.log(window.IS_DEV, CORS_PROXY);
-
 /**
  * Check if a URL is relative to the current path or not
  * https://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
