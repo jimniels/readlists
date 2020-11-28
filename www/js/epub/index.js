@@ -38,7 +38,7 @@ import getContent from "./templates/content.js";
 import getChapter from "./templates/chapter.js";
 import getContainer from "./templates/container.js";
 import getToc from "./templates/toc.js";
-import { getImgExt, getUid, importUMD, slugify } from "../utils.js";
+import { getImgExt, getUid, importUMD, slugify, CORS_PROXY } from "../utils.js";
 
 export default async function exportToEpub(readlist) {
   // Import our UMD deps (since there's no official ESM build)
@@ -79,9 +79,7 @@ export default async function exportToEpub(readlist) {
               $img.removeAttribute("srcset");
             }
 
-            const res = await fetch(
-              "https://cors-anywhere.herokuapp.com/" + src
-            );
+            const res = await fetch(`${CORS_PROXY}/${src}`);
 
             // If you can't find the image, get a placeholder
             if (!res.ok) {

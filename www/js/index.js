@@ -1,5 +1,3 @@
-window.__DEV__ = window.location.hostname === "localhost";
-
 import { React, ReactDOM, html } from "./deps.js";
 import App from "./components/App.js";
 

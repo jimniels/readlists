@@ -1,3 +1,9 @@
+export const CORS_PROXY = window.IS_DEV
+  ? "https://cors-anywhere.herokuapp.com"
+  : "/cors-proxy";
+
+console.log(window.IS_DEV, CORS_PROXY);
+
 /**
  * Check if a URL is relative to the current path or not
  * https://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
@@ -311,7 +317,7 @@ function isIsoDate(str) {
 }
 
 export function devLog(array) {
-  if (typeof window !== "undefined" && window.__DEV__) {
+  if (typeof window !== "undefined" && window.IS_DEV) {
     // console.log("(__DEV__) " + array.join("\n    "));
     // console.group();
     array.forEach((item, i) => {
@@ -460,4 +466,4 @@ export function importUMD(url) {
  */
 export function getUid() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
-};
+}
