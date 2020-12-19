@@ -129,20 +129,20 @@ export async function validateReadlist(
 
   if (
     !(
-      typeof readlist.dateCreated === "string" &&
-      isIsoDate(readlist.dateCreated)
+      typeof readlist.date_created === "string" &&
+      isIsoDate(readlist.date_created)
     )
   ) {
-    reject("expected `dateCreated` to be an ISO8601 string");
+    reject("expected `date_created` to be an ISO8601 string");
   }
 
   if (
     !(
-      typeof readlist.dateModified === "string" &&
-      isIsoDate(readlist.dateModified)
+      typeof readlist.date_modified === "string" &&
+      isIsoDate(readlist.date_modified)
     )
   ) {
-    reject("expected `dateModified` to be an ISO8601 string");
+    reject("expected `date_modified` to be an ISO8601 string");
   }
 
   if (!Array.isArray(readlist.articles)) {
@@ -222,8 +222,8 @@ export async function validateReadlist(
   //   const types = {
   //     title: (x) => typeof x === "string",
   //     description: (x) => typeof x === "string",
-  //     dateModified: (x) => typeof x === "string" && isIsoDate(x),
-  //     dateCreated: (x) => typeof x === "string" && isIsoDate(x),
+  //     date_modified: (x) => typeof x === "string" && isIsoDate(x),
+  //     date_created: (x) => typeof x === "string" && isIsoDate(x),
   //     articles: (x) => Array.isArray(x),
   //     "articles.url": (url) => typeof url === "string" && ,
   //     "articles.domain": (domain) => typeof domain === "string",
@@ -252,12 +252,12 @@ export async function validateReadlist(
   //     );
   //   }
 
-  //   if (readlist.dateCreated)
-  //     if (!isIsoDate(readlist.dateModified)) {
-  //       throw new Error("dateModified");
+  //   if (readlist.date_created)
+  //     if (!isIsoDate(readlist.date_modified)) {
+  //       throw new Error("date_modified");
   //     }
 
-  //   if (!isIsoDate(readlist.dateCreated))
+  //   if (!isIsoDate(readlist.date_created))
   //     const articleTypes = {
   //       domain: "string",
   //       url: "string",

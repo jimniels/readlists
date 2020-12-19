@@ -79,7 +79,7 @@ export default function Readlist({
     setReadlist((prevReadlist) => ({
       ...prevReadlist,
       [key]: value,
-      dateModified: new Date().toISOString(),
+      date_modified: new Date().toISOString(),
     }));
   };
 
@@ -87,18 +87,18 @@ export default function Readlist({
     return null;
   }
 
-  const dateModified = new Intl.DateTimeFormat("en-US", {
+  const date_modified = new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
     minute: "numeric",
     hour: "numeric",
-  }).format(new Date(readlist.dateModified));
-  const dateCreated = new Intl.DateTimeFormat("en-US", {
+  }).format(new Date(readlist.date_modified));
+  const date_created = new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
-  }).format(new Date(readlist.dateCreated));
+  }).format(new Date(readlist.date_created));
 
   const disabledButtons = isLoadingEpub || readlist.articles.length === 0;
 
@@ -149,9 +149,9 @@ export default function Readlist({
 
         <dl class="readlist-header__meta">
           <dt>Created</dt>
-          <dd>${dateCreated}</dd>
+          <dd>${date_created}</dd>
           <dt>Last modified</dt>
-          <dd>${dateModified}</dd>
+          <dd>${date_modified}</dd>
         </dl>
       </header>
 

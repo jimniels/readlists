@@ -43,8 +43,8 @@ chai
 const BASE_READLIST = {
   title: "",
   description: "",
-  dateCreated: "2020-06-29T19:29:23.439Z",
-  dateModified: "2020-06-29T19:29:23.439Z",
+  date_created: "2020-06-29T19:29:23.439Z",
+  date_modified: "2020-06-29T19:29:23.439Z",
   articles: [],
 };
 const BASE_ARTICLE = {
@@ -76,7 +76,7 @@ const BASE_ARTICLE = {
 }
 
 {
-  const readlist = { ...BASE_READLIST, dateCreated: "some-random-string" };
+  const readlist = { ...BASE_READLIST, date_created: "some-random-string" };
   chai.expect(validateReadlist(readlist)).to.equal(null);
 }
 

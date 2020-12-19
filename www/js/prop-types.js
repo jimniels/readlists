@@ -4,9 +4,9 @@ import { PropTypes as pt } from "./deps.js";
  * @typedef Readlist
  * @param {string} title
  * @param {description} description
- * @param {string} dateCreated - ISO8601 date
- * @param {string} dateModified - ISO8601 date
- * @param {Array.<MercuryArticle>}
+ * @param {string} date_created - ISO8601 date
+ * @param {string} date_modified - ISO8601 date
+ * @param {Array.<MercuryArticle>} articles
  */
 
 /**

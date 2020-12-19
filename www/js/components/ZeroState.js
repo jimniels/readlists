@@ -11,8 +11,8 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
   const handleCreateNewReadlist = () => {
     const d = new Date().toISOString();
     const newReadlist = {
-      dateCreated: d,
-      dateModified: d,
+      date_created: d,
+      date_modified: d,
       title: "Untitled Readlist",
       description: "",
       articles: [],

@@ -8,8 +8,8 @@ ReadlistArticleInput.propTypes = {
   readlist: PropTypes.shape({
     title: PropTypes.string,
     description: PropTypes.string,
-    dateModified: PropTypes.string.isRequired,
-    dateCreated: PropTypes.string.isRequired,
+    date_modified: PropTypes.string.isRequired,
+    date_created: PropTypes.string.isRequired,
     articles: PropTypes.arrayOf(readlistArticlePropTypes).isRequired,
   }),
 
@@ -66,7 +66,7 @@ export default function ReadlistArticleInput({
         .then((mercuryArticle) => {
           setReadlist((prevReadlist) => ({
             ...prevReadlist,
-            dateModified: new Date().toISOString(),
+            date_modified: new Date().toISOString(),
             articles: prevReadlist.articles.concat(mercuryArticle),
           }));
           setArticleInput("");
@@ -89,7 +89,7 @@ export default function ReadlistArticleInput({
       .then((mercuryArticle) => {
         setReadlist((prevReadlist) => ({
           ...prevReadlist,
-          dateModified: new Date().toISOString(),
+          date_modified: new Date().toISOString(),
           articles: prevReadlist.articles.concat(mercuryArticle),
         }));
         setArticleInput("");

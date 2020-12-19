@@ -104,7 +104,7 @@ function handleUpdateReadlistArticle({
 }) {
   setReadlist((prevReadlist) => ({
     ...prevReadlist,
-    dateModified: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
     articles: prevReadlist.articles.map((article) =>
       article.url == articleUrl
         ? {
@@ -131,7 +131,7 @@ function handleSelectReadlistArticle({ setArticlePreviewUrl, articleUrl }) {
 function handleDeleteReadlist({ setReadlist, articleUrl }) {
   setReadlist((prevReadlist) => ({
     ...prevReadlist,
-    dateModified: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
     articles: prevReadlist.articles.filter(
       (prevArticle) => prevArticle.url !== articleUrl
     ),

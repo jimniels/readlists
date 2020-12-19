@@ -3,10 +3,41 @@
 - Local dev `npm start`
 - Prod build `npm run build`
 
+## How it Works
+
+A readlist is simply a JSON file. That JSON file’s structure is mostly just what you get from [mercury-parser](https://github.com/postlight/mercury-parser).
+See [prop-types.js](./www/js/prop-types.js) for more info:
+
+```json
+{
+  "title": "The title of the readlist",
+  "description": "A description of the readlist",
+  "date_created": "2020-12-19T15:04:39.464Z", // ISO8601 date
+  "date_modified": "2020-12-19T15:04:39.464Z", // ISO8601 date
+  "articles": [
+    {
+      "title": "Thunder (mascot)",
+      "content": "... <p><b>Thunder</b> is the <a href=\"https://en.wikipedia.org/wiki/Stage_name\">stage name</a> for the...",
+      "author": "Wikipedia Contributors",
+      "date_published": "2016-09-16T20:56:00.000Z",
+      "lead_image_url": null,
+      "dek": null,
+      "next_page_url": null,
+      "url": "https://en.wikipedia.org/wiki/Thunder_(mascot)",
+      "domain": "en.wikipedia.org",
+      "excerpt": "Thunder Thunder is the stage name for the horse who is the official live animal mascot for the Denver Broncos",
+      "word_count": 4677,
+      "direction": "ltr",
+      "total_pages": 1,
+      "rendered_pages": 1
+    }
+  ]
+}
+```
+
 ## ToDos
 
-Enhancements
-
+- [ ] Responsive
 - [ ] Setup shared proptypes
 - [ ] write more tests for stuff in utils
 - [ ] abstract shared CSS for different pages
@@ -14,15 +45,14 @@ Enhancements
 - [ ] Double check epub export with the old readlist epubs
 - [ ] handling multiple error toasts in successions
 - [ ] Validation of readlists
-- [ ] Responsive
-- [ ] Dark mode CSS
 - [ ] Transitions
-- [ ] Address the @TODO items
-- [ ] Refactor handlers to be at bottom of hooks
+- [ ] Address the @TODO items in code
+- [ ] Refactor handlers to be at bottom of hooks?
+- [ ] Draggable sorting?
 
-## Draggable Items
+## Notes on Draggable Sorting
 
-index.html
+`index.html`
 
 ```
  <script src="https://unpkg.com/get-size@2.0.3/get-size.js"></script>
