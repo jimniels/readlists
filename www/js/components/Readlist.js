@@ -124,9 +124,6 @@ export default function Readlist({
           >
             Export to .html
           </button>
-          <button class="button" disabled title="Feature Not Yet Supported">
-            Export to .mobi
-          </button>
           <button class="button button--danger" onClick=${handleDeleteReadlist}>
             Delete
           </button>
