@@ -37,6 +37,7 @@ See [prop-types.js](./www/js/prop-types.js) for more info:
 
 ## ToDos
 
+- [ ] Error boundary that clears localStorage
 - [ ] Responsive
 - [ ] Setup shared proptypes
 - [ ] write more tests for stuff in utils
