@@ -94,7 +94,7 @@ export default async function exportToEpub(readlist) {
 
             const uid = getUid();
             const ext = getImgExt({ mimeType: imgBlob.type, fileUrl: src });
-            const id = `${uuid}.${ext}`;
+            const id = `${uid}.${ext}`;
 
             $img.setAttribute("src", `images/${id}`);
             return [id, imgBlob.type, imgBlob];
