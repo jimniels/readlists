@@ -53,6 +53,7 @@ See [prop-types.js](./www/js/prop-types.js) for more info:
 - [ ] Address the @TODO items in code
 - [ ] Refactor handlers to be at bottom of hooks?
 - [ ] Draggable sorting?
+- [ ] support proxing requests, so CORS wouldn't have to be supported to pull in a remote readlist
 
 ## Notes on Draggable Sorting
 
