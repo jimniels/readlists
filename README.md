@@ -5,8 +5,9 @@
 
 ## How it Works
 
-A readlist is simply a JSON file. That JSON file’s structure is mostly just what you get from [mercury-parser](https://github.com/postlight/mercury-parser).
-See [prop-types.js](./www/js/prop-types.js) for more info:
+[readlists.jim-nielsen.com](https://readlists.jim-nielsen.com) is merely a web front-end, a GUI, for creating and editing readlists.
+
+At its core, a readlist is simply a JSON file. That JSON file’s structure is mostly what you get from [mercury-parser](https://github.com/postlight/mercury-parser).
 
 ```json
 {
@@ -34,6 +35,8 @@ See [prop-types.js](./www/js/prop-types.js) for more info:
   ]
 }
 ```
+
+See [prop-types.js](./www/js/prop-types.js) for more info:
 
 ## ToDos
 
