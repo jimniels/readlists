@@ -1,13 +1,14 @@
 import { React, ReactDOM, html } from "./deps.js";
 import App from "./components/App.js";
 import AppError from "./components/AppError.js";
+import { devLog } from "./utils.js";
 
 let initialReadlist = undefined;
-if (localStorage.getItem("readlist")) {
-  // @TODO validate that the readlist is good, then render it. Otherwise, clear
-  // it and start anew or something...
+// @TODO validate that the readlist is good, then render it. Otherwise, clear
+// it and start anew or something...
+try {
   initialReadlist = JSON.parse(localStorage.getItem("readlist"));
-}
+} catch (e) {}
 
 ReactDOM.render(
   html`
