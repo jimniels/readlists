@@ -5,9 +5,9 @@
   "type": "module",
   "main": "",
   "scripts": {
-    "build": "rm -rf build && cp -R www build && npm run build:transpile && node scripts/build.js",
+    "build": "rm -rf build && cp -R src build && npm run build:transpile && node scripts/build.js",
     "build:transpile": "babel build/js/components --out-dir build/js/components",
-    "start": "http-server www",
+    "start": "http-server src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
