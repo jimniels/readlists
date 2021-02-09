@@ -107,10 +107,7 @@ export function slugify(str) {
  * @returns {Readlist|null} if it passes all the checks, you get back
  * a nice, sanitized version of the Readlist. Otherwise, `null`.
  */
-export async function validateReadlist(
-  readlist = {},
-  opts = { verbose: false }
-) {
+export async function validateReadlist(readlist = {}) {
   const reject = (str) => {
     throw new Error(`Readlist validation failed: ${str}.`);
   };
