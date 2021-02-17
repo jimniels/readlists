@@ -36,8 +36,6 @@ At its core, a readlist is simply a JSON file. That JSON file’s structure is m
 }
 ```
 
-See [prop-types.js](./www/js/prop-types.js) for more info:
-
 ## ToDos
 
 - [ ] Error boundary that clears localStorage
@@ -55,7 +53,7 @@ See [prop-types.js](./www/js/prop-types.js) for more info:
 - [ ] Draggable sorting?
 - [ ] support proxing requests, so CORS wouldn't have to be supported to pull in a remote readlist
 
-## Notes on Draggable Sorting
+## Notes to Self on Draggable Sorting
 
 `index.html`
 
