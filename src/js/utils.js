@@ -1,6 +1,4 @@
-export const CORS_PROXY = window.IS_DEV
-  ? "https://cors-anywhere.herokuapp.com"
-  : "/cors-proxy";
+export const CORS_PROXY = "/cors-proxy";
 
 /**
  * Check if a URL is relative to the current path or not

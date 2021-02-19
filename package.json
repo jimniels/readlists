@@ -7,17 +7,15 @@
   "scripts": {
     "build": "rm -rf build && cp -R src build && npm run build:transpile && node scripts/build.js",
     "build:transpile": "babel build/js/components --out-dir build/js/components",
-    "start": "http-server src",
+    "start": "netlify dev --dir src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/cli": "^7.10.4",
-    "@babel/core": "^7.10.4",
+    "@babel/cli": "^7.12.17",
+    "@babel/core": "^7.12.17",
     "babel-plugin-htm": "^3.0.0",
-    "chai": "^4.2.0",
-    "http-server": "^0.12.3"
-  },
-  "dependencies": {}
+    "chai": "^4.3.0"
+  }
 }
