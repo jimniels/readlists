@@ -16,6 +16,7 @@
     "@babel/cli": "^7.12.17",
     "@babel/core": "^7.12.17",
     "babel-plugin-htm": "^3.0.0",
-    "chai": "^4.3.0"
+    "chai": "^4.3.0",
+    "netlify-cli": "^3.8.6"
   }
 }
