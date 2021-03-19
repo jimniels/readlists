@@ -72,7 +72,7 @@ export default function ReadlistArticles({
               >
                 Preview
               </button>
-              <button class="button" disabled>Edit HTML</button>
+              ${/*<button class="button" disabled>Edit HTML</button>*/ ""}
               <button
                 class="button button--danger"
                 onClick=${(e) => {

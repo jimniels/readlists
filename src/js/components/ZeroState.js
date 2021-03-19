@@ -172,11 +172,22 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
       <style>
         .ZeroState {
           display: flex;
-          flex-wrap: wrap;
-          display: grid;
-          grid-template-columns: 33% calc(67% - var(--spacer));
-          grid-template-rows: 100px 100px;
-          grid-gap: var(--spacer);
+          flex-direction: column;
+          width: 90%;
+          justify-content: space-around;
+          margin: 0 auto;
+        }
+        @media screen and (min-width: 700px) {
+          .ZeroState {
+            display: grid;
+            grid-template-columns: 33% calc(67% - var(--spacer));
+            grid-template-rows: 100px 100px;
+            grid-gap: var(--spacer);
+          }
+          .ZerState__container {
+            min-height: none;
+            margin-bottom: 0%;
+          }
         }
         .ZeroState__container {
           border-radius: var(--border-radius);
@@ -185,6 +196,8 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
           align-items: center;
           justify-content: center;
           flex-direction: column;
+          min-height: 100px;
+          margin-bottom: var(--spacer);
         }
         .ZeroState__container:last-child {
           grid-column-start: 1;

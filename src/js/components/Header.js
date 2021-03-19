@@ -12,12 +12,7 @@ export default function Header() {
   return html`
   <${React.Fragment}>
     <header class="Header wrapper">
-      <div>
-        <h1 class="Header__title">Readlists</h1>
-        <p class="Header__description">
-          Collect, curate, and bundle individual web pages into an ebook.
-        </p>
-      </div>
+      <h1 class="Header__title">Readlists</h1>
       <button
         class=${btnClasses}
         onClick=${(e) => {
@@ -51,7 +46,6 @@ export default function Header() {
             one and inspect it.
           </p>
 
-          <hr />
           <p>
             Made by <a href="https://www.jim-nielsen.com">Jim Nielsen</a> (
             <a href="https://twitter.com/jimniels">@jimniels</a> on twitter).
@@ -84,11 +78,14 @@ export default function Header() {
         max-width: 700px;
         margin: 0 auto var(--spacer);
         background: var(--color-border);
-        border-top: 1px solid #ccc;
         color: var(--color-text);
-        border: 1px solid var(--color-border);
-        padding: calc(var(--spacer) * 2);
-        border-radius: var(--border-radius);
+        padding: var(--spacer);
+      }
+      @media screen and (min-width: 700px) {
+        .Header__learn-more {
+          border-radius: var(--border-radius);
+          padding: var(--spacer) calc(var(--spacer) * 2);
+        }
       }
     </style>
   </${React.Fragment}>`;
