@@ -183,6 +183,7 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
             grid-template-columns: 33% calc(67% - var(--spacer));
             grid-template-rows: 100px 100px;
             grid-gap: var(--spacer);
+            width: 100%;
           }
           .ZerState__container {
             min-height: none;

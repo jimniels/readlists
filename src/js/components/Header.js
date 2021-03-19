@@ -28,12 +28,12 @@ export default function Header() {
       html`
         <div class="Header__learn-more">
           <p>
-            What’s a Readlist? It’s like a mixtape, but for reading. You collect
+            What’s a Readlist? It’s like a mixtape, but for reading. Collect
             information across the web and package it up into a nice little
             ebook for reading on your favorite device.
           </p>
           <p>
-            Readlists are saved locally to your browser (using${" "}
+            Readlists are saved locally in your browser (using${" "}
             <code>localStorage</code>). You can save the data of a Readlist to a
             JSON file, host it at a URL, and then allow others to import it
             themselves. It falls to you to save and distribute (the URLs for)
@@ -41,9 +41,10 @@ export default function Header() {
             side the data is all yours. Do whatever you want with it.
           </p>
           <p>
-            I really should explain more about what this thing is here and the
-            data structure for a Readlist. If you really want to know, create
-            one and inspect it.
+            Want to know more technical details? Check out${" "}
+            <a href="https://github.com/jimniels/readlists"
+              >the project on Github.</a
+            >.
           </p>
 
           <p>
