@@ -79,25 +79,28 @@ export default async function exportToEpub(readlist) {
               $img.removeAttribute("srcset");
             }
 
-            const res = await fetch(`${CORS_PROXY}/${src}`);
+            // Try to fetch the image. If it fails to fetch, don't let that stop
+            // us from generating the book. Just use the image not found
+            // that we have locally.
+            try {
+              let res = await fetch(`${CORS_PROXY}/${src}`);
+              const imgBlob = await res.blob();
 
-            // If you can't find the image, get a placeholder
-            if (!res.ok) {
+              console.log("Fetched", src);
+
+              const uid = getUid();
+              const ext = getImgExt({ mimeType: imgBlob.type, fileUrl: src });
+              const id = `${uid}.${ext}`;
+
+              $img.setAttribute("src", `images/${id}`);
+              return [id, imgBlob.type, imgBlob];
+            } catch (e) {
+              console.error(e);
+              // If you can't find the image, get a placeholder
               console.log("Failed to fetch (will use placeholder):", src);
               $img.setAttribute("src", "images/img-placeholder.jpg");
               return null;
             }
-
-            // Otherwise we got our image
-            const imgBlob = await res.blob();
-            console.log("Fetched", src);
-
-            const uid = getUid();
-            const ext = getImgExt({ mimeType: imgBlob.type, fileUrl: src });
-            const id = `${uid}.${ext}`;
-
-            $img.setAttribute("src", `images/${id}`);
-            return [id, imgBlob.type, imgBlob];
           })
         ).then((imgs) => imgs.filter((img) => img)); // don't keep anything returned as null
 
