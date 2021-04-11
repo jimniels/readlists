@@ -236,20 +236,6 @@ readlists-app[loading] readlists-nav:before {
   flex: 0 0 auto;
 }
 
-[contenteditable] {
-  background-color: var(--color-bg-secondary);
-  padding: calc(var(--spacer) / 4) calc(var(--spacer) / 2);
-  border-radius: var(--border-radius);
-  min-width: 100px;
-}
-[contenteditable]:hover {
-  background-color: hsla(var(--color-accent-hsl), 0.1);
-}
-[contenteditable]:empty:before {
-  content: attr(placeholder);
-  opacity: 0.3;
-}
-
 .actions {
   display: flex;
   align-items: center;
