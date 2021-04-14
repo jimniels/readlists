@@ -148,7 +148,7 @@ export async function validateReadlist(readlist = {}) {
     if (!(typeof article.url === "string" && isValidHttpUrl(article.url))) {
       reject("expected `readlist.article.url` to be an HTTP(S) URL string");
     }
-
+    /*
     if (
       typeof article.domain === "string" &&
       article.url.includes(article.domain)
@@ -205,7 +205,7 @@ export async function validateReadlist(readlist = {}) {
           `expected \`readlist.article.content\` to be a string for article ${article.url}.`
         );
       }
-    }
+    }*/
 
     // Others? Do full check of mercury type
   }
@@ -332,12 +332,21 @@ export function devLog(array) {
  * @returns {MercuryArticle}
  */
 export function createMercuryArticle(url, html) {
-  return window.Mercury.parse(url, { html }).then((mercuryArticle) => {
-    let dom = new DOMParser().parseFromString(
-      mercuryArticle.content,
-      "text/html"
-    );
-    let modified = false;
+  return new Promise((resolve) => {
+    let document = new DOMParser().parseFromString(html, "text/html");
+
+    // mozilla/readability does the path conversion for you!
+    // but it does it on the current URL (i.e. localhost, or readlist.jim-nielsen.com)
+    // so we have to tell it which URL to be setting reatlive to
+    // which you can do with this
+    // https://stackoverflow.com/questions/55232202/optional-baseuri-location-in-domparser
+    const { origin, pathname, hostname } = new URL(url);
+    const $base = document.createElement("base");
+    $base.setAttribute("href", origin + pathname);
+    document.head.appendChild($base);
+
+    // let modified = false;
+    /*
     // Change all relative paths for <img src> and <a href> to absolute ones
     Array.from(dom.querySelectorAll("img, a")).forEach(($node) => {
       // the DOM node's property, i.e. $img.src, resolves to an absolute URL
@@ -355,7 +364,7 @@ export function createMercuryArticle(url, html) {
           nodeType === "img"
             ? $node.getAttribute("src")
             : $node.getAttribute("href");
-        const newResolvedUrl = resolveUrl(relativePath, mercuryArticle.url);
+        const newResolvedUrl = resolveUrl(relativePath, url);
         devLog([
           `Changed relative path for <${nodeType}> tag`,
           `From: ${relativePath}`,
@@ -365,17 +374,23 @@ export function createMercuryArticle(url, html) {
         modified = true;
       }
     });
+    */
 
-    if (modified) {
-      mercuryArticle = {
-        ...mercuryArticle,
-        content: dom.body.innerHTML,
-      };
-    }
+    // console.log(dom);
+    const mercuryArticle = new Readability(document).parse();
+    mercuryArticle.url = url;
+    mercuryArticle.domain = hostname;
+
+    // if (modified) {
+    //   mercuryArticle = {
+    //     ...mercuryArticle,
+    //     content: dom.body.innerHTML,
+    //   };
+    // }
 
     devLog(["Created a new Mercurcy article", mercuryArticle]);
 
-    return mercuryArticle;
+    resolve(mercuryArticle);
   });
 }
 
