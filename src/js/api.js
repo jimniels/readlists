@@ -24,6 +24,7 @@ export function fetchArticle(url) {
 /**
  * Take a readlist, upload it, get back the download link and download the file
  * @param {Readlist} readlist
+ * @returns {Promise} - Doesn't resolve to anything, just downloads the thing
  */
 export function downloadEpub(readlist) {
   return fetch(`/api/epub/`, {

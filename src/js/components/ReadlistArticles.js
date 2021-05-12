@@ -93,9 +93,11 @@ export default function ReadlistArticles({
 }
 
 /**
- * @param {string} articleUrl
- * @param {string} articleTitle
- * @param {function} setReadlist
+ * @param {{
+ *   articleUrl: string,
+ *   articleTitle: string,
+ *   setReadlist: Function
+ * }}
  */
 function handleUpdateReadlistArticle({
   articleUrl,
@@ -117,16 +119,20 @@ function handleUpdateReadlistArticle({
 }
 
 /**
- * @param {string} articleUrl
- * @param {function} setArticlePreviewUrl
+ * @param {{
+ *   articleUrl: string,
+ *   setArticlePreviewUrl: Function
+ * }}
  */
 function handleSelectReadlistArticle({ setArticlePreviewUrl, articleUrl }) {
   setArticlePreviewUrl(articleUrl);
 }
 
 /**
- * @param {string} articleUrl
- * @param {function} setReadlist
+ * @param {{
+ *   articleUrl: string,
+ *   setReadlist: Function
+ * }}
  */
 function handleDeleteReadlist({ setReadlist, articleUrl }) {
   setReadlist((prevReadlist) => ({
@@ -139,10 +145,12 @@ function handleDeleteReadlist({ setReadlist, articleUrl }) {
 }
 
 /**
- * @param {string} articleUrl
- * @param {number} currentIndex
- * @param {number} newIndex
- * @param {function} setReadlist
+ * @param {{
+ *   articleUrl: string,
+ *   currentIndex: number,
+ *   newIndex: number,
+ *   setReadlist: Function
+ * }}
  */
 function handleArticleOrdering({
   articleUrl,

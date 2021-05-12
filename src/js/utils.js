@@ -4,6 +4,7 @@ export const CORS_PROXY = "/cors-proxy";
  * Check if a URL is relative to the current path or not
  * https://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
  * @param {string} url
+ * @returns {boolean}
  */
 export function isUrlAbsolute(url) {
   if (url.indexOf("//") === 0) {
@@ -41,6 +42,7 @@ export function resolveUrl(relativeUrl, baseUrl) {
 /**
  * https://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-a-url
  * @param {string} string
+ * @returns {boolean}
  */
 export function isValidHttpUrl(string) {
   let url;
@@ -78,6 +80,7 @@ export function downloadFile({ file, contents }) {
 /**
  * https://gist.github.com/codeguy/6684588
  * @param {string} str
+ * @returns {string}
  */
 export function slugify(str) {
   str = str.replace(/^\s+|\s+$/g, ""); // trim
@@ -99,10 +102,9 @@ export function slugify(str) {
 }
 
 /**
- *
- * @param {Readlist}
- * @param {Object} opts - options to the fun
- * @returns {Readlist|null} if it passes all the checks, you get back
+ * Validate a readlist by checking its contents.
+ * @param {Readlist} [readlist={}]
+ * @returns {?Readlist} if it passes all the checks, you get back
  * a nice, sanitized version of the Readlist. Otherwise, `null`.
  */
 export async function validateReadlist(readlist = {}) {
@@ -302,6 +304,7 @@ function isValidUrl(string) {
  * Check if a string is ISO8601 format, specifically: `YYYY-MM-DDTHH:MN:SS.MSSZ`
  * https://stackoverflow.com/questions/52869695/check-if-a-date-string-is-in-iso-and-utc-format
  * @param {string} str
+ * @returns {boolean}
  */
 function isIsoDate(str) {
   if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str)) return false;
@@ -402,8 +405,10 @@ export function escapeXml(unsafe) {
 /**
  * Given an image's mimetype, return the extension. If there's no extension
  * https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
- * @param {string} mimeType
- * @param {string} fileUrl
+ * @param {{
+ *   mimeType: string,
+ *   fileUrl: string
+ * }}
  * @returns {string}
  */
 export function getImgExt({ mimeType, fileUrl }) {
