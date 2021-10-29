@@ -9,7 +9,7 @@ import {
 
 // @TODO test with relative URL images somewhere
 export function fetchArticle(url) {
-  return fetch(`${CORS_PROXY}/${url}`)
+  return fetch(CORS_PROXY + url)
     .then((res) => {
       if (!res.ok) {
         throw new Error(

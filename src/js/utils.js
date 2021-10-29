@@ -1,4 +1,4 @@
-export const CORS_PROXY = "/cors-proxy";
+export const CORS_PROXY = "/.netlify/functions/proxy?url=";
 
 /**
  * Check if a URL is relative to the current path or not
