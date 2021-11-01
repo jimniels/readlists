@@ -1,9 +1,3 @@
 [build]
   command = "NODE_ENV=production npm run build"
   publish = "build"
-
-[[redirects]]
-  from = "/cors-proxy/*"
-  to = ":splat"
-  status = 200
-  force = true

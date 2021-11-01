@@ -12,20 +12,20 @@ import { PropTypes as pt } from "./deps.js";
 /**
  * FYI: If mercury can't find a field, it returns null.
  * @typedef MercuryArticle
- * @param {string} author
- * @param {string} content - HTML string
- * @param {string} date_published - ISO8601 string
- * @param {} dek
- * @param {string} direction - "ltr"
- * @param {string} domain - "trackchanges.postlight.com",
- * @param {string} excerpt
- * @param {string} lead_image_url
- * @param {string} next_page_url - optional
- * @param {number} rendered_pages
- * @param {string} title
- * @param {number} total_pages
- * @param {string} url
- * @param {number} word_count
+ * @param {?string} author
+ * @param {?string} content - HTML string
+ * @param {?string} date_published - ISO8601 string
+ * @param {?string} dek
+ * @param {?string} direction - "ltr"
+ * @param {?string} domain - "trackchanges.postlight.com",
+ * @param {?string} excerpt
+ * @param {?string} lead_image_url
+ * @param {?string} next_page_url - optional
+ * @param {?number} rendered_pages
+ * @param {?string} title
+ * @param {?number} total_pages
+ * @param {?string} url
+ * @param {?number} word_count
  */
 
 export const readlistArticlePropTypes = pt.shape({

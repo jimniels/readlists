@@ -1,4 +1,11 @@
-export const CORS_PROXY = "/cors-proxy";
+/**
+ * Because we fetch things client side, like the HTML of articles at a URL or
+ * the images at a URL when generating an epub, we have to proxy all these
+ * requests or we'll likely get CORS issues.
+ *
+ * ROOT/.netlify/functions/proxy?url=
+ */
+export const CORS_PROXY = "/.netlify/functions/proxy?url=";
 
 /**
  * Check if a URL is relative to the current path or not

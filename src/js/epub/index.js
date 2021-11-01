@@ -83,7 +83,7 @@ export default async function exportToEpub(readlist) {
             // us from generating the book. Just use the image not found
             // that we have locally.
             try {
-              let res = await fetch(`${CORS_PROXY}/${src}`);
+              let res = await fetch(CORS_PROXY + src);
               const imgBlob = await res.blob();
 
               console.log("Fetched", src);
@@ -153,9 +153,9 @@ export default async function exportToEpub(readlist) {
   });
 
   // Include the placeholder image for missing images
-  const placeholderImg = await fetch(
-    "/assets/img-placeholder.jpg"
-  ).then((res) => res.blob());
+  const placeholderImg = await fetch("/assets/img-placeholder.jpg").then(
+    (res) => res.blob()
+  );
   zip.file("OEBPS/images/img-placeholder.jpg", placeholderImg);
 
   return zip
