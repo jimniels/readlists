@@ -5,6 +5,8 @@ exports.handler = async function (event, context) {
     queryStringParameters: { url },
   } = event;
 
+  console.log("[netlify-log] function fired");
+
   if (!url) {
     console.log("[netlify-log] missing URL param");
     return {
