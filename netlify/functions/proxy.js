@@ -6,6 +6,7 @@ exports.handler = async function (event, context) {
   } = event;
 
   if (!url) {
+    console.log("[netlify-log] missing URL param");
     return {
       statusCode: 400,
       body: "A `url` query parameter is required.",
@@ -13,11 +14,14 @@ exports.handler = async function (event, context) {
   }
 
   if (!isValidUrl(url)) {
+    console.log("[netlify-log] invalid URL param: " + url);
     return {
       statusCode: 400,
       body: "The supplied `url` is invalid.",
     };
   }
+
+  console.log("[netlify-log] URL request: " + url);
 
   return fetch(url)
     .then((res) => {
@@ -47,7 +51,7 @@ exports.handler = async function (event, context) {
       }));
     })
     .catch((err) => {
-      console.log(err);
+      console.log("netlify-log (error): " + err);
       return {
         statusCode: 500,
         body: "Failed to proxy request. " + err,
