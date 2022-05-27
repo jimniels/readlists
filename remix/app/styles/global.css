@@ -61,8 +61,8 @@ a {
 }
 
 body {
-  font-family: -apple-system /*, BlinkMacSystemFont*/, "Segoe UI", Roboto,
-    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  font-family: system-ui, -apple-system /*, BlinkMacSystemFont*/, "Segoe UI",
+    Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   margin: 0;
   padding: 0;
   background: var(--color-bg-secondary);
@@ -109,6 +109,7 @@ textarea {
     0 1px 0 hsla(0, 0%, 0%, 0.05);
   color: var(--color-accent);
   padding: 3px 10px;
+  text-decoration: none;
 }
 .button--circle {
   border-radius: 50%;
@@ -298,14 +299,26 @@ readlists-app[loading] readlists-nav:before {
 
 .article__new {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-bottom: calc(var(--spacer) / 2);
   flex-wrap: wrap;
   width: 100%;
 }
+.article__new > button {
+  margin-left: auto;
+}
+.article__new > * {
+  order: 2;
+}
+.article__new textarea {
+  order: 1;
+}
 .article__new textarea {
   margin-bottom: calc(var(--spacer) / 2);
+  display: none;
+}
+.article__new [type="checkbox"]:checked ~ textarea {
+  display: block;
 }
 .article__meta {
   display: flex;
@@ -337,7 +350,7 @@ readlists-app[loading] readlists-nav:before {
 .article__actions {
 }
 
-.article--create input[type="text"] {
+.article--create input[type="url"] {
   font-size: var(--font-size-lg);
   padding: calc(var(--spacer) / 2);
   width: 100%;
@@ -698,7 +711,7 @@ readlists-nav footer a {
 .ZeroState__container:nth-child(2) {
   border: 3px dashed hsla(var(--color-text-light-hsl), 0.25);
 }
-.ZeroState input[type="text"] {
+.ZeroState input {
   width: 90%;
   margin-bottom: calc(var(--spacer) / 2);
   border: 1px solid var(--color-border);
@@ -740,4 +753,10 @@ readlists-nav footer a {
     backdrop-filter: blur(10px);
     background: hsla(var(--color-bg-primary-hsl), 0.75);
   }
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
 }
