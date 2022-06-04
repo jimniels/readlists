@@ -159,10 +159,10 @@ select:disabled:hover {
   cursor: not-allowed;
 }
 
-.button:hover:not(:disabled),
-textarea:hover:not(:disabled),
-input:hover:not(:disabled),
-select:hover:not(:disabled) {
+.button:hover:not(:disabled):not(:focus),
+textarea:hover:not(:disabled):not(:focus),
+input:hover:not(:disabled):not(:focus),
+select:hover:not(:disabled):not(:focus) {
   box-shadow: 0 0 0 2px hsla(var(--color-accent-hsl), 0.5);
 }
 
@@ -717,6 +717,7 @@ readlists-nav footer a {
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   padding: calc(var(--spacer) / 2);
+  background-color: var(--color-bg-secondary);
 }
 .ZeroState-small-text {
   font-size: var(--font-size-sm);

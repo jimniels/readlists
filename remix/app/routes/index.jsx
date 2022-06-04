@@ -1,11 +1,13 @@
+import { Link } from "@remix-run/react";
+
 export default function Index() {
   return (
     <div class="wrapper" style={{ padding: 0 }}>
       <div class="ZeroState">
         <div class="ZeroState__container">
-          <a href="/new" class="button button--primary" type="submit">
+          <Link to="/create" class="button button--primary">
             Create Readlist
-          </a>
+          </Link>
         </div>
 
         <div
@@ -57,7 +59,7 @@ export default function Index() {
             };
           }}
         >
-          <label for="exampleInput" class="button">
+          <label htmlFor="exampleInput" class="button">
             Import Local Readlist...
             <input
               type="file"
@@ -96,7 +98,7 @@ export default function Index() {
           </span>
         </div>
 
-        <form method="get" action="/new" class="ZeroState__container">
+        <form method="get" action="/create" class="ZeroState__container">
           <input
             type="url"
             name="url"

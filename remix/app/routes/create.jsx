@@ -1,3 +1,4 @@
+// @TODO rename to /create
 import { useActionData, useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/server-runtime";
 import { fetchArticle } from "../utils/fetch-article.server.js";
@@ -7,30 +8,36 @@ import Textarea from "../components/Textarea.jsx";
 
 GET /
   Application zero state
-GET /new
+GET /create
   Creates a new readlist (in UI)
-GET /new?importReadlistUrl=<string:url>
-  Creates a new readlist from a url
-GET /new?importWebUrls=<Array.string>
-  Creates a new readlist from 1 or more of the specified web article urls
-  Example: /new?webUrls=https://theverge.com/path/to/aticle&[...]&[...]
-GET /new?download=[html,epub]
-  Add this param to any route and get the readlist back in the specified format
-POST /new <Readlist> JSON
-  Creates a new readlist from JSON
-POST /new <Readlist> formData
+POST /create <Readlist> formData
   Creates a new readlist from formData
+
+GET /create?importReadlistUrl=<string:url>
+  Creates a new readlist by importing an exisiting one from a URL
+GET /create?importWebUrls=<Array.string>
+  Creates a new readlist from 1 or more of the specified web article urls
+  Example: /create?webUrls=https://theverge.com/path/to/aticle&[...]&[...]
+GET /create?download=[html,epub]
+  Add this param to any route and get the readlist back in the specified format
+POST /create <Readlist> JSON
+  Creates a new readlist from JSON
 */
+
+/**
+ * For a GET, return a new Readlist
+ * @returns {Readlist}
+ */
 export async function loader({ request }) {
   const { searchParams } = new URL(request.url);
 
   // Passed in URL? We'll import that, validate it, parse it, and return it if relevant
-  const url = searchParams.get("url");
+  // const url = searchParams.get("url");
 
-  // Otherwise, create it as a new Readlist
+  // Create a new Readlist
   return json({
     readlist: {
-      title: "Readlist title",
+      title: "Untitled Readlist",
       description: "",
       date_modified: new Date().toISOString(),
       date_created: new Date().toISOString(),
@@ -40,57 +47,90 @@ export async function loader({ request }) {
 }
 
 export async function action({ request }) {
-  const formData = await request.formData();
-  const action = formData.get("__action");
-  console.log("POST", Object.fromEntries(formData.entries()));
+  const reqType = request.headers.get("Content-Type");
 
-  if (action === "add-article") {
-    try {
-      const readlist = parseReadlistFromFormData(formData);
+  // if (
+  //   !(
+  //     reqType === "application/x-www-form-urlencoded" ||
+  //     reqType === "application/json"
+  //   )
+  // ) {
+  //   throw json(
+  //     {
+  //       error:
+  //         "You must specify the Content-Type of your POST as either `application/x-www-form-urlencoded` or `application/json`",
+  //     },
+  //     400
+  //   );
+  // }
+
+  // @TODO if application/json
+
+  if (reqType === "application/x-www-form-urlencoded") {
+    // @TODO validate formData request
+    const formData = await request.formData();
+    const action = formData.get("__action") || "";
+    // await validateReadlistFormData(formData);
+
+    // console.log("POST", Object.fromEntries(formData.entries()));
+
+    if (action === "add-article") {
+      // @TODO validate data?
+      let readlist = parseReadlistFromFormData(formData);
+
+      // @TODO validate URL as string and URL
       const url = formData.get("new-article-url");
+
+      // @TODO validate HTML and sanitze it
       const html = formData.get("new-article-html");
-      if (!url) {
-        // @TODO field validation...
-        throw new Error("A URL is required.");
-      }
+
+      const index = Number(formData.get("new-article-index"));
+
+      // @TODO catch error if fetching article fails
       let article = await fetchArticle({
         url: formData.get("new-article-url"),
         html: formData.get("new-article-html"),
       });
-      readlist.articles.push(article);
-      // console.log("RETURN", {
-      //   ...readlist,
-      //   articles: readlist.articles.map(({ content, ...props }) => props),
-      // });
+      readlist.articles.splice(index, 0, article);
+      // readlist.articles.push(article);
+      readlist.date_modified = new Date().toISOString();
+
+      return json({ readlist });
+    }
+
+    if (action.startsWith("delete-article-by-index-")) {
+      const index = Number(action.split("delete-article-by-index-")[1]);
+      console.log("DELETE readlist article: ", index + 1);
+      const readlist = parseReadlistFromFormData(formData);
+      readlist.articles.splice(index, 1);
       readlist.date_modified = new Date().toISOString();
       return json({ readlist });
-    } catch (e) {
-      console.error(e);
-      return json({
-        error:
-          "Failed to retrieve online article. Try again or enter the HTML for that URL yourself. " +
-          e.toString(),
-        readlist: { articles: [] },
-      });
-      throw new Error("Failed to fetch article from URL");
-      // @TODO error boundary
     }
-  }
 
-  if (action.startsWith("delete-article-by-index-")) {
-    const index = Number(action.split("delete-article-by-index-")[1]);
-    console.log("DELETE readlist article: ", index + 1);
-    const readlist = parseReadlistFromFormData(formData);
-    readlist.articles.splice(index, 1);
-    readlist.date_modified = new Date().toISOString();
-    return json({ readlist });
+    if (action === "save-readlist") {
+      // @TODO how to do this as a non-resource route
+      const readlist = parseReadlistFromFormData(formData);
+      readlist.date_modified = new Date().toISOString();
+      return new Response(JSON.stringify(readlist, null, 2), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Disposition": "attachment; filename='MyFileName.ext'",
+        },
+      });
+    }
+
+    // @TODO better error handling
   }
 
   // Otherwise, there was no action that we know of
   console.log("specified `__action`: `%s`. Returning a new readlist.", action);
-  return null;
-  // otherwise do what?
-  //return json(`/projects/${project.id}`);
+  throw json(
+    {
+      error: "Unknwon intent. Ensure you’re making the right server call.",
+    },
+    400
+  );
 }
 
 export default function New() {
@@ -104,10 +144,15 @@ export default function New() {
 
   return (
     <div>
-      <form method="POST" action="/new" class="readlist wrapper">
+      <form method="POST" class="readlist wrapper">
         <fieldset class="readlist-header">
           <div class="readlist-header__actions actions">
-            <button class="button button--primary" onClick={() => {}}>
+            <button
+              class="button button--primary"
+              name="__action"
+              value="save-readlist"
+              type="submit"
+            >
               Save Readlist
             </button>
             <button
@@ -280,7 +325,7 @@ export default function New() {
               name="new-article-html-checkbox"
             />
             <label
-              for="new-article-html-checkbox"
+              htmlFor="new-article-html-checkbox"
               title="Provide the article’s HTML yourself. Useful for things like webpages behind authentication."
             >
               Custom HTML
@@ -307,11 +352,24 @@ export default function New() {
   );
 }
 
+export function ErrorBoundary({ error }) {
+  console.log(error);
+  return (
+    <div>
+      <h1>Error</h1>
+      <p>{error.message}</p>
+      <p>The stack trace is:</p>
+      <pre>{error.stack}</pre>
+    </div>
+  );
+}
+
 function parseReadlistFromFormData(formData) {
   let readlist = {
-    title: formData.get("readlist.title"),
-    description: formData.get("readlist.description"),
-    date_created: formData.get("readlist.date_created"),
+    title: formData.get("readlist.title") || "",
+    description: formData.get("readlist.description") || "",
+    date_created:
+      formData.get("readlist.date_created") || new Date().toISOString(),
     date_modified: formData.get("readlist.date_modified"),
     articles: [],
   };
