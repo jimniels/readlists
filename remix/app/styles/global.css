@@ -273,7 +273,7 @@ readlists-app[loading] readlists-nav:before {
   .article__excerpt,
   .article__actions,
   .article__new {
-    padding-left: calc(55px + var(--spacer));
+    /* padding-left: calc(55px + var(--spacer)); */
   }
 
   .article__main {
@@ -286,14 +286,18 @@ readlists-app[loading] readlists-nav:before {
   width: 100%;
   margin: 0 0 calc(var(--spacer) / 2) 0;
 }
-.article__main > :first-child {
+
+/* .article__main > :first-child {
   width: 60px;
   margin: calc(var(--spacer) / 2) 0;
-}
+} */
 
 @media screen and (min-width: 700px) {
-  .article__main > :first-child {
+  /* .article__main > :first-child {
     margin: 0 var(--spacer) 0 0;
+  } */
+  .article {
+    padding-left: 40px;
   }
 }
 
@@ -322,8 +326,15 @@ readlists-app[loading] readlists-nav:before {
 }
 .article__meta {
   display: flex;
-  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  margin: 0 0 calc(var(--spacer) / 2) 0;
+}
+.article__meta a {
   color: var(--color-text-light);
+}
+.article__meta a:hover {
+  color: var(--color-accent);
 }
 .article__meta__author,
 .article__meta__domain {

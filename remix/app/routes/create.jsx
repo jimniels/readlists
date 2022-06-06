@@ -1,8 +1,9 @@
 // @TODO rename to /create
-import { useActionData, useLoaderData } from "@remix-run/react";
+import { Link, useActionData, useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/server-runtime";
 import { fetchArticle } from "../utils/fetch-article.server.js";
 import Textarea from "../components/Textarea.jsx";
+import { parseReadlistFromFormData } from "../utils.js";
 
 /*
 
@@ -120,6 +121,16 @@ export async function action({ request }) {
       });
     }
 
+    if (action.startsWith("reorder-article-")) {
+      const readlist = parseReadlistFromFormData(formData);
+      readlist.date_modified = new Date().toISOString();
+      const oldIndex = Number(action.split("reorder-article-")[1]);
+      const newIndex = Number(formData.get(`article-order-${oldIndex}`));
+      console.log("Moving article %s to %s", oldIndex, newIndex);
+      moveItemInArray(readlist.articles, oldIndex, newIndex);
+      return json({ readlist });
+    }
+
     // @TODO better error handling
   }
 
@@ -143,212 +154,279 @@ export default function New() {
   }
 
   return (
-    <div>
-      <form method="POST" class="readlist wrapper">
-        <fieldset class="readlist-header">
-          <div class="readlist-header__actions actions">
-            <button
-              class="button button--primary"
-              name="__action"
-              value="save-readlist"
-              type="submit"
-            >
-              Save Readlist
-            </button>
-            <button
-              class={`button isLoadingEpub ? "button--is-loading" : ""`}
-              onClick={() => {}}
-            >
-              Export to .epub
-            </button>
-            <button class="button">Export to .html</button>
+    <form method="POST" class="readlist wrapper">
+      <fieldset class="readlist-header">
+        <div class="readlist-header__actions actions">
+          <button
+            class="button button--primary"
+            formaction="/export?format=json"
+            type="submit"
+            formnovalidate="true"
+          >
+            Save Readlist
+          </button>
+          <button
+            class="button isLoadingEpub button--is-loadingz"
+            formaction="/export?format=epub"
+            formnovalidate="true"
+            type="submit"
+          >
+            Export EPUB
+          </button>
+          <button
+            class="button"
+            formaction="/export?format=html"
+            formtarget="_blank"
+            formnovalidate="true"
+            type="submit"
+          >
+            Export HTML
+          </button>
 
-            {/* clear local state, then onClick={handleDeleteReadlist} */}
-            <a href="/" class="button button--danger">
-              Delete
-            </a>
-          </div>
+          {/* clear local state, then onClick={handleDeleteReadlist} */}
+          <Link to="/" class="button button--danger">
+            Delete
+          </Link>
+        </div>
 
-          <Textarea
-            class="readlist-header__title"
-            placeholder="Readlist title..."
-            onBlur={(e) => {
-              handleUpdatePartOfReadlist("title", e.target.value);
-            }}
-            name="readlist.title"
-            defaultValue={readlist.title}
-          />
+        <Textarea
+          class="readlist-header__title"
+          placeholder="Readlist title..."
+          onBlur={(e) => {
+            handleUpdatePartOfReadlist("title", e.target.value);
+          }}
+          name="readlist.title"
+          defaultValue={readlist.title}
+        />
 
-          <Textarea
-            class="readlist-header__description"
-            placeholder="Readlist description..."
-            onBlur={(e) => {
-              handleUpdatePartOfReadlist("description", e.target.value);
-            }}
-            name="readlist.description"
-            defaultValue={readlist.description}
-          />
+        <Textarea
+          class="readlist-header__description"
+          placeholder="Readlist description..."
+          onBlur={(e) => {
+            handleUpdatePartOfReadlist("description", e.target.value);
+          }}
+          name="readlist.description"
+          defaultValue={readlist.description}
+        />
 
-          <dl class="readlist-header__meta">
-            <dt>Created</dt>
-            <dd>
-              {new Intl.DateTimeFormat("en-US", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                minute: "numeric",
-                hour: "numeric",
-              }).format(new Date(readlist.date_created))}
-            </dd>
-            <dt>Last modified</dt>
-            <dd>
-              {new Intl.DateTimeFormat("en-US", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                minute: "numeric",
-                hour: "numeric",
-              }).format(new Date(readlist.date_modified))}
-            </dd>
-          </dl>
-          <input
-            type="hidden"
-            name="readlist.date_created"
-            value={readlist.date_created}
-          />
-          <input
-            type="hidden"
-            name="readlist.date_modified"
-            value={readlist.date_modified}
-          />
-        </fieldset>
+        <dl class="readlist-header__meta">
+          <dt>Created</dt>
+          <dd>
+            {new Intl.DateTimeFormat("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              minute: "numeric",
+              hour: "numeric",
+            }).format(new Date(readlist.date_created))}
+          </dd>
+          <dt>Last modified</dt>
+          <dd>
+            {new Intl.DateTimeFormat("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              minute: "numeric",
+              hour: "numeric",
+            }).format(new Date(readlist.date_modified))}
+          </dd>
+        </dl>
+        <input
+          type="hidden"
+          name="readlist.date_created"
+          value={readlist.date_created}
+        />
+        <input
+          type="hidden"
+          name="readlist.date_modified"
+          value={readlist.date_modified}
+        />
+      </fieldset>
 
-        <ul class="articles">
-          {readlist.articles.map((article, articleIndex) => (
-            <li class="article" key={articleIndex}>
-              <div class="article__meta">
-                <p class="article__meta__domain">
-                  <a href={article.url} target="__blank">
-                    {" "}
-                    {article.domain}{" "}
-                  </a>
-                </p>
-                {article.author && (
-                  <p class="article__meta__author">{article.author}</p>
-                )}
-              </div>
-              <div class="article__main">
-                <select disabled>
-                  <option value={articleIndex}>{articleIndex + 1}</option>
+      <ul class="articles">
+        {readlist.articles.map((article, articleIndex) => (
+          <li class="article" key={articleIndex}>
+            <div class="article__meta">
+              <div
+                style={{ display: "flex", gap: "4px", alignItems: "center" }}
+              >
+                <select
+                  name={`article-order-${articleIndex}`}
+                  defaultValue={articleIndex}
+                >
+                  {[...Array(readlist.articles.length)].map((_undef, index) => (
+                    <option
+                      key={index}
+                      value={index}
+                      disabled={index === articleIndex}
+                    >
+                      {index + 1}
+                    </option>
+                  ))}
                 </select>
-
-                <Textarea
-                  name="readlist.articles[].title"
-                  rows="2"
-                  class="article__title"
-                  placeholder="Article title..."
-                  onChange={(e) => {
-                    handleUpdateReadlistArticle({
-                      articleUrl: article.url,
-                      articleTitle: e.target.value,
-                      setReadlist,
-                    });
-                  }}
-                  defaultValue={article.title}
-                />
-                {["domain", "author", "url", "excerpt", "content"].map(
-                  (key) => (
-                    <input
-                      type="hidden"
-                      name={`readlist.articles[].${key}`}
-                      value={article[key]}
-                    />
-                  )
-                )}
-              </div>
-
-              {article.excerpt && (
-                <p class="article__excerpt">{article.excerpt}</p>
-              )}
-
-              <div class="article__actions actions">
                 <button
                   class="button"
-                  onClick={(e) => {
-                    handleSelectReadlistArticle({
-                      setArticlePreviewUrl,
-                      articleUrl: article.url,
-                    });
-                  }}
-                  value={article.url}
-                >
-                  Preview
-                </button>
-                {/*<button class="button" disabled>Edit HTML</button>*/ ""}
-                <button
-                  class="button button--danger"
                   name="__action"
-                  value={`delete-article-by-index-${articleIndex}`}
-                  type="submit"
+                  value={`reorder-article-${articleIndex}`}
+                  title="Reorder"
+                  formnovalidate="true"
                 >
-                  Delete
+                  Move
                 </button>
               </div>
-            </li>
-          ))}
-        </ul>
+              <button
+                class="button button--danger"
+                name="__action"
+                value={`delete-article-by-index-${articleIndex}`}
+                type="submit"
+                formnovalidate="true"
+              >
+                Delete
+              </button>
+            </div>
+            <div class="article__main">
+              <div>
+                {/* <input
+                  type="number"
+                  name="article-"
+                  value={articleIndex + 1}
+                  max={readlist.articles.length}
+                  min="1"
+                  required
+                  style={{ width: "100%" }}
+                /> */}
+                {/* <select defaultValue={articleIndex}>
+                  {[...Array(readlist.articles.length + 1)].map(
+                    (_undef, index) => (
+                      <option
+                        key={index}
+                        value={index}
+                        disabled={index === articleIndex}
+                      >
+                        {index + 1}
+                      </option>
+                    )
+                  )}
+                </select>
+                <button
+                  class="button"
+                  name="__action"
+                  value="reorder-article"
+                  title="Reorder"
+                >
+                  Move
+                </button> */}
+              </div>
 
-        <fieldset class="article article--create">
-          <div class="article__main">
-            <select
-              name="new-article-index"
-              defaultValue={readlist.articles.length}
-              disabled={readlist.articles.length === 0}
-            >
-              {[...Array(readlist.articles.length + 1)].map((_undef, index) => (
-                <option key={index} value={index}>
-                  {index + 1}
-                </option>
+              <Textarea
+                name="readlist.articles[].title"
+                rows="2"
+                class="article__title"
+                placeholder="Article title..."
+                onChange={(e) => {
+                  handleUpdateReadlistArticle({
+                    articleUrl: article.url,
+                    articleTitle: e.target.value,
+                    setReadlist,
+                  });
+                }}
+                defaultValue={article.title}
+              />
+              {["domain", "url", "excerpt", "content"].map((key) => (
+                <input
+                  type="hidden"
+                  name={`readlist.articles[].${key}`}
+                  value={article[key]}
+                />
               ))}
-            </select>
+            </div>
 
-            <input
-              type="url"
-              name="new-article-url"
-              placeholder="http://your-article-url.com/goes/here"
-            />
-          </div>
-          <div class="article__new">
-            <input
-              type="checkbox"
-              id="new-article-html-checkbox"
-              name="new-article-html-checkbox"
-            />
-            <label
-              htmlFor="new-article-html-checkbox"
-              title="Provide the article’s HTML yourself. Useful for things like webpages behind authentication."
-            >
-              Custom HTML
-            </label>
-            {/* required IF checkbox is checked */}
-            <textarea
-              rows="5"
-              name="new-article-html"
-              placeholder="<!DOCTYPE html><html><head><title>Title of Webpage</title>..."
-            ></textarea>
+            {/* This is setInnerHtml because sometimes Mercury puts a &hellip; for articles it truncates */}
+            {article.excerpt ? (
+              <p
+                class="article__excerpt"
+                dangerouslySetInnerHTML={{ __html: article.excerpt }}
+              />
+            ) : (
+              ""
+            )}
+            <div>
+              <a href={article.url} target="__blank">
+                {" "}
+                {article.domain}{" "}
+              </a>
+            </div>
 
-            <button
-              name="__action"
-              value="add-article"
-              class="button button--is-loadingz"
-              type="submit"
-            >
-              Add
-            </button>
-          </div>
-        </fieldset>
-      </form>
-    </div>
+            <div class="article__actions actions">
+              {/* <button
+                class="button"
+                onClick={(e) => {
+                  handleSelectReadlistArticle({
+                    setArticlePreviewUrl,
+                    articleUrl: article.url,
+                  });
+                }}
+                value={article.url}
+              >
+                Preview
+              </button> */}
+              {/*<button class="button" disabled>Edit HTML</button>*/ ""}
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <fieldset class="article article--create">
+        <div>
+          <select
+            name="new-article-index"
+            defaultValue={readlist.articles.length}
+            disabled={readlist.articles.length === 0}
+          >
+            {[...Array(readlist.articles.length + 1)].map((_undef, index) => (
+              <option key={index} value={index}>
+                {index + 1}
+              </option>
+            ))}
+          </select>
+          <button
+            name="__action"
+            value="add-article"
+            class="button button--is-loadingz"
+            type="submit"
+          >
+            Add
+          </button>
+        </div>
+
+        <input
+          type="url"
+          name="new-article-url"
+          required
+          placeholder="http://your-article-url.com/goes/here"
+        />
+
+        <div class="article__new">
+          <input
+            type="checkbox"
+            id="new-article-html-checkbox"
+            name="new-article-html-checkbox"
+          />
+          <label
+            htmlFor="new-article-html-checkbox"
+            title="Provide the article’s HTML yourself. Useful for things like webpages behind authentication."
+          >
+            Custom HTML
+          </label>
+          {/* required IF checkbox is checked */}
+          <textarea
+            rows="5"
+            name="new-article-html"
+            placeholder="<!DOCTYPE html><html><head><title>Title of Webpage</title>..."
+          ></textarea>
+        </div>
+      </fieldset>
+    </form>
   );
 }
 
@@ -364,41 +442,20 @@ export function ErrorBoundary({ error }) {
   );
 }
 
-function parseReadlistFromFormData(formData) {
-  let readlist = {
-    title: formData.get("readlist.title") || "",
-    description: formData.get("readlist.description") || "",
-    date_created:
-      formData.get("readlist.date_created") || new Date().toISOString(),
-    date_modified: formData.get("readlist.date_modified"),
-    articles: [],
-  };
-
-  // Keys for each readlist article
-  const articleKeys = [
-    "title",
-    "domain",
-    "author",
-    "url",
-    "excerpt" /*"content"*/,
-  ];
-  // {
-  //   title: ["First article title", "Second article title", ...]
-  //   domain: ["https://theverge.com/first/article", "https://example.com/second/article", ...]
-  // }
-  const articleValuesByKey = articleKeys.reduce((acc, key) => {
-    acc[key] = formData.getAll(`readlist.articles[].${key}`);
-    return acc;
-  }, {});
-
-  // Now build an array of articles cross-referencing the formData we got
-  articleValuesByKey[articleKeys[0]].forEach((_, i) => {
-    readlist.articles[i] = {};
-    articleKeys.forEach((key) => {
-      readlist.articles[i][key] = articleValuesByKey[key][i];
-    });
-  });
-
-  // console.log("formData => readlist", readlist);
-  return readlist;
+// https://stackoverflow.com/questions/5306680/move-an-array-element-from-one-array-position-to-another
+function moveItemInArray(arr, old_index, new_index) {
+  while (old_index < 0) {
+    old_index += arr.length;
+  }
+  while (new_index < 0) {
+    new_index += arr.length;
+  }
+  if (new_index >= arr.length) {
+    var k = new_index - arr.length + 1;
+    while (k--) {
+      arr.push(undefined);
+    }
+  }
+  arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+  // return arr; // for testing purposes
 }
