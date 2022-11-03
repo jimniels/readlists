@@ -59,3 +59,13 @@ export function parseReadlistFromFormData(formData) {
   // console.log("formData => readlist", readlist);
   return readlist;
 }
+
+export function isValidUrl(string) {
+  try {
+    new URL(string);
+  } catch (_) {
+    return false;
+  }
+
+  return true;
+}

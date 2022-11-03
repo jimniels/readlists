@@ -25,10 +25,10 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body class="wrapper">
         <Header />
         <Outlet />
-        <ScrollRestoration />
+        {/* <ScrollRestoration /> */}
         {/* <Scripts /> */}
         <LiveReload />
       </body>
@@ -47,7 +47,7 @@ function Header() {
 
   return (
     <>
-      <header class="Header wrapper">
+      <header class="Header">
         <h1 class="Header__title">Readlists</h1>
         <button
           class={btnClasses}
