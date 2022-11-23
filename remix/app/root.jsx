@@ -10,7 +10,7 @@ import styles from "~/styles/global.css";
 
 export const meta = () => ({
   charset: "utf-8",
-  title: "New Remix App",
+  title: "Readlists",
   viewport: "width=device-width,initial-scale=1",
 });
 
@@ -48,7 +48,9 @@ function Header() {
   return (
     <>
       <header class="Header">
-        <h1 class="Header__title">Readlists</h1>
+        <h1 class="Header__title">
+          <a href="/">Readlists</a>
+        </h1>
         <button
           class={btnClasses}
           title={`${learnMoreIsVisible ? "Hide" : "Show"} more info`}

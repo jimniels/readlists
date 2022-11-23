@@ -66,6 +66,7 @@ export default function Index() {
           name="readlist"
           accept=".json"
           class="hide-with-js"
+          required
         />
         <button type="submit" class="button button--primary">
           Upload Readlist

@@ -593,9 +593,14 @@ readlists-nav footer a {
 
 .wrapper {
   max-width: 700px;
-  padding: 0 var(--spacer);
   margin-left: auto;
   margin-right: auto;
+}
+
+@media screen and (min-width: 700px) {
+  .wrapper {
+    padding: 0 var(--spacer);
+  }
 }
 
 .readlist {
@@ -714,7 +719,8 @@ readlists-nav footer a {
   grid-column-end: 3;
 }
 .ZeroState__container:nth-child(2) {
-  border: 3px dashed hsla(var(--color-text-light-hsl), 0.25);
+  /* enable this when JS is present
+     border: 3px dashed hsla(var(--color-text-light-hsl), 0.25); */
 }
 .ZeroState input {
   width: 100%;

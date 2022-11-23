@@ -1,4 +1,3 @@
-import { useActionData, useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/server-runtime";
 import { parseReadlistFromFormData } from "../utils.js";
 
@@ -7,6 +6,19 @@ const F_HTML = "html";
 const F_JSON = "json";
 const FORMATS = [F_EPUB, F_HTML, F_JSON];
 
+/**
+ * Handle errant requests
+ */
+export async function loader() {
+  return json(
+    { error: "Bad request. This resource is for exporting Readlists" },
+    { status: 400 }
+  );
+}
+
+/**
+ * POST /export?format=(json|html|epub) <readlist-form-data>
+ */
 export async function action({ request }) {
   const { searchParams } = new URL(request.url);
   const format = searchParams.get("format");

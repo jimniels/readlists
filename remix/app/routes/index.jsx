@@ -13,12 +13,10 @@ import { isValidUrl, parseReadlistFromFormData } from "../utils.js";
 /*
 
 GET / - App zero state
-      - GET /?readlist=new
-      - GET /?readlist=<string:url>
-      - POST / <readlist-file-data>
 GET /?readlist=new - New, empty readlist
 GET /?readlist=<url> - Import a readlist from a URL
-GET /?readlist=new&article=<string:url>[&article=<string:url>] - Create a new readlist with x URLs
+
+@TODO GET /?readlist=new&article=<string:url>[&article=<string:url>] - Create a new readlist with x URLs
 
 POST /<readlist:formData> - Anytime there's a change. This should come with an action
 POST /<readlist:file> - .json file upload of a readlist
@@ -31,43 +29,40 @@ POST /<readlist:file> - .json file upload of a readlist
 export async function loader({ request }) {
   const { searchParams } = new URL(request.url);
 
-  const readlist = searchParams.get("readlist");
-  if (readlist) {
-    if (readlist === "new") {
-      return json({
-        readlist: {
-          title: "Untitled Readlist",
-          description: "",
-          date_modified: new Date().toISOString(),
-          date_created: new Date().toISOString(),
-          articles: [],
-        },
-      });
-    }
+  const r = searchParams.get("readlist");
 
-    // Passed in URL? We'll import that, validate it, parse it, and return it if relevant
-    if (isValidUrl(readlist)) {
-      let potentialReadlist = await fetch(readlist)
-        .then((res) => res.json())
-        .catch((err) => {
-          console.error(
-            `Failed to fetch & validate a valid readlist at URL: ${readlist}`,
-            err
-          );
-          return {};
-        });
-      if (potentialReadlist.title && potentialReadlist.articles) {
-        return json({ readlist: potentialReadlist });
-      }
-    }
-
+  // Create a new Readlist
+  if (r && r === "new") {
     return json({
-      readlist: undefined,
-      error:
-        "Invalid Readlist requested. Please modify your request and try again.",
+      readlist: {
+        title: "Untitled Readlist",
+        description: "",
+        date_modified: new Date().toISOString(),
+        date_created: new Date().toISOString(),
+        articles: [],
+      },
     });
   }
 
+  // Create a Readlist from a URL
+  if (isValidUrl(r)) {
+    try {
+      const res = await fetch(r);
+      const json = await res.json();
+      const readlist = await validateReadlist();
+      return json({ readlist });
+    } catch (e) {
+      console.log("Failed to fetch and parse remoted readlist at URL:", r);
+      console.error("  " + e.toString());
+      return json({
+        readlist: undefined,
+        error:
+          "Invalid request: a valid URL to a Readlist .json file is required.",
+      });
+    }
+  }
+
+  // Default state
   return { readlist: undefined, error: undefined };
 }
 
@@ -218,6 +213,8 @@ export default function Create() {
     );
   }
 
+  const isDisabledReordering = readlist.articles.length < 2;
+
   return (
     <>
       {error && ErrorMsg(error)}
@@ -254,7 +251,6 @@ export default function Create() {
               Export HTML
             </button>
 
-            {/* clear local state, then onClick={handleDeleteReadlist} */}
             <Link to="/" class="button button--danger">
               Delete
             </Link>
@@ -263,9 +259,6 @@ export default function Create() {
           <Textarea
             class="readlist-header__title"
             placeholder="Readlist title..."
-            onBlur={(e) => {
-              handleUpdatePartOfReadlist("title", e.target.value);
-            }}
             name="readlist.title"
             defaultValue={readlist.title}
           />
@@ -273,9 +266,6 @@ export default function Create() {
           <Textarea
             class="readlist-header__description"
             placeholder="Readlist description..."
-            onBlur={(e) => {
-              handleUpdatePartOfReadlist("description", e.target.value);
-            }}
             name="readlist.description"
             defaultValue={readlist.description}
           />
@@ -324,10 +314,8 @@ export default function Create() {
                   <select
                     name={`article-order-${articleIndex}`}
                     defaultValue={articleIndex}
+                    disabled={isDisabledReordering}
                   >
-                    {/* <option value="" disabled selected>
-                    Move to…
-                  </option> */}
                     {[...Array(readlist.articles.length)].map(
                       (_undef, index) => (
                         <option
@@ -346,6 +334,7 @@ export default function Create() {
                     value={`reorder-article-${articleIndex}`}
                     title="Reorder"
                     formnovalidate="true"
+                    disabled={isDisabledReordering}
                   >
                     Reorder
                   </button>
@@ -362,55 +351,16 @@ export default function Create() {
               </div>
 
               <div class="article__main">
-                <div>
-                  {/* <input
-                  type="number"
-                  name="article-"
-                  value={articleIndex + 1}
-                  max={readlist.articles.length}
-                  min="1"
-                  required
-                  style={{ width: "100%" }}
-                /> */}
-                  {/* <select defaultValue={articleIndex}>
-                  {[...Array(readlist.articles.length + 1)].map(
-                    (_undef, index) => (
-                      <option
-                        key={index}
-                        value={index}
-                        disabled={index === articleIndex}
-                      >
-                        {index + 1}
-                      </option>
-                    )
-                  )}
-                </select>
-                <button
-                  class="button"
-                  name="__action"
-                  value="reorder-article"
-                  title="Reorder"
-                >
-                  Move
-                </button> */}
-                </div>
-
                 <Textarea
                   name="readlist.articles[].title"
                   rows="2"
                   class="article__title"
                   placeholder="Article title..."
-                  onChange={(e) => {
-                    handleUpdateReadlistArticle({
-                      articleUrl: article.url,
-                      articleTitle: e.target.value,
-                      setReadlist,
-                    });
-                  }}
                   defaultValue={article.title}
                 />
                 {["domain", "url", "excerpt", "content"].map((key) => (
                   <input
+                    key={key}
                     type="hidden"
                     name={`readlist.articles[].${key}`}
                     value={article[key]}
@@ -418,20 +368,23 @@ export default function Create() {
                 ))}
               </div>
 
-              {/* This is setInnerHtml because sometimes Mercury puts a &hellip; for articles it truncates */}
-
+              {/* This is setInnerHtml because sometimes Mercury puts a &hellip;
+                  for articles it truncates */}
               <div class="article__excerpt">
                 <a href={article.url} target="__blank">
                   {article.domain}
                 </a>
-                {" - "}
                 {article.excerpt && (
-                  <span dangerouslySetInnerHTML={{ __html: article.excerpt }} />
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: " - " + article.excerpt,
+                    }}
+                  />
                 )}
               </div>
 
-              <div class="article__actions actions">
-                {/* <button
+              {/*<div class="article__actions actions">
+                 <button
                 class="button"
                 onClick={(e) => {
                   handleSelectReadlistArticle({
@@ -442,36 +395,14 @@ export default function Create() {
                 value={article.url}
               >
                 Preview
-              </button> */}
-                {/*<button class="button" disabled>Edit HTML</button>*/ ""}
-              </div>
+              </button>
+                <button class="button" disabled>Edit HTML</button>
+              </div> */}
             </li>
           ))}
         </ul>
 
         <fieldset class="article article--create">
-          {/* <div>
-          <select
-            name="new-article-index"
-            defaultValue={readlist.articles.length}
-            disabled={readlist.articles.length === 0}
-          >
-            {[...Array(readlist.articles.length + 1)].map((_undef, index) => (
-              <option key={index} value={index}>
-                {index + 1}
-              </option>
-            ))}
-          </select>
-          <button
-            name="__action"
-            value="add-article"
-            class="button button--is-loadingz"
-            type="submit"
-          >
-            Add
-          </button>
-        </div> */}
-
           <input
             type="url"
             name="new-article-url"
