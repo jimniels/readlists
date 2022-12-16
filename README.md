@@ -57,3 +57,18 @@ At its core, a readlist is simply a JSON file. That JSON file’s structure is m
 - [ ] Refactor handlers to be at bottom of hooks?
 - [ ] Draggable sorting?
 - [ ] support proxing requests, so CORS wouldn't have to be supported to pull in a remote readlist
+
+## Readlist TODOs
+
+- [] Styles & responsiveness
+- [] Import exisiting readlist (remote or local)
+- [] Export to HTML
+- [] Export to EPUB
+- [] Work without JS
+- [] Work with JS
+- [] Question mark
+- [] Custom HTML with article URL
+- [] Home page and "about" page
+- [] custom HTML
+
+- [] JSON feed
