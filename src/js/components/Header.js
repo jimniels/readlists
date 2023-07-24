@@ -41,6 +41,14 @@ export default function Header() {
             side the data is all yours. Do whatever you want with it.
           </p>
           <p>
+            Import a file by using the \`url\` query parameter (make sure you
+            don’t have an open Readlist), e.g.
+            <br />
+            <code>
+              https://readlists.jim-nielsen.com/?url=https://example.com/path/to/readlist.json</code
+            >
+          </p>
+          <p>
             Want to know more technical details? Check out${" "}
             <a href="https://github.com/jimniels/readlists"
               >the project on Github.</a
