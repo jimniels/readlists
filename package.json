@@ -18,5 +18,8 @@
     "babel-plugin-htm": "^3.0.0",
     "chai": "^4.3.0",
     "netlify-cli": "^3.8.6"
+  },
+  "dependencies": {
+    "@postlight/parser": "^2.2.3"
   }
 }
