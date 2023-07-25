@@ -6,5 +6,7 @@
   "scripts": {},
   "author": "",
   "license": "ISC",
-  "devDependencies": {}
+  "dependencies": {
+    "@postlight/parser": "^2.2.3"
+  }
 }

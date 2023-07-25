@@ -1,3 +1,9 @@
 [build]
   command = "NODE_ENV=production npm run build"
   publish = "build"
+
+[[redirects]]
+  from = "/feedgen"
+  to = "/.netlify/functions/feedgen"
+  status = 200
+  force = true
