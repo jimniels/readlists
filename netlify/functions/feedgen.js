@@ -39,12 +39,18 @@ exports.handler = async function (event, context) {
     };
 
     return {
+      headers: {
+        "Content-Type": "application/json",
+      },
       statusCode: 200,
       body: JSON.stringify(feed),
     };
   } catch (e) {
     console.error(e);
     return {
+      headers: {
+        "Content-Type": "application/json",
+      },
       statusCode: 400,
       body: JSON.stringify({
         error:
