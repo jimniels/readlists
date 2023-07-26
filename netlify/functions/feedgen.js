@@ -5,8 +5,10 @@ exports.handler = async function (event, context) {
   console.log(event);
   // Support title=..., description=...
   // Or even a POST with data
+  // Or alternative parsers
   const {
     path,
+    queryStringParameters,
     multiValueQueryStringParameters: { url: urls },
   } = event;
 
@@ -17,19 +19,42 @@ exports.handler = async function (event, context) {
       urls.filter(isValidUrl).map(async (url, i) => {
         const result = await Parser.parse(url);
 
-        return {
+        let item = {
           id: `${i}`,
           url,
-          ...(result
-            ? { content_html: result.content }
-            : { content_text: `Failed to parse content for url: ${url}` }),
         };
+
+        if (result) {
+          const {
+            content,
+            title,
+            excerpt,
+            lead_image_url,
+            date_published,
+            author,
+          } = result;
+          if (content) item.content_html = content;
+          if (title) item.title = title;
+          if (excerpt) item.summary = excerpt;
+          if (lead_image_url) item.image = lead_image_url;
+          if (date_published) item.date_published = date_published;
+          if (author) item.authors = { name: author };
+        } else {
+          item.content_text = `Failed to parse content for url: ${url}`;
+        }
+        return item;
       })
     );
 
     let feed = {
       version: "https://jsonfeed.org/version/1",
-      title: "Untitled feed",
+      title: queryStringParameters.title || "Readlist feed",
+      description:
+        "A feed generated as a custom Readlist, courtesy of https://readlist.jim-nielsen.com",
+      // icon
+      // favicon
+      // authors - pulls from the retrieved articles
+      expired: true,
       home_page_url: "https://readlists.jim-nielsen.com",
       // URL that was called
       feed_url: `https://readlists.jim-nielsen.com/feedgen?${urls
