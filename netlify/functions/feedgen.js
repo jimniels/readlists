@@ -18,7 +18,7 @@ exports.handler = async function (event, context) {
         const result = await Parser.parse(url);
 
         return {
-          id: i,
+          id: `${i}`,
           url,
           ...(result
             ? { content_html: result.content }
