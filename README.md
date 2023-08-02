@@ -9,33 +9,21 @@ Bringing back the spirit of the original Readlists service. [Check out the blog 
 
 ## How it Works
 
-[readlists.jim-nielsen.com](https://readlists.jim-nielsen.com) is merely a web front-end, a GUI, for creating and editing readlists.
+[readlists.jim-nielsen.com](https://readlists.jim-nielsen.com) is merely a web front-end, a GUI, for creating and editing a Readlist.
 
-At its core, a readlist is simply a JSON file. That JSON file’s structure is mostly what you get from [mercury-parser](https://github.com/postlight/mercury-parser).
+At its core, a readlist is simply a [JSON feed](https://www.jsonfeed.org/) whose contents are largely populated with what you get from [mercury-parser](https://github.com/postlight/mercury-parser).
 
-```js
+```json
 {
-  "title": "The title of the readlist",
-  "description": "A description of the readlist",
-  "date_created": "2020-12-19T15:04:39.464Z",
-  "date_modified": "2020-12-19T15:04:39.464Z",
-  // Every article is just a Mercury parser object
-  "articles": [
+  "version": "https://jsonfeed.org/version/1.1",
+  "title": "My Readlist",
+  "description": "A custom description of the Readlist",
+  "items": [
     {
-      "title": "Thunder (mascot)",
-      "content": "... <p><b>Thunder</b> is the <a href=\"https://en.wikipedia.org/wiki/Stage_name\">stage name</a> for the...",
-      "author": "Wikipedia Contributors",
-      "date_published": "2016-09-16T20:56:00.000Z",
-      "lead_image_url": null,
-      "dek": null,
-      "next_page_url": null,
+      "id": "https://en.wikipedia.org/wiki/Thunder_(mascot)",
       "url": "https://en.wikipedia.org/wiki/Thunder_(mascot)",
-      "domain": "en.wikipedia.org",
-      "excerpt": "Thunder Thunder is the stage name for the horse who is the official live animal mascot for the Denver Broncos",
-      "word_count": 4677,
-      "direction": "ltr",
-      "total_pages": 1,
-      "rendered_pages": 1
+      "title": "Thunder (mascot)",
+      "content_html": "... <p><b>Thunder</b> is the <a href=\"https://en.wikipedia.org/wiki/Stage_name\">stage name</a> for the..."
     }
   ]
 }
@@ -44,6 +32,7 @@ At its core, a readlist is simply a JSON file. That JSON file’s structure is m
 ## ToDos
 
 - [ ] Maybe get to these someday
+- [ ] Use Zod for types
 - [ ] Error boundary that clears localStorage
 - [ ] Setup shared proptypes
 - [ ] write more tests for stuff in utils

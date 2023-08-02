@@ -1,3 +1,4 @@
+/** @typedef {import("../prop-types.js").Readlist} Readlist */
 import { React, html } from "../deps.js";
 import Header from "./Header.js";
 import ZeroState from "./ZeroState.js";
@@ -7,6 +8,7 @@ import Error from "./Error.js";
 import { devLog } from "../utils.js";
 const { useState, useEffect } = React;
 
+/** @param {{ initialReadlist: Readlist }} props */
 export default function App({ initialReadlist }) {
   const [readlist, setReadlist] = useState(initialReadlist);
   const [error, setError] = useState("");

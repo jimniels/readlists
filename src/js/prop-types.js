@@ -2,30 +2,58 @@ import { PropTypes as pt } from "./deps.js";
 
 /**
  * @typedef Readlist
- * @param {string} title
- * @param {description} description
- * @param {string} date_created - ISO8601 date
- * @param {string} date_modified - ISO8601 date
- * @param {Array.<MercuryArticle>} articles
+ * @property {string} version
+ * @property {string} title
+ * @property {string} home_page_url - readlists.jim-nielsen.com
+ * @property {string} feed_url - readlists.jim-nielsen.com/feedgen?url=<item1-url>&url=<item2-url>
+ * @property {string} description
+ * @property {Object} _readlist
+ * @property {string} _readlist.date_published - ISO8601 date
+ * @property {string} _readlist.date_modified - ISO8601 date
+ * @property {ReadlistArticle[]} items
  */
 
 /**
  * FYI: If mercury can't find a field, it returns null.
- * @typedef MercuryArticle
- * @param {?string} author
- * @param {?string} content - HTML string
- * @param {?string} date_published - ISO8601 string
- * @param {?string} dek
- * @param {?string} direction - "ltr"
- * @param {?string} domain - "trackchanges.postlight.com",
- * @param {?string} excerpt
- * @param {?string} lead_image_url
- * @param {?string} next_page_url - optional
- * @param {?number} rendered_pages
- * @param {?string} title
- * @param {?number} total_pages
- * @param {?string} url
- * @param {?number} word_count
+ * @typedef ReadlistArticle
+ * @property {string} id - URL of article
+ * @property {string?} content_html - String of HTML
+ * @property {string?} date_published - ISO8601 string
+ * @property {string?} title
+ * @property {string?} url - URL of article
+ * @property {Authors[]?} authors
+ * @property {string?} summary
+ * @property {string?} lead_image_url
+ *
+ * @property {Object?} _readlist
+ * @property {(ParserMetaMercury | ParserMetaMozilla)?} _readlist.parser_meta - Extra fields provided by the parser that was used
+ */
+
+/**
+ * Mercury parser metadata
+ * @typedef ParserMetaMercury
+ * @property {"mercury"} name
+ * @property {string?} dek
+ * @property {string?} direction - "ltr"
+ * @property {string?} domain - "trackchanges.postlight.com",
+ * @property {string?} next_page_url
+ * @property {number?} rendered_pages
+ * @property {number?} total_pages
+ * @property {number?} word_count
+ */
+
+/**
+ * Mozilla parser metadata
+ * @typedef ParserMetaMozilla
+ * @property {"mozilla"} name
+ */
+
+/**
+ * Authors object
+ * @typedef Authors
+ * @property {string?} name
+ * @property {string?} url
+ * @property {string?} avatar
  */
 
 export const readlistArticlePropTypes = pt.shape({
