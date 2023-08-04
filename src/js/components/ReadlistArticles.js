@@ -24,15 +24,6 @@ export default function ReadlistArticles({
         const { hostname } = new URL(article.url);
         return html`
           <li class="article" key=${articleIndex}>
-            <div class="article__meta">
-              <p class="article__meta__domain">
-                <a href=${article.url} target="__blank">${hostname}</a>
-              </p>
-              ${article.authors &&
-              html`<p class="article__meta__author">
-                ${article.authors.map((author) => author.name).join(", ")}
-              </p>`}
-            </div>
             <div class="article__main">
               <select
                 value=${articleIndex}
@@ -67,8 +58,18 @@ export default function ReadlistArticles({
               />
             </div>
 
-            ${article.summary &&
-            html`<p class="article__excerpt">${article.summary}</p>`}
+            <div class="article__meta">
+              <ul>
+                <li>
+                  <a href=${article.url} target="__blank">${hostname}</a>
+                </li>
+                ${article.authors &&
+                html`<li>
+                  By: ${article.authors.map((author) => author.name).join(", ")}
+                </li>`}
+                ${article.summary && html`<li>${article.summary}</li>`}
+              </ul>
+            </div>
 
             <div class="article__actions actions">
               <button

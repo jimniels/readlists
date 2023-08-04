@@ -33,9 +33,9 @@ export default function Header() {
             ebook for reading on your favorite device.
           </p>
           <p>
-            Read more about how to use Readlists on
-            <a href="https://github.com/jimniels/readlists"
-              >the GitHub project</a
+            Read more about how to use Readlists on${" "}
+            <a href="https://github.com/jimniels/readlists">
+              the GitHub project</a
             >.
           </p>
 
