@@ -1,22 +1,18 @@
-import { html, React, PropTypes } from "../deps.js";
-import { createMercuryArticle, isValidHttpUrl } from "../utils.js";
+import { html, React } from "../deps.js";
+import {
+  convertMercuryArticleToReadlistArticle,
+  createMercuryArticle,
+  isValidHttpUrl,
+} from "../utils.js";
 import { fetchArticle } from "../api.js";
-import { readlistArticlePropTypes } from "../prop-types.js";
 const { useState } = React;
 
-ReadlistArticleInput.propTypes = {
-  readlist: PropTypes.shape({
-    title: PropTypes.string,
-    description: PropTypes.string,
-    date_modified: PropTypes.string.isRequired,
-    date_created: PropTypes.string.isRequired,
-    articles: PropTypes.arrayOf(readlistArticlePropTypes).isRequired,
-  }),
-
-  setReadlist: PropTypes.func,
-  setError: PropTypes.func,
-};
-
+/**
+ * @param {object} props
+ * @param {Readlist} props.readlist
+ * @param {import("./App.js").SetStateReadlist} props.setReadlist
+ * @param {(error: string) => void} props.setError
+ */
 export default function ReadlistArticleInput({
   readlist,
   setReadlist,
@@ -43,7 +39,7 @@ export default function ReadlistArticleInput({
     }
 
     // Check if we don't already have that URL
-    const duplicateArticle = readlist.articles.find(
+    const duplicateArticle = readlist.items.find(
       (article) => article.url === articleUrl
     );
     if (duplicateArticle) {
@@ -63,12 +59,17 @@ export default function ReadlistArticleInput({
     if (hasArticleHtml) {
       setIsLoading(true);
       createMercuryArticle(articleUrl, articleHtml)
-        .then((mercuryArticle) => {
-          setReadlist((prevReadlist) => ({
-            ...prevReadlist,
-            date_modified: new Date().toISOString(),
-            articles: prevReadlist.articles.concat(mercuryArticle),
-          }));
+        .then((mercuryArticle /** @type {MercuryArticle} */) => {
+          setReadlist((prevReadlist) => {
+            /** @type {Readlist} */
+            const newReadlist = {
+              ...prevReadlist,
+              items: prevReadlist.items.concat(
+                convertMercuryArticleToReadlistArticle(mercuryArticle)
+              ),
+            };
+            return newReadlist;
+          });
           setArticleInput("");
           setArticleHtml("");
         })
@@ -86,12 +87,17 @@ export default function ReadlistArticleInput({
     // No custom HTML? Go get it
     setIsLoading(true);
     fetchArticle(articleUrl)
-      .then((mercuryArticle) => {
-        setReadlist((prevReadlist) => ({
-          ...prevReadlist,
-          date_modified: new Date().toISOString(),
-          articles: prevReadlist.articles.concat(mercuryArticle),
-        }));
+      .then((mercuryArticle /** @type {MercuryArticle} */) => {
+        setReadlist((prevReadlist) => {
+          /** @type {Readlist} */
+          const newReadlist = {
+            ...prevReadlist,
+            items: prevReadlist.items.concat(
+              convertMercuryArticleToReadlistArticle(mercuryArticle)
+            ),
+          };
+          return newReadlist;
+        });
         setArticleInput("");
       })
       .catch((err) => {
@@ -110,8 +116,8 @@ export default function ReadlistArticleInput({
     >
       <div class="article__main">
         <select disabled>
-          <option value=${readlist.articles.length}>
-            ${readlist.articles.length + 1}
+          <option value=${readlist.items.length}>
+            ${readlist.items.length + 1}
           </option>
         </select>
 

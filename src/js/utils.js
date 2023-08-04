@@ -65,8 +65,9 @@ export function isValidHttpUrl(string) {
 
 /**
  * https://ourcodeworld.com/articles/read/189/how-to-create-a-file-and-generate-a-download-with-javascript-in-the-browser-without-a-server
- * @param {string} file
- * @param {string} contents
+ * @param {object} args
+ * @param {string} args.file
+ * @param {string} args.contents
  */
 export function downloadFile({ file, contents }) {
   var element = document.createElement("a");
@@ -109,15 +110,36 @@ export function slugify(str) {
 }
 
 /**
- * Validate a readlist by checking its contents.
- * @param {Readlist} [readlist={}]
- * @returns {?Readlist} if it passes all the checks, you get back
+ * Validate (and upgrade, if necessary) a Readlist
+ * Returns a Readlist or throws an error.
+ *
+ * TODO use zod instead
+ *
+ * @param {any} input
+ * @returns {Promise<Readlist>} if it passes all the checks, you get back
  * a nice, sanitized version of the Readlist. Otherwise, `null`.
  */
-export async function validateReadlist(readlist = {}) {
+export async function validateReadlist(input) {
   const reject = (str) => {
     throw new Error(`Readlist validation failed: ${str}.`);
   };
+
+  // First ensure it's a string
+  if (typeof input !== "string") {
+    reject(`expected a string as input, but received a ${typeof input}`);
+  }
+
+  // Then try to turn it into JSON
+  let readlist = JSON.parse(input);
+
+  // Then convert it to a new Readlist if it's an old one
+  // Note: this is a really loose check if it's an old readlist
+  if (readlist.articles) {
+    readlist = convertOldReadlistToNewReadlist(readlist);
+  }
+
+  // Then test that the new readlist is valid
+  // Note: probably don't need to do all of this TBH
 
   if (typeof readlist.title === "string") {
     readlist.title = stripHtml(readlist.title);
@@ -131,81 +153,32 @@ export async function validateReadlist(readlist = {}) {
     reject("expected `description` to be a string");
   }
 
-  if (
-    !(
-      typeof readlist.date_created === "string" &&
-      isIsoDate(readlist.date_created)
-    )
-  ) {
-    reject("expected `date_created` to be an ISO8601 string");
+  if (!Array.isArray(readlist.items)) {
+    reject("expected `readlist.items` to be an array");
   }
 
-  if (
-    !(
-      typeof readlist.date_modified === "string" &&
-      isIsoDate(readlist.date_modified)
-    )
-  ) {
-    reject("expected `date_modified` to be an ISO8601 string");
-  }
-
-  if (!Array.isArray(readlist.articles)) {
-    reject("expected `readlist.articles` to be an array");
-  }
-
-  for (const [i, article] of readlist.articles.entries()) {
+  for (const [i, article] of readlist.items.entries()) {
     if (!(typeof article.url === "string" && isValidHttpUrl(article.url))) {
       reject("expected `readlist.article.url` to be an HTTP(S) URL string");
     }
 
-    if (
-      typeof article.domain === "string" &&
-      article.url.includes(article.domain)
-    ) {
-      article.domain = stripHtml(article.domain);
-    } else {
-      reject(
-        "expected `readlist.article.domain` to be a string and contained in the `readlist.article.url` value"
-      );
-    }
-
     if (typeof article.title === "string") {
-      readlist.articles[i].title = stripHtml(article.title);
+      readlist.items[i].title = stripHtml(article.title);
     } else {
       reject("expected `readlist.article.title` to be a string.");
     }
 
-    if (
-      typeof article.word_count === "number" ||
-      typeof article.word_count === "string"
-    ) {
-      readlist.articles[i].word_count = stripHtml(article.word_count);
-    } else {
-      reject("expected `readlist.article.word_count` to be a number.");
-    }
-
-    if (typeof article.excerpt === "string") {
-      readlist.articles[i].excerpt = stripHtml(article.excerpt);
-    } else {
-      reject("expected `readlist.article.excerpt` to be a string.");
-    }
-
-    if (article.author !== null) {
-      if (typeof article.author === "string") {
-        readlist.articles[i].author = stripHtml(article.author);
-      } else {
-        reject("expected `readlist.article.author` to be a string.");
-      }
-    }
-
-    if (article.content !== null) {
-      if (typeof article.content === "string") {
+    if (article.content_html !== null) {
+      if (typeof article.content_html === "string") {
         try {
           // Note: Mercury doesn't let you do parallel async stuff, like sticking
           // this inside a Promise.all()
-          readlist.articles[i].content = await Mercury.parse(article.url, {
-            html: article.content,
-          }).then((res) => res.content);
+          readlist.items[i].content_html = await window.Mercury.parse(
+            article.url,
+            {
+              html: article.content_html,
+            }
+          ).then((res) => res.content);
         } catch (e) {
           reject(`failed to parse content of article ${article.url}.`);
         }
@@ -339,7 +312,7 @@ export function devLog(array) {
  * sanitzie the HTML, and 2) absolutize image links.
  * @param {string} url
  * @param {string} html
- * @returns {MercuryArticle}
+ * @returns {Promise<MercuryArticle>}
  */
 export function createMercuryArticle(url, html) {
   return window.Mercury.parse(url, { html }).then((mercuryArticle) => {
@@ -471,4 +444,77 @@ export function importUMD(url) {
  */
 export function getUid() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+/**
+ * @returns {Readlist}
+ */
+export function getNewReadlist() {
+  /** @type {Readlist} */
+  let newReadlist = {
+    version: "https://jsonfeed.org/version/1.1",
+    title: "Untitled",
+    description: "",
+    // TODO
+    home_page_url: "https://readlists.jim-nielsen.com?json-feed-url=",
+    feed_url: "https://readlists.jim-nielsen.com/generate?url<>",
+    items: [],
+  };
+  return newReadlist;
+}
+
+/**
+ * Takes an old readlist and converts it to the new format
+ * @param {OldReadlist} oldReadlist
+ * @returns {Readlist}
+ */
+export function convertOldReadlistToNewReadlist(oldReadlist) {
+  let newReadlist = getNewReadlist();
+  if (oldReadlist.title) newReadlist.title;
+  if (oldReadlist.description) newReadlist.description;
+  if (oldReadlist.articles.length) {
+    // TODO newReadlist.feed_url =
+    newReadlist.items = oldReadlist.articles.map(
+      convertMercuryArticleToReadlistArticle
+    );
+  }
+
+  return newReadlist;
+}
+
+/**
+ * @param {MercuryArticle} mercuryArticle
+ * @returns {ReadlistArticle}
+ */
+export function convertMercuryArticleToReadlistArticle(mercuryArticle) {
+  const {
+    url,
+    content,
+    date_published,
+    title,
+    author,
+    excerpt,
+    lead_image_url,
+    ...rest
+  } = mercuryArticle;
+
+  /** @type {ReadlistArticle} */
+  const newArticle = {
+    id: url,
+    url,
+    ...(content && { content_html: content }),
+    ...(date_published && { date_published }),
+    ...(title && { title }),
+    ...(author && { authors: [{ name: author }] }),
+    ...(excerpt && { summary: excerpt }),
+    ...(lead_image_url && { image: lead_image_url }),
+    _readlist: {
+      parser: {
+        name: "mercury",
+        url: "https://github.com/postlight/parser",
+        meta: rest,
+      },
+    },
+  };
+  return newArticle;
 }

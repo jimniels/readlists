@@ -1,7 +1,13 @@
 import { React, html } from "../deps.js";
-import { isValidHttpUrl, validateReadlist } from "../utils.js";
+import { getNewReadlist, isValidHttpUrl, validateReadlist } from "../utils.js";
 const { useState } = React;
 
+/**
+ * @param {object} props
+ * @param {Readlist} props.readlist
+ * @param {import("./App.js").SetStateReadlist} props.setReadlist
+ * @param {(string) => void} props.setError
+ */
 export default function ZeroState({ readlist, setReadlist, setError }) {
   const [remoteReadlistUrl, setRemoteReadlistUrl] = useState(
     getRemoteReadlistUrl()
@@ -9,14 +15,7 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCreateNewReadlist = () => {
-    const d = new Date().toISOString();
-    const newReadlist = {
-      date_created: d,
-      date_modified: d,
-      title: "Untitled Readlist",
-      description: "",
-      articles: [],
-    };
+    const newReadlist = getNewReadlist();
     setReadlist(newReadlist);
   };
 
@@ -30,10 +29,8 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
 
     setIsLoading(true);
     fetch(remoteReadlistUrl)
-      .then((res) => res.json())
-      .then((dangerousReadlist) =>
-        validateReadlist(dangerousReadlist, { verbose: true })
-      )
+      .then((res) => res.text())
+      .then((dangerousReadlist) => validateReadlist(dangerousReadlist))
       .then((readlist) => {
         setReadlist(readlist);
       })
@@ -93,8 +90,7 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
             reader.readAsText(file);
             reader.onloadend = () => {
               try {
-                const json = JSON.parse(reader.result);
-                validateReadlist(json, { verbose: true })
+                validateReadlist(reader.result)
                   .then((readlist) => {
                     setReadlist(readlist);
                   })
@@ -126,8 +122,7 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
                 var reader = new FileReader();
                 reader.readAsText(file, "UTF-8");
                 reader.onload = function (evt) {
-                  const json = JSON.parse(evt.target.result);
-                  const readlist = validateReadlist(json)
+                  validateReadlist(evt.target.result)
                     .then((readlist) => {
                       setReadlist(readlist);
                     })
@@ -261,6 +256,6 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
  */
 function getRemoteReadlistUrl() {
   const urlParams = new URLSearchParams(window.location.search);
-  const readlistUrl = urlParams.get("url");
+  const readlistUrl = urlParams.get("import");
   return isValidHttpUrl(readlistUrl) ? readlistUrl : "";
 }

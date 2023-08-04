@@ -1,4 +1,3 @@
-/** @typedef {import("../prop-types.js").Readlist} Readlist */
 import { React, html } from "../deps.js";
 import Header from "./Header.js";
 import ZeroState from "./ZeroState.js";
@@ -8,8 +7,17 @@ import Error from "./Error.js";
 import { devLog } from "../utils.js";
 const { useState, useEffect } = React;
 
-/** @param {{ initialReadlist: Readlist }} props */
+/**
+ * @callback SetStateReadlist
+ * @param {Readlist | ((prevState: Readlist) => Readlist)} newState - The new state value or a function that updates the state.
+ */
+
+/**
+ * @param {object} props
+ * @param {Readlist} props.initialReadlist
+ */
 export default function App({ initialReadlist }) {
+  /** @type {[Readlist, SetStateReadlist]} */
   const [readlist, setReadlist] = useState(initialReadlist);
   const [error, setError] = useState("");
   const [articlePreviewUrl, setArticlePreviewUrl] = useState("");

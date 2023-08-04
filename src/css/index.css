@@ -542,26 +542,6 @@ readlists-nav footer a {
 .readlist-header__actions > * {
   margin-right: calc(var(--spacer) / 2);
 }
-.readlist-header__meta {
-  color: var(--color-text-light);
-  margin-bottom: var(--spacer);
-  margin-top: 0;
-}
-
-.readlist-header__meta dt,
-.readlist-header__meta dd {
-  margin: 0;
-  padding: 0;
-  display: inline-flex;
-}
-.readlist-header__meta dt {
-  margin-right: 4px;
-}
-
-.readlist-header__meta dd:not(:last-child):after {
-  content: "·";
-  margin: 0 var(--spacer);
-}
 
 .wrapper {
   max-width: 700px;

@@ -29,6 +29,20 @@ At its core, a readlist is simply a [JSON feed](https://www.jsonfeed.org/) whose
 }
 ```
 
+## Import or Generate
+
+`/?import=<url>` import a Readlist (JSON feed) into the UI that’s hosted at a URL somewhere on the web.
+
+example: `/?import=https://example.com/path/to/readlist.json`
+
+`/generate?url=<url1>&url=<url2>`
+
+example: ...
+
+Readlists are saved locally in your browser (using `localStorage`). You can save the data of a Readlist to a JSON file, host it at a URL, and then allow others to import it themselves. It falls to you to save and distribute (the URLs for) your Readlists. Yeah it’s more work for you, but hey, on the flip side the data is all yours. Do whatever you want with it.
+
+Import a file by using the `url` query parameter (make sure you don’t have an open Readlist), e.g. `https://readlists.jim-nielsen.com/?url=https://example.com/path/to readlist.json`
+
 ## ToDos
 
 - [ ] Maybe get to these someday
