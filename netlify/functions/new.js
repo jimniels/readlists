@@ -1,4 +1,3 @@
-// const fetch = require("node-fetch");
 const Parser = require("@postlight/parser");
 
 exports.handler = async function (event, context) {
@@ -32,6 +31,7 @@ exports.handler = async function (event, context) {
             lead_image_url,
             date_published,
             author,
+            ...rest
           } = result;
           if (content) item.content_html = content;
           if (title) item.title = title;
@@ -39,6 +39,13 @@ exports.handler = async function (event, context) {
           if (lead_image_url) item.image = lead_image_url;
           if (date_published) item.date_published = date_published;
           if (author) item.authors = { name: author };
+          item._readlist = {
+            parser: {
+              name: "mercury",
+              url: "https://github.com/postlight/parser",
+              meta: rest,
+            },
+          };
         } else {
           item.content_text = `Failed to parse content for url: ${url}`;
         }
@@ -48,18 +55,15 @@ exports.handler = async function (event, context) {
 
     let feed = {
       version: "https://jsonfeed.org/version/1",
-      title: queryStringParameters.title || "Readlist feed",
+      title: queryStringParameters.title || "Untitled Readlist feed",
       description:
-        "A feed generated as a custom Readlist, courtesy of https://readlist.jim-nielsen.com",
-      // icon
-      // favicon
-      // authors - pulls from the retrieved articles
+        queryStringParameters.description ||
+        "A JSON feed generated as a custom Readlist.",
       expired: true,
       home_page_url: "https://readlists.jim-nielsen.com",
-      // URL that was called
-      feed_url: `https://readlists.jim-nielsen.com/feedgen?${urls
-        .map((url) => `url=${url}`)
-        .join("&")}`,
+      // feed_url: `https://readlists.jim-nielsen.com/api/new?${urls
+      //   .map((url) => `url=${url}`)
+      //   .join("&")}`,
       items,
     };
 
@@ -79,65 +83,10 @@ exports.handler = async function (event, context) {
       statusCode: 400,
       body: JSON.stringify({
         error:
-          "Failed to generate feed. Requested formated is: `/feedgen?url={url1}&url={url2}&url={url3}`",
+          "Failed to generate feed. Requested formated is: `/new?url={url1}&url={url2}&url={url3}`",
       }),
     };
   }
-
-  /*
-  if (!url) {
-    console.log("[netlify-log] missing URL param");
-    return {
-      statusCode: 400,
-      body: "A `url` query parameter is required.",
-    };
-  }
-
-  if (!isValidUrl(url)) {
-    console.log("[netlify-log] invalid URL param: " + url);
-    return {
-      statusCode: 400,
-      body: "The supplied `url` is invalid.",
-    };
-  }
-
-  console.log("[netlify-log] URL request: " + url);
-
-  return fetch(url)
-    .then((res) => {
-      if (!res.ok) {
-        return {
-          statusCode: 500,
-          body: `Failed to fetch the given URL. The server responded with: "${res.status} - ${res.statusText}"`,
-        };
-      }
-
-      const contentType = res.headers.get("content-type");
-
-      if (contentType.startsWith("image")) {
-        return res.buffer().then((img) => ({
-          statusCode: 200,
-          body: img.toString("base64"),
-          isBase64Encoded: true,
-          headers: {
-            "Content-type": contentType,
-          },
-        }));
-      }
-
-      return res.text().then((html) => ({
-        statusCode: 200,
-        body: html,
-      }));
-    })
-    .catch((err) => {
-      console.log("netlify-log (error): " + err);
-      return {
-        statusCode: 500,
-        body: "Failed to proxy request. " + err,
-      };
-    });
-    */
 };
 
 function isValidUrl(string) {

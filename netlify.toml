@@ -3,7 +3,7 @@
   publish = "build"
 
 [[redirects]]
-  from = "/feedgen"
-  to = "/.netlify/functions/feedgen"
+  from = "/api/new"
+  to = "/.netlify/functions/new"
   status = 200
   force = true

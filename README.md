@@ -35,7 +35,7 @@ At its core, a readlist is simply a [JSON feed](https://www.jsonfeed.org/) whose
 
 example: `/?import=https://example.com/path/to/readlist.json`
 
-`/generate?url=<url1>&url=<url2>`
+`/generator?url=<url1>&url=<url2>`
 
 example: ...
 

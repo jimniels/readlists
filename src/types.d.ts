@@ -1,10 +1,10 @@
 type Readlist = {
   version: string;
   title: string;
-  /** readlists.jim-nielsen.com */
-  home_page_url: string;
-  /** readlists.jim-nielsen.com/feedgen?url=<item1-url>&url=<item2-url> */
-  feed_url: string;
+  home_page_url: "https://readlists.jim-nielsen.com";
+  expired: true;
+  // TODO automatically generate and point at `/api/new?url=<url1>&url=<url2>
+  // feed_url: string;
   description: string;
   items: ReadlistArticle[];
 };
