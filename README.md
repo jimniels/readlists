@@ -2,16 +2,13 @@
 
 Bringing back the spirit of the original Readlists service. [Check out the blog post for more deets](https://blog.jim-nielsen.com/2021/reintroducing-readlists/).
 
-## Local Development
+## How it works
 
-- Local dev `npm start`
-- Prod build `npm run build`
+[readlists.jim-nielsen.com](https://readlists.jim-nielsen.com) is merely a GUI for creating and editing a “Readlist”.
 
-## How it Works
+What’s a Readlist? At its core, a Readlist is simply a [JSON feed](https://www.jsonfeed.org/) whose contents populated with what you get from [mercury-parser](https://github.com/postlight/mercury-parser).
 
-[readlists.jim-nielsen.com](https://readlists.jim-nielsen.com) is merely a web front-end, a GUI, for creating and editing a Readlist.
-
-At its core, a readlist is simply a [JSON feed](https://www.jsonfeed.org/) whose contents are largely populated with what you get from [mercury-parser](https://github.com/postlight/mercury-parser).
+An example Readlist:
 
 ```json
 {
@@ -29,19 +26,32 @@ At its core, a readlist is simply a [JSON feed](https://www.jsonfeed.org/) whose
 }
 ```
 
-## Import or Generate
+You can use [the web GUI](https://readlists.jim-nielsen.com) to create a Readlist
 
-`/?import=<url>` import a Readlist (JSON feed) into the UI that’s hosted at a URL somewhere on the web.
-
-example: `/?import=https://example.com/path/to/readlist.json`
-
-`/generator?url=<url1>&url=<url2>`
-
-example: ...
+### Saving a Readlist
 
 Readlists are saved locally in your browser (using `localStorage`). You can save the data of a Readlist to a JSON file, host it at a URL, and then allow others to import it themselves. It falls to you to save and distribute (the URLs for) your Readlists. Yeah it’s more work for you, but hey, on the flip side the data is all yours. Do whatever you want with it.
 
-Import a file by using the `url` query parameter (make sure you don’t have an open Readlist), e.g. `https://readlists.jim-nielsen.com/?url=https://example.com/path/to readlist.json`
+### Generate a Readlist
+
+You can programatically generate a Readlist by doing a GET to `/api/new` with as many article URLs you want specified by the `?url=...` search parameter, e.g.
+
+`readlists.jim-nielsen.com/api/new?url=https://example.com/articles/1&url=https://example.com/articles/2`
+
+Easily create a list of your favorite articles and share it with a friend via a single link!
+
+### Import an exisiting Readlist
+
+When you create and customize your Readlist, you can share it with others by allowing them to import it into the UI.
+
+To do so, host your Readlist file (a JSON feed) somewhere on the web and append `/?import=<url>` to the URL, e.g.
+
+`/?import=https://example.com/path/to/readlist.json`
+
+## Local Development
+
+- Local dev `npm start` (you'll need `netlify-cli` installed globally)
+- Prod build `npm run build`
 
 ## ToDos
 

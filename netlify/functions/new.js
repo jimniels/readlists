@@ -1,10 +1,11 @@
-const Parser = require("@postlight/parser");
+import Parser from "@postlight/parser";
+import { isValidUrl, getNewReadlist } from "../../src/js/utils.js";
 
-exports.handler = async function (event, context) {
-  console.log(event);
-  // Support title=..., description=...
-  // Or even a POST with data
-  // Or alternative parsers
+// TODOs
+// - Maybe support POSTing data one day
+// - Alternative parsing engines
+
+export async function handler(event, context) {
   const {
     path,
     queryStringParameters,
@@ -53,14 +54,15 @@ exports.handler = async function (event, context) {
       })
     );
 
+    /** @type {Readlist} */
     let feed = {
-      version: "https://jsonfeed.org/version/1",
-      title: queryStringParameters.title || "Untitled Readlist feed",
-      description:
-        queryStringParameters.description ||
-        "A JSON feed generated as a custom Readlist.",
-      expired: true,
-      home_page_url: "https://readlists.jim-nielsen.com",
+      ...getNewReadlist(),
+      ...(queryStringParameters.title && {
+        title: queryStringParameters.title,
+      }),
+      ...(queryStringParameters.description && {
+        description: queryStringParameters.description,
+      }),
       // feed_url: `https://readlists.jim-nielsen.com/api/new?${urls
       //   .map((url) => `url=${url}`)
       //   .join("&")}`,
@@ -87,16 +89,4 @@ exports.handler = async function (event, context) {
       }),
     };
   }
-};
-
-function isValidUrl(string) {
-  let url;
-
-  try {
-    url = new URL(string);
-  } catch (_) {
-    return false;
-  }
-
-  return url.protocol === "http:" || url.protocol === "https:";
 }

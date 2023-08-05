@@ -1,6 +1,4 @@
-const fetch = require("node-fetch");
-
-exports.handler = async function (event, context) {
+export async function handler(event, context) {
   const {
     queryStringParameters: { url },
   } = event;
@@ -59,7 +57,7 @@ exports.handler = async function (event, context) {
         body: "Failed to proxy request. " + err,
       };
     });
-};
+}
 
 function isValidUrl(string) {
   let url;

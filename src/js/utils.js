@@ -270,7 +270,7 @@ function stripHtml(html) {
   }
 }
 
-function isValidUrl(string) {
+export function isValidUrl(string) {
   try {
     new URL(string);
   } catch (_) {

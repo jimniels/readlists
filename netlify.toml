@@ -7,3 +7,6 @@
   to = "/.netlify/functions/new"
   status = 200
   force = true
+
+[functions]
+  node_bundler = "esbuild"
