@@ -36,16 +36,17 @@ async function getInitialReadlist() {
   // Check localstorage to see if there’s a Readlist we should load
   const localReadlist = localStorage.getItem("readlist");
 
-  // TODO make this a UI component
-  if (localReadlist && importUrl) {
-    alert(
-      "You can’t import a Readlist while you have an open one. Save and delete your exisiting Readlist before importing a new one."
-    );
-  }
-
   // If there's a localReadlist, see if it's an old version and convert it.
   // TODO validate that the readlist is good, then render it. Otherwise, clear it and start anew or something...
   if (localReadlist) {
+    // TODO make this a UI component
+    if (importUrl) {
+      alert(
+        "You can’t import a Readlist while you have an open one. Save and delete your exisiting Readlist before importing a new one."
+      );
+      clearSearchParams();
+    }
+
     try {
       const readlist = validateReadlist(localReadlist);
       return readlist;
@@ -64,8 +65,7 @@ async function getInitialReadlist() {
         .then(validateReadlist);
 
       // Clear the url param
-      const newUrlWithoutParams = new URL(window.location.origin);
-      window.history.pushState(null, "", newUrlWithoutParams.toString());
+      clearSearchParams();
 
       return remoteReadlist;
     } catch (e) {
@@ -77,4 +77,9 @@ async function getInitialReadlist() {
   }
 
   return undefined;
+}
+
+function clearSearchParams() {
+  const newUrlWithoutParams = new URL(window.location.origin);
+  window.history.pushState(null, "", newUrlWithoutParams.toString());
 }
