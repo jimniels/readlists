@@ -28,12 +28,13 @@ export default function Header() {
       html`
         <div class="Header__learn-more">
           <p>
-            What’s a Readlist? It’s like a mixtape, but for reading. Collect
-            information across the web and package it up into a nice little
-            ebook for reading on your favorite device.
+            A Readlist is like a mixtape, but for reading. Collect information
+            across the web and package it into a little ebook for reading on
+            your favorite device. Or, since Readlists are just JSON feeds, put
+            it into your favorite RSS reader app.
           </p>
           <p>
-            Read more about how to use Readlists on${" "}
+            Read more on${" "}
             <a href="https://github.com/jimniels/readlists">
               the GitHub project</a
             >.

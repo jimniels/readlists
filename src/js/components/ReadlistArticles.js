@@ -67,9 +67,16 @@ export default function ReadlistArticles({
                 html`<li>
                   By: ${article.authors.map((author) => author.name).join(", ")}
                 </li>`}
-                ${article.summary && html`<li>${article.summary}</li>`}
               </ul>
             </div>
+            ${article.summary &&
+            html`<div class="article__meta z">
+              <p>
+                ${article.summary.length > 220
+                  ? article.summary.slice(0, 220) + "…"
+                  : article.summary}
+              </p>
+            </div>`}
 
             <div class="article__actions actions">
               <button

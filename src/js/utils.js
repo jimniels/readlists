@@ -5,7 +5,7 @@
  *
  * ROOT/.netlify/functions/proxy?url=
  */
-export const CORS_PROXY = "/.netlify/functions/proxy?url=";
+export const CORS_PROXY = "/api/proxy?url=";
 
 /**
  * Check if a URL is relative to the current path or not
@@ -168,25 +168,12 @@ export async function validateReadlist(input) {
       reject("expected `readlist.article.title` to be a string.");
     }
 
-    if (article.content_html !== null) {
-      if (typeof article.content_html === "string") {
-        try {
-          // Note: Mercury doesn't let you do parallel async stuff, like sticking
-          // this inside a Promise.all()
-          readlist.items[i].content_html = await window.Mercury.parse(
-            article.url,
-            {
-              html: article.content_html,
-            }
-          ).then((res) => res.content);
-        } catch (e) {
-          reject(`failed to parse content of article ${article.url}.`);
-        }
-      } else {
-        reject(
-          `expected \`readlist.article.content\` to be a string for article ${article.url}.`
-        );
-      }
+    if (typeof article.content_html === "string") {
+      readlist.items[i].content_html = article.content_html;
+    } else {
+      reject(
+        `expected \`readlist.article.content\` to be a string for article ${article.url}.`
+      );
     }
 
     // Others? Do full check of mercury type

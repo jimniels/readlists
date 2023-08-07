@@ -319,6 +319,9 @@ readlists-app[loading] readlists-nav:before {
 .article__new textarea {
   margin-bottom: calc(var(--spacer) / 2);
 }
+.article__meta {
+  font-size: 0.9375rem;
+}
 .article__meta ul {
   padding: 0;
   margin: 0;
@@ -335,6 +338,10 @@ readlists-app[loading] readlists-nav:before {
 }
 .article__meta a {
   color: inherit;
+}
+.article__meta p {
+  color: var(--color-text-light);
+  margin: 0;
 }
 .article__title {
   font-weight: 500;

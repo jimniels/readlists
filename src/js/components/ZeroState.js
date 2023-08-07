@@ -1,5 +1,10 @@
 import { React, html } from "../deps.js";
-import { getNewReadlist, isValidHttpUrl, validateReadlist } from "../utils.js";
+import {
+  CORS_PROXY,
+  getNewReadlist,
+  isValidHttpUrl,
+  validateReadlist,
+} from "../utils.js";
 const { useState } = React;
 
 /**
@@ -28,7 +33,7 @@ export default function ZeroState({ readlist, setReadlist, setError }) {
     }
 
     setIsLoading(true);
-    fetch(remoteReadlistUrl)
+    fetch(CORS_PROXY + remoteReadlistUrl)
       .then((res) => res.text())
       .then((dangerousReadlist) => validateReadlist(dangerousReadlist))
       .then((readlist) => {

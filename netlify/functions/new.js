@@ -12,8 +12,6 @@ export async function handler(event, context) {
     multiValueQueryStringParameters: { url: urls },
   } = event;
 
-  console.log("[netlify-log] function fired");
-
   try {
     const items = await Promise.all(
       urls.filter(isValidUrl).map(async (url, i) => {
