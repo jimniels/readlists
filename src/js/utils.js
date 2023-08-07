@@ -3,9 +3,9 @@
  * the images at a URL when generating an epub, we have to proxy all these
  * requests or we'll likely get CORS issues.
  *
- * ROOT/.netlify/functions/proxy?url=
+ * ROOT/.netlify/functions/proxy?req=
  */
-export const CORS_PROXY = "/api/proxy?url=";
+export const CORS_PROXY = "/api/proxy/?req=";
 
 /**
  * Check if a URL is relative to the current path or not
@@ -159,20 +159,21 @@ export async function validateReadlist(input) {
 
   for (const [i, article] of readlist.items.entries()) {
     if (!(typeof article.url === "string" && isValidHttpUrl(article.url))) {
-      reject("expected `readlist.article.url` to be an HTTP(S) URL string");
+      reject("expected `readlist.items[].url` to be an HTTP(S) URL string");
     }
 
+    console.lo;
     if (typeof article.title === "string") {
       readlist.items[i].title = stripHtml(article.title);
     } else {
-      reject("expected `readlist.article.title` to be a string.");
+      reject("expected `readlist.items[].title` to be a string.");
     }
 
     if (typeof article.content_html === "string") {
       readlist.items[i].content_html = article.content_html;
     } else {
       reject(
-        `expected \`readlist.article.content\` to be a string for article ${article.url}.`
+        `expected \`readlist.items[].content\` to be a string for article ${article.url}.`
       );
     }
 

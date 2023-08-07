@@ -1,6 +1,6 @@
 export async function handler(event, context) {
   const {
-    queryStringParameters: { url },
+    queryStringParameters: { req: url },
   } = event;
 
   console.log("[netlify-log] function fired");

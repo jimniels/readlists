@@ -37,7 +37,7 @@ export async function handler(event, context) {
           if (excerpt) item.summary = excerpt;
           if (lead_image_url) item.image = lead_image_url;
           if (date_published) item.date_published = date_published;
-          if (author) item.authors = { name: author };
+          if (author) item.authors = [{ name: author }];
           item._readlist = {
             parser: {
               name: "mercury",
