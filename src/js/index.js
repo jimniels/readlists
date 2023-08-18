@@ -30,8 +30,9 @@ async function main() {
  */
 async function getInitialReadlist() {
   // See if there's an import URL first
-  const params = new URLSearchParams(window.location.search);
-  const importUrl = params.get("import");
+  const importUrlEncoded = window.location.search.startsWith("?import=")
+    ? encodeURIComponent(window.location.search.slice(8))
+    : "";
 
   // Check localstorage to see if there’s a Readlist we should load
   const localReadlist = localStorage.getItem("readlist");
@@ -40,7 +41,7 @@ async function getInitialReadlist() {
   // TODO validate that the readlist is good, then render it. Otherwise, clear it and start anew or something...
   if (localReadlist) {
     // TODO make this a UI component
-    if (importUrl) {
+    if (importUrlEncoded) {
       alert(
         "You can’t import a Readlist while you have an open one. Save and delete your exisiting Readlist before importing a new one."
       );
@@ -58,9 +59,12 @@ async function getInitialReadlist() {
   // If there's nothing local, that means we'll start at the zero state page
   // So check the URL for a ?import=<url> query param and try to fetch that
   // and get back some JSON
-  if (importUrl && isValidHttpUrl(importUrl)) {
+  if (
+    importUrlEncoded &&
+    isValidHttpUrl(decodeURIComponent(importUrlEncoded))
+  ) {
     try {
-      const remoteReadlist = await fetch(CORS_PROXY + importUrl)
+      const remoteReadlist = await fetch(CORS_PROXY + importUrlEncoded)
         .then((res) => res.text())
         .then(validateReadlist);
 
