@@ -7,7 +7,17 @@ import Error from "./Error.js";
 import { devLog } from "../utils.js";
 const { useState, useEffect } = React;
 
+/**
+ * @callback SetStateReadlist
+ * @param {Readlist | ((prevState: Readlist) => Readlist)} newState - The new state value or a function that updates the state.
+ */
+
+/**
+ * @param {object} props
+ * @param {Readlist} props.initialReadlist
+ */
 export default function App({ initialReadlist }) {
+  /** @type {[Readlist, SetStateReadlist]} */
   const [readlist, setReadlist] = useState(initialReadlist);
   const [error, setError] = useState("");
   const [articlePreviewUrl, setArticlePreviewUrl] = useState("");

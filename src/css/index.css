@@ -5,10 +5,12 @@
   --color-bg-primary-hsl: 255, 0%, 100%;
   --color-bg-secondary: hsl(215, 20%, 95%);
   --color-bg-secondary-hsl: 215, 20%, 95%;
-  --color-danger: red;
-  --color-text: hsl(215, 20%, 10%);
-  --color-text-light: hsl(215, 25%, 50%);
-  --color-text-light-hsl: 215, 25%, 50%;
+  --color-danger-hsl: 0, 100%, 50%;
+  --color-danger: hsl(var(--color-danger-hsl));
+  --color-text-hsl: 215, 20%, 10%;
+  --color-text: hsl(var(--color-text-hsl));
+  --color-text-light-hsl: 215, 25%, 45%;
+  --color-text-light: hsl(var(--color-text-light-hsl));
   --color-border: hsl(215, 10%, 90%);
   --color-border-hsl: 215, 10%, 90%;
 
@@ -165,6 +167,10 @@ select:hover:not(:disabled) {
   box-shadow: 0 0 0 2px hsla(var(--color-accent-hsl), 0.5);
 }
 
+.button--danger:hover:not(:disabled) {
+  box-shadow: 0 0 0 2px hsla(var(--color-danger-hsl), 0.5);
+}
+
 .button:active:not(:disabled),
 textarea:active,
 input:active,
@@ -177,6 +183,12 @@ select:focus,
 .button--is-active {
   box-shadow: 0 0 0 3px hsla(var(--color-accent-hsl), 0.8);
   outline: none;
+}
+
+.button--danger:active:not(:disabled),
+.button--danger:focus:not(:disabled),
+.button--danger.button--is-active {
+  box-shadow: 0 0 0 3px hsla(var(--color-danger-hsl), 0.8);
 }
 
 readlist-nav ul,
@@ -265,6 +277,7 @@ readlists-app[loading] readlists-nav:before {
   border-top: 1px solid var(--color-border);
   padding: var(--spacer) 0;
   position: relative;
+  gap: 8px;
 }
 
 @media screen and (min-width: 700px) {
@@ -283,7 +296,6 @@ readlists-app[loading] readlists-nav:before {
 
 .article__main {
   width: 100%;
-  margin: 0 0 calc(var(--spacer) / 2) 0;
 }
 .article__main > :first-child {
   width: 60px;
@@ -308,33 +320,32 @@ readlists-app[loading] readlists-nav:before {
   margin-bottom: calc(var(--spacer) / 2);
 }
 .article__meta {
-  display: flex;
-  align-items: center;
-  color: var(--color-text-light);
+  font-size: 0.9375rem;
 }
-.article__meta__author,
-.article__meta__domain {
-  margin: 0;
-}
-
-.article__meta__author:before {
-  content: "\00b7";
-  margin: 0 calc(var(--spacer) / 2);
-}
-.article__description {
-  margin: 0;
+.article__meta ul {
   padding: 0;
+  margin: 0;
+  color: var(--color-text-light);
+  list-style-type: none;
+}
+.article__meta li {
+  display: inline;
+}
+.article__meta li:not(:last-child):after {
+  content: " · ";
+  opacity: 0.5;
+  margin: 0 4px;
+}
+.article__meta a {
+  color: inherit;
+}
+.article__meta p {
+  color: var(--color-text-light);
+  margin: 0;
 }
 .article__title {
   font-weight: 500;
   font-size: var(--font-size-lg);
-}
-.article__excerpt {
-  margin-bottom: calc(var(--spacer) / 2);
-  margin-top: 0;
-}
-
-.article__actions {
 }
 
 .article--create input[type="text"] {
@@ -541,26 +552,6 @@ readlists-nav footer a {
 }
 .readlist-header__actions > * {
   margin-right: calc(var(--spacer) / 2);
-}
-.readlist-header__meta {
-  color: var(--color-text-light);
-  margin-bottom: var(--spacer);
-  margin-top: 0;
-}
-
-.readlist-header__meta dt,
-.readlist-header__meta dd {
-  margin: 0;
-  padding: 0;
-  display: inline-flex;
-}
-.readlist-header__meta dt {
-  margin-right: 4px;
-}
-
-.readlist-header__meta dd:not(:last-child):after {
-  content: "·";
-  margin: 0 var(--spacer);
 }
 
 .wrapper {

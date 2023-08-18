@@ -1,8 +1,15 @@
 import { html, React } from "../deps.js";
 const { useState, useRef, useEffect } = React;
 
+/** @type {ReadlistArticle} */
 let prevArticle = {};
 
+/**
+ * @param {object} props
+ * @param {string} props.articlePreviewUrl
+ * @param {(string) => void} props.setArticlePreviewUrl
+ * @param {Readlist} props.readlist
+ */
 export default function ArticlePreview({
   articlePreviewUrl,
   setArticlePreviewUrl,
@@ -18,7 +25,7 @@ export default function ArticlePreview({
     readlist = {};
     document.body.style.overflow = "auto";
   } else {
-    article = readlist.articles.find(
+    article = readlist.items.find(
       (article) => article.url === articlePreviewUrl
     );
     prevArticle = article;
@@ -29,7 +36,7 @@ export default function ArticlePreview({
   //   // div.current.attachShadow({ mode: "closed" });
   // }, []);
 
-  const { url, date_published, title, author, content } = prevArticle;
+  const { url, date_published, title, content_html } = prevArticle;
   return html`
     <div
       ref=${div}
@@ -50,7 +57,7 @@ export default function ArticlePreview({
 
         <div
           class="article-preview__content"
-          dangerouslySetInnerHTML=${{ __html: content }}
+          dangerouslySetInnerHTML=${{ __html: content_html }}
         />
       </div>
     </div>

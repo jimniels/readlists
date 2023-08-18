@@ -28,36 +28,20 @@ export default function Header() {
       html`
         <div class="Header__learn-more">
           <p>
-            What’s a Readlist? It’s like a mixtape, but for reading. Collect
-            information across the web and package it up into a nice little
-            ebook for reading on your favorite device.
+            A Readlist is like a mixtape, but for reading. Collect information
+            across the web and package it into a little ebook for reading on
+            your favorite device. Or, since Readlists are just JSON feeds, put
+            it into your favorite RSS reader app.
           </p>
           <p>
-            Readlists are saved locally in your browser (using${" "}
-            <code>localStorage</code>). You can save the data of a Readlist to a
-            JSON file, host it at a URL, and then allow others to import it
-            themselves. It falls to you to save and distribute (the URLs for)
-            your Readlists. Yeah it’s more work for you, but hey, on the flip
-            side the data is all yours. Do whatever you want with it.
-          </p>
-          <p>
-            Import a file by using the \`url\` query parameter (make sure you
-            don’t have an open Readlist), e.g.
-            <br />
-            <code>
-              https://readlists.jim-nielsen.com/?url=https://example.com/path/to/readlist.json</code
-            >
-          </p>
-          <p>
-            Want to know more technical details? Check out${" "}
-            <a href="https://github.com/jimniels/readlists"
-              >the project on Github.</a
+            Read more on${" "}
+            <a href="https://github.com/jimniels/readlists">
+              the GitHub project</a
             >.
           </p>
 
           <p>
-            Made by <a href="https://www.jim-nielsen.com">Jim Nielsen</a> (
-            <a href="https://twitter.com/jimniels">@jimniels</a> on twitter).
+            Made by <a href="https://www.jim-nielsen.com">Jim Nielsen</a>.
             Readlists version <code>${window.VERSION}</code>
           </p>
         </div>

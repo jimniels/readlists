@@ -40,6 +40,10 @@ import getContainer from "./templates/container.js";
 import getToc from "./templates/toc.js";
 import { getImgExt, getUid, importUMD, slugify, CORS_PROXY } from "../utils.js";
 
+/**
+ * @param {Readlist} readlist
+ * @returns {Promise} - downloads a file in the browser
+ */
 export default async function exportToEpub(readlist) {
   // Import our UMD deps (since there's no official ESM build)
   await Promise.all([
@@ -62,9 +66,9 @@ export default async function exportToEpub(readlist) {
     title: readlist.title || "[Untitled]",
     description: readlist.description || "",
     chapters: await Promise.all(
-      readlist.articles.map(async (article, index) => {
+      readlist.items.map(async (article, index) => {
         const $html = new DOMParser().parseFromString(
-          `<div>${article.content}</div>`,
+          `<div>${article.content_html}</div>`,
           "text/html"
         );
 
