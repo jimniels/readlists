@@ -36,7 +36,16 @@ Readlists are saved locally in your browser (using `localStorage`). You can save
 
 You can programatically generate a Readlist by doing a GET to `/api/new` with as many article URLs you want specified by the `?url=...` search parameter, e.g.
 
-`readlists.jim-nielsen.com/api/new?url=https://example.com/articles/1&url=https://example.com/articles/2`
+`https://readlists.jim-nielsen.com/api/new?url=https://example.com/articles/1&url=https://example.com/articles/2`
+
+Or, for example, here’s a curl for a Readlist:
+
+```
+curl --get 'https://readlists.jim-nielsen.com/api/new?' \
+  -d url=https://piperhaywood.com/family-recipe-for-classic-white-frosting/ \
+  -d url=https://rachsmith.com/is-typescript-good/ \
+  -d url=https://daverupert.com/2023/08/vibe-check-28/
+```
 
 Easily create a list of your favorite articles and share it with a friend via a single link!
 
