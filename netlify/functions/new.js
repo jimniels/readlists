@@ -1,5 +1,6 @@
 import Parser from "@postlight/parser";
 import { isValidUrl, getNewReadlist } from "../../src/js/utils.js";
+const MAX_URLS = 25;
 
 // TODOs
 // - Maybe support POSTing data one day
@@ -12,7 +13,15 @@ export async function handler(event, context) {
     multiValueQueryStringParameters: { url: urls },
   } = event;
 
+  console.log(
+    `[netlify-log] fetching the following URLS: \n  ${urls.join("\n  ")}`
+  );
+
   try {
+    if (urls.length > MAX_URLS) {
+      throw Error("Maximum number of URLs exceeded.");
+    }
+
     const items = await Promise.all(
       urls.filter(isValidUrl).map(async (url, i) => {
         const result = await Parser.parse(url);
@@ -82,8 +91,7 @@ export async function handler(event, context) {
       },
       statusCode: 400,
       body: JSON.stringify({
-        error:
-          "Failed to generate feed. Requested formated is: `/new?url={url1}&url={url2}&url={url3}`",
+        error: `Failed to generate feed. Requested formated is: \`/new?url={url1}&url={url2}&url={url3}\`. Maximum of ${MAX_URLS} articles.`,
       }),
     };
   }
