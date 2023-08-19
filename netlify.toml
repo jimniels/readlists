@@ -14,5 +14,11 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/generate"
+  query = {urls = ":urls"}
+  to = "/.netlify/functions/builder/:urls"
+  status = 301
+
 [functions]
   node_bundler = "esbuild"
