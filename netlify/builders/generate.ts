@@ -5,10 +5,10 @@ const myHandler: Handler = async (event, context) => {
   const { path, headers, rawQuery } = event;
   console.log("x-nf-builder-cache", headers["x-nf-builder-cache"]);
   const p = decodeURIComponent(
-    path.replace("/.netlify/functions/builder/", "")
+    path.replace("/.netlify/builders/generate/", "")
   );
   const urls = p.split(",");
-  console.log(urls, event);
+  console.log(urls);
   await new Promise((resolve) => setTimeout(resolve, 5000));
   // console.log(decodeURIComponent(rawQuery.slice(5).split(",")));
 

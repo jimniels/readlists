@@ -17,7 +17,7 @@
 [[redirects]]
   from = "/generate"
   query = {urls = ":urls"}
-  to = "/.netlify/functions/builder/:urls"
+  to = "/.netlify/builders/generate/:urls"
   status = 301
 
 [functions]
