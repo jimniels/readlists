@@ -441,7 +441,7 @@ export function getNewReadlist() {
   /** @type {Readlist} */
   let newReadlist = {
     version: "https://jsonfeed.org/version/1.1",
-    title: "Untitled Readlist",
+    title: "My Readlist",
     description: "A JSON feed generated as a custom Readlist.",
     expired: true,
     home_page_url: "https://readlists.jim-nielsen.com",
