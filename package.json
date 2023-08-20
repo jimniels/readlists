@@ -15,6 +15,7 @@
   "devDependencies": {
     "@babel/cli": "^7.12.17",
     "@babel/core": "^7.12.17",
+    "@netlify/functions": "^1.6.0",
     "babel-plugin-htm": "^3.0.0",
     "chai": "^4.3.0"
   },

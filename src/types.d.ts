@@ -47,6 +47,11 @@ type ParserMercury = {
     total_pages?: number;
     // sometimes this is a string, that seems like a bug...
     word_count?: string | number;
+
+    // These will appear if there was a parsing error
+    error?: boolean;
+    message?: string;
+    failed?: boolean;
   };
 };
 

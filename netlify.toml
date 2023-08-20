@@ -3,16 +3,16 @@
   publish = "build"
 
 [[redirects]]
-  from = "/api/new"
-  to = "/.netlify/functions/new"
-  status = 200
-  force = true
-
-[[redirects]]
   from = "/api/proxy"
   to = "/.netlify/functions/proxy"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/api/create"
+  query = {urls = ":urls"}
+  to = "/.netlify/builders/create/:urls"
+  status = 301
 
 [functions]
   node_bundler = "esbuild"
