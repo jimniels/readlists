@@ -36,7 +36,7 @@ Readlists are saved locally in your browser (using `localStorage`). You can save
 
 You can programatically generate a Readlist by doing a GET to `/api/create?urls=` along with a comma separated list of links, e.g.
 
-`https://readlists.jim-nielsen.com/api/create?url=https://example.com/articles/1&url=https://example.com/articles/2`
+`https://readlists.jim-nielsen.com/api/create?urls=https://example.com/articles/1&url=https://example.com/articles/2`
 
 For example, here’s a Readlist link with three random articles:
 
