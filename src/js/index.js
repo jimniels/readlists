@@ -40,16 +40,8 @@ async function getInitialReadlist() {
   // If there's a localReadlist, see if it's an old version and convert it.
   // TODO validate that the readlist is good, then render it. Otherwise, clear it and start anew or something...
   if (localReadlist) {
-    // TODO make this a UI component
-    if (importUrlEncoded) {
-      alert(
-        "You can’t import a Readlist while you have an open one. Save and delete your exisiting Readlist before importing a new one."
-      );
-      clearSearchParams();
-    }
-
     try {
-      const readlist = validateReadlist(localReadlist);
+      const readlist = await validateReadlist(localReadlist);
       return readlist;
     } catch (e) {
       console.error("Somehow the local readlist was corrupted.", e);

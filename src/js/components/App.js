@@ -4,6 +4,7 @@ import ZeroState from "./ZeroState.js";
 import Readlist from "./Readlist.js";
 import ArticlePreview from "./ArticlePreview.js";
 import Error from "./Error.js";
+import ExisitingReadlistMsg from "./ExisitingReadlistMsg.js";
 import { devLog } from "../utils.js";
 const { useState, useEffect } = React;
 
@@ -29,6 +30,8 @@ export default function App({ initialReadlist }) {
 
   return html`
   <${React.Fragment}>
+    <${ExisitingReadlistMsg} readlist=${readlist} />
+
     <${Header} />
 
     ${

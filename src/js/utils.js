@@ -130,7 +130,12 @@ export async function validateReadlist(input) {
   }
 
   // Then try to turn it into JSON
-  let readlist = JSON.parse(input);
+  let readlist;
+  try {
+    readlist = JSON.parse(input);
+  } catch (e) {
+    reject(`could not parse input as JSON`);
+  }
 
   // Then convert it to a new Readlist if it's an old one
   // Note: this is a really loose check if it's an old readlist
