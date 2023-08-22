@@ -15,7 +15,7 @@ export default function ExisitingReadlistMsg({ readlist }) {
         <p>
           You tried to import a a Readlist via the URL but you already have one
           open. Please save and/or delete the exisiting Readlist then${" "}
-          <form method='GET' action=''><button type='submit'>reload the page</button></form>.
+          <a href="">reload the page</a>.
         </p>
       </div>
       <style>
