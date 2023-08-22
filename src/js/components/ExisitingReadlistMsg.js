@@ -15,13 +15,13 @@ export default function ExisitingReadlistMsg({ readlist }) {
         <p>
           You tried to import a a Readlist via the URL but you already have one
           open. Please save and/or delete the exisiting Readlist then${" "}
-          <a href="">reload the page</a>.
+          <form method='GET' action=''><button type='submit'>reload the page</button></form>.
         </p>
       </div>
       <style>
         .ExisitingReadlistMsg p {
           background-color: var(--color-text);
-          color: white;
+          color: var(--color-bg-primary);
           border-radius: var(--border-radius);
           padding: calc(var(--spacer)) calc(var(--spacer) * 2);
           margin: 0;
