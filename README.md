@@ -6,7 +6,7 @@ Bringing back the spirit of the original Readlists service. [Check out the blog 
 
 [readlists.jim-nielsen.com](https://readlists.jim-nielsen.com) is merely a GUI for creating and editing a “Readlist”.
 
-What’s a Readlist? At its core, a Readlist is simply a [JSON feed](https://www.jsonfeed.org/) whose contents populated with what you get from [mercury-parser](https://github.com/postlight/mercury-parser).
+What’s a Readlist? At its core, a Readlist is simply a [JSON feed](https://www.jsonfeed.org/) with content from [mercury-parser](https://github.com/postlight/mercury-parser).
 
 An example Readlist:
 
