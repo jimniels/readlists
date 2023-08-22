@@ -107,7 +107,7 @@ export default function Readlist({
         <!-- @TODO redo CSS classes here -->
         <div class="readlist-header__actions actions">
           <button class="button button--primary" onClick=${handleSaveReadlist}>
-            Save Readlist
+            Export to .json
           </button>
           <button
             class="button ${isLoadingEpub ? "button--is-loading" : ""}"
