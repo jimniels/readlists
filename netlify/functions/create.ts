@@ -1,7 +1,7 @@
 import { builder, type Handler } from "@netlify/functions";
 import Parser from "@postlight/parser";
 import { isValidUrl, getNewReadlist } from "../../src/js/utils.js";
-const MAX_URLS = 25;
+const MAX_URLS = 50;
 
 // TODO Alternative parsing engine
 
