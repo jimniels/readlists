@@ -14,8 +14,8 @@ const { useState } = React;
  * @param {object} props
  * @param {Readlist} props.readlist
  * @param {SetStateReadlist} props.setReadlist
- * @param {(string) => void} props.setError
- * @param {(string) => void} props.setArticlePreviewUrl
+ * @param {(error: string) => void} props.setError
+ * @param {(articlePreviewUrl: string) => void} props.setArticlePreviewUrl
  */
 export default function Readlist({
   readlist,
@@ -88,6 +88,10 @@ export default function Readlist({
     }
   };
 
+  /**
+   * @param {string} key
+   * @param {any} value
+   */
   const handleUpdatePartOfReadlist = (key, value) => {
     setReadlist((prevReadlist) => ({
       ...prevReadlist,
