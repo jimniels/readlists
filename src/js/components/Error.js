@@ -3,6 +3,12 @@ const { useEffect } = React;
 
 const TIMER = 5; // in seconds
 
+/**
+ * @param {{
+ *   error: string,
+ *   setError: (error: string) => void
+ * }} props
+ */
 export default function Error({ error, setError }) {
   const classes = ["error", error ? "error--visible" : ""].join(" ");
 
