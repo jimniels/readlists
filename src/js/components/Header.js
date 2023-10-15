@@ -9,13 +9,16 @@ export default function Header() {
     learnMoreIsVisible ? "button--primary button--is-active" : "",
   ].join(" ");
 
+  // @ts-expect-error
+  const version = window.VERSION;
+
   return html`
   <${React.Fragment}>
     <header class="Header wrapper">
       <h1 class="Header__title">Readlists</h1>
       <button
         class=${btnClasses}
-        onClick=${(e) => {
+        onClick=${() => {
           setLearnMoreIsVisible(!learnMoreIsVisible);
         }}
         title="${learnMoreIsVisible ? "Hide" : "Show"} more info"
@@ -42,7 +45,7 @@ export default function Header() {
 
           <p>
             Made by <a href="https://www.jim-nielsen.com">Jim Nielsen</a>.
-            Readlists version <code>${window.VERSION}</code>
+            Readlists version <code>${version}</code>
           </p>
         </div>
       `
