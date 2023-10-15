@@ -30,7 +30,7 @@ export default function App({ initialReadlist }) {
 
   return html`
   <${React.Fragment}>
-    <${ExisitingReadlistMsg} readlist=${readlist} />
+    <${ExisitingReadlistMsg} />
 
     <${Header} />
 

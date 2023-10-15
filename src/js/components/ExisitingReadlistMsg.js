@@ -1,6 +1,6 @@
 import { React, html } from "../deps.js";
 
-export default function ExisitingReadlistMsg({ readlist }) {
+export default function ExisitingReadlistMsg() {
   const url = new URL(window.location.href);
   const parmas = new URLSearchParams(url.search);
   const importUrl = parmas.get("import");
