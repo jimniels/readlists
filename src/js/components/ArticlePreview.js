@@ -7,7 +7,7 @@ let prevArticle = {};
 /**
  * @param {object} props
  * @param {string} props.articlePreviewUrl
- * @param {(string) => void} props.setArticlePreviewUrl
+ * @param {(articlePreviewUrl: string) => void} props.setArticlePreviewUrl
  * @param {Readlist} props.readlist
  */
 export default function ArticlePreview({
