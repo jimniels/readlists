@@ -9,7 +9,7 @@ const { useState, useRef } = React;
  * @param {object} props
  * @param {Readlist} props.readlist
  * @param {SetStateReadlist} props.setReadlist
- * @param {(string) => void} props.setArticlePreviewUrl
+ * @param {(articlePreviewUrl: string) => void} props.setArticlePreviewUrl
  */
 export default function ReadlistArticles({
   readlist,
@@ -94,7 +94,7 @@ export default function ReadlistArticles({
               ${/*<button class="button" disabled>Edit HTML</button>*/ ""}
               <button
                 class="button button--danger"
-                onClick=${(e) => {
+                onClick=${() => {
                   handleDeleteReadlist({
                     setReadlist,
                     articleUrl: article.url,
@@ -142,7 +142,7 @@ function handleUpdateReadlistArticle({
 /**
  * @param {object} args
  * @param {string} args.articleUrl
- * @param {(string) => void} args.setArticlePreviewUrl
+ * @param {(articlePreviewUrl: string) => void} args.setArticlePreviewUrl
  */
 function handleSelectReadlistArticle({ setArticlePreviewUrl, articleUrl }) {
   setArticlePreviewUrl(articleUrl);
